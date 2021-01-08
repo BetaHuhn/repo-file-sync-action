@@ -41,11 +41,6 @@ const run = async () => {
 			const modified = []
 
 			await forEach(item.files, async (file) => {
-				if (file.pattern !== undefined) {
-					core.warning('Pattern not supported yet')
-					return
-				}
-
 				const fileExists = fs.existsSync(file.source)
 				if (fileExists === false) {
 					core.warning(`Source ${ file.source } not found`)

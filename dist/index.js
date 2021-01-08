@@ -30280,15 +30280,6 @@ const parseFiles = (files) => {
 			}
 		}
 
-		if (item.pattern !== undefined) {
-			return {
-				pattern: item.pattern,
-				dest: item.dest,
-				replace: item.replace !== undefined ? item.replace : REPLACE_DEFAULT,
-				delete: item.delete !== undefined ? item.delete : DELETE_DEFAULT
-			}
-		}
-
 		core.wanr('Warn: No source files specified')
 	})
 }
@@ -30572,11 +30563,6 @@ const run = async () => {
 			const modified = []
 
 			await forEach(item.files, async (file) => {
-				if (file.pattern !== undefined) {
-					core.warning('Pattern not supported yet')
-					return
-				}
-
 				const fileExists = fs.existsSync(file.source)
 				if (fileExists === false) {
 					core.warning(`Source ${ file.source } not found`)

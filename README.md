@@ -46,15 +46,6 @@ user/repo:
     dest: LICENSE
 ```
 
-### Match files with regex pattern (coming soon)
-
-```yml
-user/repo:
-  - pattern: |
-      ^LICENSE$
-      ^.github/workflows/sync-.*
-```
-
 ### Don't replace existing file
 
 ```yml
