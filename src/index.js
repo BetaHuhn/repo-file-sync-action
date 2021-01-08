@@ -48,28 +48,29 @@ const run = async () => {
 
 				const fileExists = fs.existsSync(file.source)
 				if (fileExists === false) {
-					core.warning(`Source file ${ file.source } not found`)
+					core.warning(`Source ${ file.source } not found`)
 					return
 				}
 
 				const stat = await fs.promises.lstat(file.source)
 				const isFile = stat.isFile()
 				if (isFile === false) {
-					core.warning(`Directory as source not supported yet`)
-					// io.cp(file.source, dest, { recursive: false, force: false })
-					return
+					core.warning(`Source is directory`)
 				}
 
 				const dest = `${ git.localPath }/${ file.dest }`
 				const destExists = fs.existsSync(dest)
 				if (destExists === true && file.replace === false) {
-					core.warning(`File already exists in destination and 'replace' option is set to false`)
+					core.warning(`File(s) already exist(s) in destination and 'replace' option is set to false`)
 					return
 				}
 
-				core.info(`Copying ${ file.source } to ${ dest }`)
-				await io.cp(file.source, dest, { recursive: false, force: true }).catch((err) => {
-					core.error(`Unable to copy file.`)
+				const addTrailingSlash = (str) => str.endsWith('/') ? str : str + '/'
+				const copySource = (isFile === false) ? `${ addTrailingSlash(file.source) }` : file.source
+
+				core.info(`Copying ${ copySource } to ${ dest }`)
+				await io.cp(copySource, dest, { recursive: true, force: true }).catch((err) => {
+					core.error(`Unable to copy file(s).`)
 					core.error(err)
 				}).then(async () => {
 					await git.add(file.dest)
@@ -77,20 +78,22 @@ const run = async () => {
 					if (COMMIT_EACH_FILE === true) {
 						const hasChange = await git.hasChange()
 						if (hasChange === false) {
-							core.info('File already up to date')
+							core.info('File(s) already up to date')
 							return
 						}
 
-						core.info(`Creating commit for file ${ file.dest }`)
+						core.info(`Creating commit for file(s) ${ file.dest }`)
 
 						let message
 						let prMessage
+						const directory = isFile === false ? 'directory' : ''
+						const otherFiles = isFile === false ? 'and copied all sub files/folders' : ''
 						if (destExists) {
 							message = `${ COMMIT_PREFIX } Synced local '${ file.dest }' with remote '${ file.source }'`
-							prMessage = `Synced local <code>${ file.dest }</code> with remote <code>${ file.source }</code>`
+							prMessage = `Synced local ${ directory } <code>${ file.dest }</code> with remote ${ directory } <code>${ file.source }</code>`
 						} else {
 							message = `${ COMMIT_PREFIX } Created local '${ file.dest }' from remote '${ file.source }'`
-							prMessage = `Created local <code>${ file.dest }</code> from remote <code>${ file.source }</code>`
+							prMessage = `Created local ${ directory } <code>${ file.dest }</code> ${ otherFiles } from remote ${ directory } <code>${ file.source }</code>`
 						}
 
 						await git.commit(message)
@@ -156,7 +159,7 @@ const run = async () => {
 				repo: item.repo.name,
 				title: `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }`,
 				body: dedent(`
-					Synced file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
+					Synced local file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
 
 					${ changedFiles }
 
