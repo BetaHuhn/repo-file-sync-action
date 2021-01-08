@@ -8,6 +8,10 @@ Sync Files like Workflows Between Repositories with GitHub Actions.
 
 </div>
 
+## 👋 Introduction
+
+With [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) you can sync files, like workflow `.yml` files, configuration files or whole directories between repositories. [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) works by running a GitHub Action in your master repository everytime you push something to that repo. The action will use a `sync.yml` config file to figure out which files it should sync where. If it finds a file which is out of sync it will open a pull request in the target repository with the changes.
+
 ## 🚀 Features
 
 - sync GitHub Actions workflow files to multiple repositories
@@ -15,10 +19,6 @@ Sync Files like Workflows Between Repositories with GitHub Actions.
 - create a Pull Request in the target repo so you have the last say on what gets merged
 - automatically label Pull Requests to integrate with other actions like [automerge-action](https://github.com/pascalgn/automerge-action)
 - assign users to the Pull Request
-
-## 👋 Introduction
-
-With [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) you can sync files, like workflow `.yml` files, configuration files or whole directories between repositories. [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) works by running a GitHub Action in your master repository everytime you push something to that repo. The action will use a `sync.yml` config file to figure out which files it should sync where. If it finds a file which is out of sync it will open a pull request in the target repository with the changes.
 
 ## 📚 Usage
 
