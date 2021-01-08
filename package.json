@@ -23,7 +23,7 @@
   "homepage": "https://github.com/betahuhn/action-github-file-sync#readme",
   "dependencies": {
     "@actions/core": "^1.2.6",
-    "@actions/github": "^2.2.0",
+    "@actions/github": "^4.0.0",
     "@actions/io": "^1.0.2",
     "@putout/git-status-porcelain": "^1.1.0",
     "dotenv": "^8.2.0",
