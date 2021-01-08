@@ -1,0 +1,12 @@
+BetaHuhn/gh-repo-automation:
+  - source: .github/workflows/test.yml
+    dest: .github/workflows/test.yml
+    replace: true
+  - source: .github/dependabot.yml
+    dest: .github/dependabot.yml
+    replace: true
+
+BetaHuhn/gh-repo-automation:
+  - source: .github/workflows/test.yml
+    dest: .github/workflows/test2.yml
+    replace: true

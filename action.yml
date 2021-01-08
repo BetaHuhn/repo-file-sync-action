@@ -1,0 +1,52 @@
+name: 'GitHub File Sync'
+description: 'GitHub Action to Sync Files like Workflows Between Repositories.'
+author: 'BetaHuhn'
+
+inputs:
+  GH_PAT:
+    description: |
+      GitHub Personal Access Token to use to get repos and write secrets
+    required: false
+  CONFIG_PATH:
+    description: | 
+      The path for the sync configuration file
+    required: false
+  PR_LABELS:
+    description: |
+      Labels which will be added to the pull request. Defaults to resync. Set to false to turn off
+    required: false
+  ASSIGNEES:
+    description: |
+      People to assign to the pull request. Defaults to none
+    required: false
+  COMMIT_PREFIX:
+    description: |
+      Prefix for commit message and pull request title. Defaults to 🔄
+    required: false
+  COMMIT_EACH_FILE:
+    description: |
+      Commit each file seperately. Defaults to true
+    required: false
+  GIT_EMAIL:
+    description: |
+      The e-mail address used to commit the synced files. Defaults to the email of the GitHub PAT
+    required: false
+  GIT_USERNAME:
+    description: |
+      The username used to commit the synced files. Defaults to the username of the GitHub PAT
+    required: false
+  TMP_DIR:
+    description: |
+      The working directory where all sync operations will be done. Defaults to `tmp-${Date.now().toString()}`
+    required: false
+  DRY_RUN:
+    description: "Run everything except for nothing will be updated."
+    required: false
+
+runs:
+  using: 'node14'
+  main: 'dist/index.js'
+
+branding:
+  icon: 'upload-cloud'
+  color: 'gray-dark'

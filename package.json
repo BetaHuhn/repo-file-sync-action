@@ -1,0 +1,37 @@
+{
+  "name": "action-github-file-sync",
+  "version": "0.0.1",
+  "description": "GitHub Action to Sync Files like Workflows Between Repositories.",
+  "main": "dist/index.js",
+  "scripts": {
+    "lint": "eslint ./src",
+    "build": "ncc build src/index.js -o dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/betahuhn/action-github-file-sync.git"
+  },
+  "keywords": [
+    "GitHub",
+    "Actions"
+  ],
+  "author": "Maximilian Schiller <schiller@mxis.ch>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/betahuhn/action-github-file-sync/issues"
+  },
+  "homepage": "https://github.com/betahuhn/action-github-file-sync#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^2.2.0",
+    "@actions/io": "^1.0.2",
+    "@putout/git-status-porcelain": "^1.1.0",
+    "dotenv": "^8.2.0",
+    "js-yaml": "^4.0.0"
+  },
+  "devDependencies": {
+    "@betahuhn/config": "^1.0.2",
+    "@vercel/ncc": "^0.26.2",
+    "eslint": "^7.17.0"
+  }
+}
