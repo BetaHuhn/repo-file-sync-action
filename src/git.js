@@ -83,8 +83,8 @@ const init = (repo) => {
 		return parse(statusOutput).length !== 0
 	}
 
-	const commit = async (dest, source) => {
-		const message = dest !== undefined ? `${ COMMIT_PREFIX } Resynced '${ dest }' with '${ GITHUB_REPOSITORY }/${ source }'` : `${ COMMIT_PREFIX } Resynced file(s) with ${ GITHUB_REPOSITORY }`
+	const commit = async (msg) => {
+		const message = msg !== undefined ? msg : `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }`
 		return execCmd(
 			`git commit -m "${ message }"`,
 			localPath

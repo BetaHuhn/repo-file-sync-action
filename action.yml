@@ -13,7 +13,7 @@ inputs:
     required: false
   PR_LABELS:
     description: |
-      Labels which will be added to the pull request. Defaults to resync. Set to false to turn off
+      Labels which will be added to the pull request. Defaults to sync. Set to false to turn off
     required: false
   ASSIGNEES:
     description: |

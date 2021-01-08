@@ -52,7 +52,7 @@ const context = {
 	}),
 	PR_LABELS: getVar({
 		key: 'PR_LABELS',
-		default: [ 'resync' ],
+		default: [ 'sync' ],
 		required: false,
 		array: true
 	}),

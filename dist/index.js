@@ -30212,7 +30212,7 @@ const context = {
 	}),
 	PR_LABELS: getVar({
 		key: 'PR_LABELS',
-		default: [ 'resync' ],
+		default: [ 'sync' ],
 		required: false,
 		array: true
 	}),
@@ -30424,8 +30424,8 @@ const init = (repo) => {
 		return parse(statusOutput).length !== 0
 	}
 
-	const commit = async (dest, source) => {
-		const message = dest !== undefined ? `${ COMMIT_PREFIX } Resynced '${ dest }' with '${ GITHUB_REPOSITORY }/${ source }'` : `${ COMMIT_PREFIX } Resynced file(s) with ${ GITHUB_REPOSITORY }`
+	const commit = async (msg) => {
+		const message = msg !== undefined ? msg : `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }`
 		return execCmd(
 			`git commit -m "${ message }"`,
 			localPath
@@ -30613,10 +30613,22 @@ const run = async () => {
 						}
 
 						core.info(`Creating commit for file ${ file.dest }`)
-						await git.commit(file.dest, file.source)
+
+						let message
+						let prMessage
+						if (destExists) {
+							message = `${ COMMIT_PREFIX } Synced local '${ file.dest }' with remote '${ file.source }'`
+							prMessage = `Synced local <code>${ file.dest }</code> with remote <code>${ file.source }</code>`
+						} else {
+							message = `${ COMMIT_PREFIX } Created local '${ file.dest }' from remote '${ file.source }'`
+							prMessage = `Created local <code>${ file.dest }</code> from remote <code>${ file.source }</code>`
+						}
+
+						await git.commit(message)
 						modified.push({
 							dest: file.dest,
-							source: file.source
+							source: file.source,
+							message: prMessage
 						})
 					}
 				})
@@ -30656,12 +30668,12 @@ const run = async () => {
 
 			if (COMMIT_EACH_FILE === true) {
 				modified.forEach((file) => {
-					list += `<li><code>${ file.dest }</code> with <code>${ file.source }</code></li>`
+					list += `<li>${ file.message }</li>`
 				})
 
 				changedFiles = dedent(`
 					<details>
-					<summary>Synced files</summary>
+					<summary>Changed files</summary>
 					<ul>
 					${ list }
 					</ul>
@@ -30669,14 +30681,13 @@ const run = async () => {
 				`)
 			}
 
-
 			core.info(`Creating new PR`)
 			const { data } = await client.pulls.create({
 				owner: item.repo.user,
 				repo: item.repo.name,
-				title: `${ COMMIT_PREFIX } Resynced file(s) with ${ GITHUB_REPOSITORY }`,
+				title: `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }`,
 				body: dedent(`
-					Resynced file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
+					Synced file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
 
 					${ changedFiles }
 
