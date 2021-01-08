@@ -30165,7 +30165,6 @@ const fs = __nccwpck_require__(5747)
 __nccwpck_require__(2437).config()
 
 const REPLACE_DEFAULT = true
-const DELETE_DEFAULT = false
 
 const getVar = ({ key, default: dft, required = false, array = false }) => {
 	const coreVar = core.getInput(key)
@@ -30266,8 +30265,7 @@ const parseFiles = (files) => {
 			return {
 				source: item,
 				dest: item,
-				replace: REPLACE_DEFAULT,
-				delete: DELETE_DEFAULT
+				replace: REPLACE_DEFAULT
 			}
 		}
 
@@ -30275,8 +30273,7 @@ const parseFiles = (files) => {
 			return {
 				source: item.source,
 				dest: item.dest !== undefined ? item.dest : item.source,
-				replace: item.replace !== undefined ? item.replace : REPLACE_DEFAULT,
-				delete: item.delete !== undefined ? item.delete : DELETE_DEFAULT
+				replace: item.replace !== undefined ? item.replace : REPLACE_DEFAULT
 			}
 		}
 

@@ -54,14 +54,6 @@ user/repo:
     replace: false
 ```
 
-### Don't delete non-existing file (coming soon)
-
-```yml
-user/repo:
-  - source: .github/workflows/lint.yml
-    delete: false
-```
-
 ### Sync the same files to multiple repositories
 
 ```yml
