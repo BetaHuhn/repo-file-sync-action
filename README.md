@@ -4,21 +4,22 @@
 
 [![Build](https://github.com/BetaHuhn/action-github-file-sync/workflows/Build/badge.svg)](https://github.com/BetaHuhn/action-github-file-sync/actions?query=workflow%3ABuild) [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/BetaHuhn/action-github-file-sync/blob/master/LICENSE) ![David](https://img.shields.io/david/betahuhn/action-github-file-sync)
 
-Sync Files like Workflows Between Repositories with GitHub Actions.
+Keep your workflows or any other file in sync between all your repositories with GitHub Actions.
 
 </div>
 
 ## 👋 Introduction
 
-With [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) you can sync files, like workflow `.yml` files, configuration files or whole directories between repositories. [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) works by running a GitHub Action in your master repository everytime you push something to that repo. The action will use a `sync.yml` config file to figure out which files it should sync where. If it finds a file which is out of sync it will open a pull request in the target repository with the changes.
+With [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) you can sync files, like workflow `.yml` files, configuration files or whole directories between repositories. It works by running a GitHub Action in your main repository everytime you push something to that repo. The action will use a `sync.yml` config file to figure out which files it should sync where. If it finds a file which is out of sync it will open a pull request in the target repository with the changes.
 
 ## 🚀 Features
 
-- sync GitHub Actions workflow files to multiple repositories
-- sync any file or directory to as many reposiories you want
-- create a Pull Request in the target repo so you have the last say on what gets merged
-- automatically label Pull Requests to integrate with other actions like [automerge-action](https://github.com/pascalgn/automerge-action)
-- assign users to the Pull Request
+- Keep GitHub Actions workflow files in sync across all your repositories
+- Sync any file or whole directory to as many reposiories you want
+- Easy configuration for any use case
+- Create a pull request in the target repo so you have the last say on what gets merged
+- Automatically label pull requests to integrate with other actions like [automerge-action](https://github.com/pascalgn/automerge-action)
+- Assign users to the pull request
 
 ## 📚 Usage
 
@@ -54,7 +55,7 @@ It is recommneded to set the token as a
 
 The last step is to create a `.yml` file in the `.github` folder of your repository and specify what file(s) to sync to which repositories:
 
-`.github/sync.yml`
+**.github/sync.yml**
 
 ```yml
 user/repository:
@@ -66,11 +67,11 @@ user/repository2:
     dest: .github/workflows/stale.yml
 ```
 
-More info on how to specify what files to sync where [below](#-Configuration).
+More info on how to specify what files to sync where [below](#%EF%B8%8F-sync-configuration).
 
 ## ⚙️ Action Configuration
 
-Here are all the parameters [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) takes:
+Here are all the inputs [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) takes:
 
 ```yml
 CONFIG_PATH: The path to the sync configuration file
@@ -86,7 +87,7 @@ DRY_RUN: Run everything except that nothing will be pushed.
 
 ## 🛠️ Sync Configuration
 
-In order to tell [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) what files to sync where, you have to create a `sync.yml` in the `.github` folder of your master repository (see [action-configuration](#-action-configuration) on how to change the location).
+In order to tell [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) what files to sync where, you have to create a `sync.yml` file in the `.github` directory of your main repository (see [action-configuration](#%EF%B8%8F-action-configuration) on how to change the location).
 
 The top-level key should be used to specify the target repository in the format `username`/`repository-name`@`branch`, after that you can list all the files you want to sync to that individual repository:
 
