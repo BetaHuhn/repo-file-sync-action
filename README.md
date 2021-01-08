@@ -15,7 +15,7 @@ With [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sy
 ## 🚀 Features
 
 - Keep GitHub Actions workflow files in sync across all your repositories
-- Sync any file or whole directory to as many reposiories you want
+- Sync any file or a whole directory to as many repositories as you want
 - Easy configuration for any use case
 - Create a pull request in the target repo so you have the last say on what gets merged
 - Automatically label pull requests to integrate with other actions like [automerge-action](https://github.com/pascalgn/automerge-action)
@@ -68,22 +68,6 @@ user/repository2:
 ```
 
 More info on how to specify what files to sync where [below](#%EF%B8%8F-sync-configuration).
-
-## ⚙️ Action Configuration
-
-Here are all the inputs [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) takes:
-
-```yml
-CONFIG_PATH: The path to the sync configuration file
-PR_LABELS: Labels which will be added to the pull request. Defaults to sync. Set to false to turn off
-ASSIGNEES: People to assign to the pull request. Defaults to none
-COMMIT_PREFIX: Prefix for commit message and pull request title. Defaults to 🔄
-COMMIT_EACH_FILE: Commit each file seperately. Defaults to true
-GIT_EMAIL: The e-mail address used to commit the synced files. Defaults to the email of the GitHub PAT
-GIT_USERNAME: The username used to commit the synced files. Defaults to the username of the GitHub PAT
-TMP_DIR: The working directory where all sync operations will be done. Defaults to `tmp-${ Date.now().toString() }`
-DRY_RUN: Run everything except that nothing will be pushed.
-```
 
 ## 🛠️ Sync Configuration
 
@@ -157,6 +141,22 @@ group:
       dest: .github/workflows/build.yml
     - source: LICENSE.md
       dest: LICENSE
+```
+
+## ⚙️ Action Configuration
+
+Here are all the inputs [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) takes:
+
+```yml
+CONFIG_PATH: The path to the sync configuration file
+PR_LABELS: Labels which will be added to the pull request. Defaults to sync. Set to false to turn off
+ASSIGNEES: People to assign to the pull request. Defaults to none
+COMMIT_PREFIX: Prefix for commit message and pull request title. Defaults to 🔄
+COMMIT_EACH_FILE: Commit each file seperately. Defaults to true
+GIT_EMAIL: The e-mail address used to commit the synced files. Defaults to the email of the GitHub PAT
+GIT_USERNAME: The username used to commit the synced files. Defaults to the username of the GitHub PAT
+TMP_DIR: The working directory where all sync operations will be done. Defaults to `tmp-${ Date.now().toString() }`
+DRY_RUN: Run everything except that nothing will be pushed.
 ```
 
 ## 📖 Examples
