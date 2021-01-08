@@ -160,7 +160,7 @@ const run = async () => {
 
 					---
 
-					This PR was created automatically by the [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) workflow run [#${ process.env.GITHUB_RUN_NUMBER || 0 }](https://github.com/${ GITHUB_REPOSITORY }/actions/runs/${ process.env.GITHUB_RUN_NUMBER || 0 })
+					This PR was created automatically by the [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) workflow run [#${ process.env.GITHUB_RUN_ID || 0 }](https://github.com/${ GITHUB_REPOSITORY }/actions/runs/${ process.env.GITHUB_RUN_ID || 0 })
 				`),
 				head: prBranch,
 				base: currentBranch
