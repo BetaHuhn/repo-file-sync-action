@@ -46,7 +46,7 @@ jobs:
           GH_PAT: ${{ secrets.GH_PAT }}
 ```
 
-In order to for the Action to access your repositories you have specify a [Personal Access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) as the value for `GH_PAT`.
+In order for the Action to access your repositories you have to specify a [Personal Access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) as the value for `GH_PAT`.
 
 > **Note:** `GITHUB_TOKEN` will not work
 
@@ -143,6 +143,29 @@ group:
       dest: LICENSE
 ```
 
+You can create multiple groups like this:
+
+```yml
+group:
+  # first group
+  - files:
+      - source: workflows/build.yml
+        dest: .github/workflows/build.yml
+      - source: LICENSE.md
+        dest: LICENSE
+    repos: |
+      user/repo1
+      user/repo2
+
+  # second group
+  - files: 
+      - source: configs/dependabot.yml
+        dest: .github/dependabot.yml
+    repos: |
+      user/repo3
+      user/repo4
+```
+
 ## ⚙️ Action Configuration
 
 Here are all the inputs [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) takes:
@@ -165,27 +188,6 @@ Here are a few examples to help you get started!
 
 ### Basic Example
 
-**.github/workflows/sync.yml**
-
-```yml
-name: Sync Files
-on:
-  push:
-    branches:
-      - master
-  workflow_dispatch:
-jobs:
-  sync:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@master
-      - name: Run GitHub File Sync
-        uses: BetaHuhn/action-github-file-sync@master
-        with:
-          GH_PAT: ${{ secrets.GH_PAT }}
-```
-
 **.github/sync.yml**
 
 ```yml
@@ -198,27 +200,6 @@ user/repository:
 
 This example will keep all your `.github/workflows` files in sync across multiple repositories:
 
-**.github/workflows/sync.yml**
-
-```yml
-name: Sync Workflow Files
-on:
-  push:
-    branches:
-      - master
-  workflow_dispatch:
-jobs:
-  sync:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@master
-      - name: Run GitHub File Sync
-        uses: BetaHuhn/action-github-file-sync@master
-        with:
-          GH_PAT: ${{ secrets.GH_PAT }}
-```
-
 **.github/sync.yml**
 
 ```yml
@@ -229,6 +210,131 @@ group:
   files:
     - source: .github/workflows/
       dest: .github/workflows/
+```
+
+### Custom labels
+
+By default [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) will add the `sync` label to every PR it creates. You can turn this off by setting `PR_LABELS` to false, or specify your own labels:
+
+**.github/workflows/sync.yml**
+
+```yml
+- name: Run GitHub File Sync
+  uses: BetaHuhn/action-github-file-sync@master
+  with:
+    GH_PAT: ${{ secrets.GH_PAT }}
+    PR_LABELS: |
+      file-sync
+      automerge
+```
+
+### Assign a user to the PR
+
+You can tell [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) to assign users to the PR with `ASSIGNEES`:
+
+**.github/workflows/sync.yml**
+
+```yml
+- name: Run GitHub File Sync
+  uses: BetaHuhn/action-github-file-sync@master
+  with:
+    GH_PAT: ${{ secrets.GH_PAT }}
+    ASSIGNEES: BetaHuhn
+```
+
+### Advanced sync config
+
+Here's how I keep common files in sync across my repositories. The main repository [`github-files`](https://github.com/BetaHuhn/github-files) contains all the files I want to sync and the [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) Action which runs on every push.
+
+Using groups I can specify which file(s) should be synced to which repositories:
+
+**.github/sync.yml**
+
+```yml
+group:
+  # dependabot files
+  - files:
+      - source: configs/dependabot.yml
+        dest: .github/dependabot.yml
+      - source: workflows/dependencies/dependabot.yml
+        dest: .github/workflows/dependabot.yml
+    repos: |
+      BetaHuhn/do-spaces-action
+      BetaHuhn/running-at
+      BetaHuhn/spaces-cli
+      BetaHuhn/metadata-scraper
+      BetaHuhn/ejs-serve
+      BetaHuhn/feedback-js
+      BetaHuhn/drkmd.js
+
+  # GitHub Sponsors config
+  - files:
+      - source: configs/FUNDING.yml
+        dest: .github/FUNDING.yml
+    repos: |
+      BetaHuhn/do-spaces-action
+      BetaHuhn/running-at
+      BetaHuhn/spaces-cli
+      BetaHuhn/qrgen
+      BetaHuhn/metadata-scraper
+      BetaHuhn/ejs-serve
+      BetaHuhn/feedback-js
+      BetaHuhn/drkmd.js
+
+  # Semantic release
+  - files:
+      - source: workflows/versioning/release-scheduler.yml
+        dest: .github/workflows/release-scheduler.yml
+      - source: workflows/versioning/release.yml
+        dest: .github/workflows/release.yml
+      - source: configs/release.config.js
+        dest: release.config.js
+    repos: |
+      BetaHuhn/do-spaces-action
+      BetaHuhn/metadata-scraper
+      BetaHuhn/feedback-js
+      BetaHuhn/drkmd.js
+
+  # Stale issues workflow
+  - files:
+      - source: workflows/issues/stale.yml
+        dest: .github/workflows/stale.yml
+    repos: |
+      BetaHuhn/do-spaces-action
+      BetaHuhn/running-at
+      BetaHuhn/spaces-cli
+      BetaHuhn/qrgen
+      BetaHuhn/metadata-scraper
+      BetaHuhn/ejs-serve
+      BetaHuhn/feedback-js
+      BetaHuhn/drkmd.js
+
+  # Lint CI workflow
+  - files:
+      - source: workflows/node/lint.yml
+        dest: .github/workflows/lint.yml
+    repos: |
+      BetaHuhn/do-spaces-action
+      BetaHuhn/running-at
+      BetaHuhn/spaces-cli
+      BetaHuhn/metadata-scraper
+      BetaHuhn/ejs-serve
+      BetaHuhn/feedback-js
+      BetaHuhn/drkmd.js
+
+  # MIT License
+  - files:
+      - source: LICENSE
+        dest: LICENSE
+    repos: |
+      BetaHuhn/do-spaces-action
+      BetaHuhn/running-at
+      BetaHuhn/spaces-cli
+      BetaHuhn/qrgen
+      BetaHuhn/metadata-scraper
+      BetaHuhn/ejs-serve
+      BetaHuhn/feedback-js
+      BetaHuhn/drkmd.js
 ```
 
 ## 💻 Development
