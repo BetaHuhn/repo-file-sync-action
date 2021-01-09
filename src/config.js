@@ -124,7 +124,7 @@ const parseFiles = (files) => {
 const parseConfig = async () => {
 	const fileContent = await fs.promises.readFile(context.CONFIG_PATH)
 
-	const configObject = yaml.load(fileContent.toString(), { json: true })
+	const configObject = yaml.load(fileContent.toString())
 
 	const result = {}
 
