@@ -183,7 +183,14 @@ This project was developed by me ([@betahuhn](https://github.com/BetaHuhn)) in m
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/F1F81S2RK)
 
-## License
+### Credits
+
+This Action was inspired by:
+
+- [action-github-workflow-sync](https://github.com/varunsridharan/action-github-workflow-sync)
+- [files-sync-action](https://github.com/adrianjost/files-sync-action)
+
+## 📄 License
 
 Copyright 2021 Maximilian Schiller
 
