@@ -1,0 +1,21 @@
+## [v1.0.0] - 2021-01-09
+
+[Release notes](https://github.com/betahuhn/action-github-file-sync/releases/tag/v1.0.0) · [Tag](https://github.com/betahuhn/action-github-file-sync/tree/v1.0.0) · Archive ([zip](https://github.com/betahuhn/action-github-file-sync/archive/v1.0.0.zip) · [tar.gz](https://github.com/betahuhn/action-github-file-sync/archive/v1.0.0.tar.gz))
+
+### New features
+
+- [`a863fe8`](https://github.com/betahuhn/action-github-file-sync/commit/a863fe8)  Add support for directories [skip ci]
+
+### Updates
+
+- [`c4c6e88`](https://github.com/betahuhn/action-github-file-sync/commit/c4c6e88)  Remove pattern option [skip ci]
+- [`22cc9e5`](https://github.com/betahuhn/action-github-file-sync/commit/22cc9e5)  Remove delete option [skip ci]
+
+### Bug fixes
+
+- [`bb0c4aa`](https://github.com/betahuhn/action-github-file-sync/commit/bb0c4aa)  Use Node v12 [skip ci]
+- [`1266e84`](https://github.com/betahuhn/action-github-file-sync/commit/1266e84)  Use run_id instead of run_number [skip ci]
+
+### Breaking changes
+
+- [`75a118d`](https://github.com/betahuhn/action-github-file-sync/commit/75a118d)  First release
