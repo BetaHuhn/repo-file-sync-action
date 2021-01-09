@@ -165,8 +165,70 @@ Here are a few examples to help you get started!
 
 ### Basic Example
 
-```yml
+**.github/workflows/sync.yml**
 
+```yml
+name: Sync Files
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@master
+      - name: Run GitHub File Sync
+        uses: BetaHuhn/action-github-file-sync@master
+        with:
+          GH_PAT: ${{ secrets.GH_PAT }}
+```
+
+**.github/sync.yml**
+
+```yml
+user/repository:
+  - LICENSE
+  - .gitignore
+```
+
+### Sync all workflow files
+
+This example will keep all your `.github/workflows` files in sync across multiple repositories:
+
+**.github/workflows/sync.yml**
+
+```yml
+name: Sync Workflow Files
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@master
+      - name: Run GitHub File Sync
+        uses: BetaHuhn/action-github-file-sync@master
+        with:
+          GH_PAT: ${{ secrets.GH_PAT }}
+```
+
+**.github/sync.yml**
+
+```yml
+group:
+  repos: |
+    user/repo1
+    user/repo2
+  files:
+    - source: .github/workflows/
+      dest: .github/workflows/
 ```
 
 ## 💻 Development
