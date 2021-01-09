@@ -1,3 +1,11 @@
+## [v1.0.1] - 2021-01-09
+
+[Release notes](https://github.com/betahuhn/action-github-file-sync/releases/tag/v1.0.1) · [Compare](https://github.com/betahuhn/action-github-file-sync/compare/v1.0.0...v1.0.1) · [Tag](https://github.com/betahuhn/action-github-file-sync/tree/v1.0.1) · Archive ([zip](https://github.com/betahuhn/action-github-file-sync/archive/v1.0.1.zip) · [tar.gz](https://github.com/betahuhn/action-github-file-sync/archive/v1.0.1.tar.gz))
+
+### Bug fixes
+
+- [`40b7915`](https://github.com/betahuhn/action-github-file-sync/commit/40b7915)  Fix parsing of multiple groups
+
 ## [v1.0.0] - 2021-01-09
 
 [Release notes](https://github.com/betahuhn/action-github-file-sync/releases/tag/v1.0.0) · [Tag](https://github.com/betahuhn/action-github-file-sync/tree/v1.0.0) · Archive ([zip](https://github.com/betahuhn/action-github-file-sync/archive/v1.0.0.zip) · [tar.gz](https://github.com/betahuhn/action-github-file-sync/archive/v1.0.0.tar.gz))
