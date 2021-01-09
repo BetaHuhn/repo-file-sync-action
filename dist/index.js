@@ -30284,32 +30284,51 @@ const parseFiles = (files) => {
 const parseConfig = async () => {
 	const fileContent = await fs.promises.readFile(context.CONFIG_PATH)
 
-	const configObject = yaml.load(fileContent.toString())
+	const configObject = yaml.load(fileContent.toString(), { json: true })
 
-	const result = []
+	const result = {}
 
 	Object.keys(configObject).forEach((key) => {
 		if (key === 'group') {
-			const object = configObject[key]
-			const repos = typeof object.repos === 'string' ? object.repos.split('\n').filter((n) => n) : object.repos
+			const rawObject = configObject[key]
 
-			repos.forEach((name) => {
-				const files = parseFiles(object.files)
-				result.push({
-					repo: parseRepoName(name),
-					files
+			const groups = Array.isArray(rawObject) ? rawObject : [ rawObject ]
+
+			groups.forEach((group) => {
+				const repos = typeof group.repos === 'string' ? group.repos.split('\n').filter((n) => n) : group.repos
+
+				repos.forEach((name) => {
+					const files = parseFiles(group.files)
+					const repo = parseRepoName(name)
+
+					if (result[repo.fullName] !== undefined) {
+						result[repo.fullName].files.push(...files)
+						return
+					}
+
+					result[repo.fullName] = {
+						repo,
+						files
+					}
 				})
 			})
 		} else {
 			const files = parseFiles(configObject[key])
-			result.push({
-				repo: parseRepoName(key),
+			const repo = parseRepoName(key)
+
+			if (result[repo.fullName] !== undefined) {
+				result[repo.fullName].files.push(...files)
+				return
+			}
+
+			result[repo.fullName] = {
+				repo,
 				files
-			})
+			}
 		}
 	})
 
-	return result
+	return Object.values(result)
 }
 
 while (fs.existsSync(context.TMP_DIR)) {
