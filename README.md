@@ -235,7 +235,11 @@ group:
 
 Issues and PRs are very welcome!
 
-Please check out the [contributing guide](CONTRIBUTING.md) before you start.
+The actual source code of this library is in the `src` folder.
+
+- run `yarn lint` or `npm run lint` to run eslint.
+- run `yarn start` or `npm run start` to run the Action locally.
+- run `yarn build` or `npm run build` to produce a production version of [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) in the `dist` folder.
 
 ## ❔ About
 
