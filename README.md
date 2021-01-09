@@ -2,7 +2,7 @@
   
 # GitHub File Sync Action
 
-[![Build](https://github.com/BetaHuhn/action-github-file-sync/workflows/Build/badge.svg)](https://github.com/BetaHuhn/action-github-file-sync/actions?query=workflow%3ABuild) [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/BetaHuhn/action-github-file-sync/blob/master/LICENSE) ![David](https://img.shields.io/david/betahuhn/action-github-file-sync)
+[![Build CI](https://github.com/BetaHuhn/action-github-file-sync/workflows/Test%20CI/badge.svg)](https://github.com/BetaHuhn/action-github-file-sync/actions?query=workflow%3A%22Test+CI%22) [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/BetaHuhn/action-github-file-sync/blob/master/LICENSE) ![David](https://img.shields.io/david/betahuhn/action-github-file-sync)
 
 Keep your workflows or any other file in sync between all your repositories with GitHub Actions.
 
