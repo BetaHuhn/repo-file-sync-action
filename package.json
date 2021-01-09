@@ -1,7 +1,7 @@
 {
   "name": "action-github-file-sync",
   "version": "0.0.1",
-  "description": "GitHub Action to Sync Files like Workflows Between Repositories.",
+  "description": "GitHub Action to keep files like Action workflows or entire directories in sync between multiple repositories.",
   "main": "dist/index.js",
   "scripts": {
     "lint": "eslint ./src",
@@ -13,15 +13,19 @@
     "url": "git+https://github.com/betahuhn/action-github-file-sync.git"
   },
   "keywords": [
-    "GitHub",
-    "Actions"
+    "sync",
+    "file-sync",
+    "workflow-sync",
+    "github-workflow",
+    "github-actions",
+    "github-action-workflow-sync"
   ],
   "author": "Maximilian Schiller <schiller@mxis.ch>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/betahuhn/action-github-file-sync/issues"
   },
-  "homepage": "https://github.com/betahuhn/action-github-file-sync#readme",
+  "homepage": "https://github.com/marketplace/actions/github-file-sync",
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@actions/github": "^2.2.0",
