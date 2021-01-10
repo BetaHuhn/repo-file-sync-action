@@ -1,3 +1,15 @@
+## [v1.1.0] - 2021-01-10
+
+[Release notes](https://github.com/betahuhn/action-github-file-sync/releases/tag/v1.1.0) · [Compare](https://github.com/betahuhn/action-github-file-sync/compare/v1.0.1...v1.1.0) · [Tag](https://github.com/betahuhn/action-github-file-sync/tree/v1.1.0) · Archive ([zip](https://github.com/betahuhn/action-github-file-sync/archive/v1.1.0.zip) · [tar.gz](https://github.com/betahuhn/action-github-file-sync/archive/v1.1.0.tar.gz))
+
+### New features
+
+- [`35e1508`](https://github.com/betahuhn/action-github-file-sync/commit/35e1508) Cleanup tmp directories
+
+### Bug fixes
+
+- [`b7e5310`](https://github.com/betahuhn/action-github-file-sync/commit/b7e5310)  Fix parsing of boolean config options [skip-ci]
+
 ## [v1.0.1] - 2021-01-09
 
 [Release notes](https://github.com/betahuhn/action-github-file-sync/releases/tag/v1.0.1) · [Compare](https://github.com/betahuhn/action-github-file-sync/compare/v1.0.0...v1.0.1) · [Tag](https://github.com/betahuhn/action-github-file-sync/tree/v1.0.1) · Archive ([zip](https://github.com/betahuhn/action-github-file-sync/archive/v1.0.1.zip) · [tar.gz](https://github.com/betahuhn/action-github-file-sync/archive/v1.0.1.tar.gz))
