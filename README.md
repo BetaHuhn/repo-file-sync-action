@@ -1,8 +1,8 @@
 <div align="center">
   
-# GitHub File Sync Action
+# Repo File Sync Action
 
-[![Build CI](https://github.com/BetaHuhn/action-github-file-sync/workflows/Test%20CI/badge.svg)](https://github.com/BetaHuhn/action-github-file-sync/actions?query=workflow%3A%22Test+CI%22) [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/BetaHuhn/action-github-file-sync/blob/master/LICENSE) ![David](https://img.shields.io/david/betahuhn/action-github-file-sync)
+[![Build CI](https://github.com/BetaHuhn/repo-file-sync-action/workflows/Test%20CI/badge.svg)](https://github.com/BetaHuhn/repo-file-sync-action/actions?query=workflow%3A%22Test+CI%22) [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/BetaHuhn/repo-file-sync-action/blob/master/LICENSE) ![David](https://img.shields.io/david/betahuhn/repo-file-sync-action)
 
 Keep files like Action workflows or entire directories in sync between multiple repositories.
 
@@ -10,7 +10,7 @@ Keep files like Action workflows or entire directories in sync between multiple 
 
 ## 👋 Introduction
 
-With [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) you can sync files, like workflow `.yml` files, configuration files or whole directories between repositories. It works by running a GitHub Action in your main repository everytime you push something to that repo. The action will use a `sync.yml` config file to figure out which files it should sync where. If it finds a file which is out of sync it will open a pull request in the target repository with the changes.
+With [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) you can sync files, like workflow `.yml` files, configuration files or whole directories between repositories. It works by running a GitHub Action in your main repository everytime you push something to that repo. The action will use a `sync.yml` config file to figure out which files it should sync where. If it finds a file which is out of sync it will open a pull request in the target repository with the changes.
 
 ## 🚀 Features
 
@@ -41,7 +41,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@master
       - name: Run GitHub File Sync
-        uses: BetaHuhn/action-github-file-sync@master
+        uses: BetaHuhn/repo-file-sync-action@master
         with:
           GH_PAT: ${{ secrets.GH_PAT }}
 ```
@@ -71,7 +71,7 @@ More info on how to specify what files to sync where [below](#%EF%B8%8F-sync-con
 
 ## ⚙️ Action Inputs
 
-Here are all the inputs [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) takes:
+Here are all the inputs [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) takes:
 
 | Key | Value | Required | Default |
 | ------------- | ------------- | ------------- | ------------- |
@@ -89,7 +89,7 @@ Here are all the inputs [action-github-file-sync](https://github.com/BetaHuhn/ac
 
 ## 🛠️ Sync Configuration
 
-In order to tell [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) what files to sync where, you have to create a `sync.yml` file in the `.github` directory of your main repository (see [action-inputs](#%EF%B8%8F-action-inputs) on how to change the location).
+In order to tell [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) what files to sync where, you have to create a `sync.yml` file in the `.github` directory of your main repository (see [action-inputs](#%EF%B8%8F-action-inputs) on how to change the location).
 
 The top-level key should be used to specify the target repository in the format `username`/`repository-name`@`branch`, after that you can list all the files you want to sync to that individual repository:
 
@@ -216,13 +216,13 @@ group:
 
 ### Custom labels
 
-By default [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) will add the `sync` label to every PR it creates. You can turn this off by setting `PR_LABELS` to false, or specify your own labels:
+By default [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) will add the `sync` label to every PR it creates. You can turn this off by setting `PR_LABELS` to false, or specify your own labels:
 
 **.github/workflows/sync.yml**
 
 ```yml
 - name: Run GitHub File Sync
-  uses: BetaHuhn/action-github-file-sync@master
+  uses: BetaHuhn/repo-file-sync-action@master
   with:
     GH_PAT: ${{ secrets.GH_PAT }}
     PR_LABELS: |
@@ -232,13 +232,13 @@ By default [action-github-file-sync](https://github.com/BetaHuhn/action-github-f
 
 ### Assign a user to the PR
 
-You can tell [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) to assign users to the PR with `ASSIGNEES`:
+You can tell [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) to assign users to the PR with `ASSIGNEES`:
 
 **.github/workflows/sync.yml**
 
 ```yml
 - name: Run GitHub File Sync
-  uses: BetaHuhn/action-github-file-sync@master
+  uses: BetaHuhn/repo-file-sync-action@master
   with:
     GH_PAT: ${{ secrets.GH_PAT }}
     ASSIGNEES: BetaHuhn
@@ -246,7 +246,7 @@ You can tell [action-github-file-sync](https://github.com/BetaHuhn/action-github
 
 ### Advanced sync config
 
-Here's how I keep common files in sync across my repositories. The main repository [`github-files`](https://github.com/BetaHuhn/github-files) contains all the files I want to sync and the [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) Action which runs on every push.
+Here's how I keep common files in sync across my repositories. The main repository [`github-files`](https://github.com/BetaHuhn/github-files) contains all the files I want to sync and the [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) Action which runs on every push.
 
 Using groups I can specify which file(s) should be synced to which repositories:
 
@@ -347,7 +347,7 @@ The actual source code of this library is in the `src` folder.
 
 - run `yarn lint` or `npm run lint` to run eslint.
 - run `yarn start` or `npm run start` to run the Action locally.
-- run `yarn build` or `npm run build` to produce a production version of [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) in the `dist` folder.
+- run `yarn build` or `npm run build` to produce a production version of [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) in the `dist` folder.
 
 ## ❔ About
 

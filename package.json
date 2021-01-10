@@ -1,5 +1,5 @@
 {
-  "name": "action-github-file-sync",
+  "name": "repo-file-sync-action",
   "version": "1.1.0",
   "description": "GitHub Action to keep files like Action workflows or entire directories in sync between multiple repositories.",
   "main": "dist/index.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/betahuhn/action-github-file-sync.git"
+    "url": "git+https://github.com/betahuhn/repo-file-sync-action.git"
   },
   "keywords": [
     "sync",
@@ -23,7 +23,7 @@
   "author": "Maximilian Schiller <schiller@mxis.ch>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/betahuhn/action-github-file-sync/issues"
+    "url": "https://github.com/betahuhn/repo-file-sync-action/issues"
   },
   "homepage": "https://github.com/marketplace/actions/github-file-sync",
   "dependencies": {
