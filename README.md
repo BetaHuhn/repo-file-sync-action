@@ -69,9 +69,27 @@ user/repository2:
 
 More info on how to specify what files to sync where [below](#%EF%B8%8F-sync-configuration).
 
+## ⚙️ Action Inputs
+
+Here are all the inputs [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) takes:
+
+| Key | Value | Required | Default |
+| ------------- | ------------- | ------------- | ------------- |
+| `GH_PAT` | Your [Personal Access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) | **Yes** | N/A |
+| `CONFIG_PATH` | Path to the sync configuration file | **No** | .github/sync.yml |
+| `PR_LABELS` | Labels which will be added to the pull request. Set to false to turn off | **No** | sync |
+| `ASSIGNEES` | People to assign to the pull request | **No** | N/A |
+| `COMMIT_PREFIX` | Prefix for commit message and pull request title | **No** | 🔄 |
+| `COMMIT_EACH_FILE` | Commit each file seperately | **No** | true |
+| `GIT_EMAIL` | The e-mail address used to commit the synced files | **No** | the email of the PAT used |
+| `GIT_USERNAME` | The username used to commit the synced files | **No** | the username of the PAT used |
+| `TMP_DIR` | The working directory where all git operations will be done | **No** | tmp-${ Date.now().toString() } |
+| `DRY_RUN` | Run everything except that nothing will be pushed | **No** | false |
+| `SKIP_CLEANUP` | Skips removing the temporary directory. Useful for debugging | **No** | false |
+
 ## 🛠️ Sync Configuration
 
-In order to tell [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) what files to sync where, you have to create a `sync.yml` file in the `.github` directory of your main repository (see [action-configuration](#%EF%B8%8F-action-configuration) on how to change the location).
+In order to tell [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) what files to sync where, you have to create a `sync.yml` file in the `.github` directory of your main repository (see [action-inputs](#%EF%B8%8F-action-inputs) on how to change the location).
 
 The top-level key should be used to specify the target repository in the format `username`/`repository-name`@`branch`, after that you can list all the files you want to sync to that individual repository:
 
@@ -164,23 +182,6 @@ group:
     repos: |
       user/repo3
       user/repo4
-```
-
-## ⚙️ Action Configuration
-
-Here are all the inputs [action-github-file-sync](https://github.com/BetaHuhn/action-github-file-sync) takes:
-
-```yml
-CONFIG_PATH: The path to the sync configuration file
-PR_LABELS: Labels which will be added to the pull request. Defaults to sync. Set to false to turn off
-ASSIGNEES: People to assign to the pull request. Defaults to none
-COMMIT_PREFIX: Prefix for commit message and pull request title. Defaults to 🔄
-COMMIT_EACH_FILE: Commit each file seperately. Defaults to true
-GIT_EMAIL: The e-mail address used to commit the synced files. Defaults to the email of the GitHub PAT
-GIT_USERNAME: The username used to commit the synced files. Defaults to the username of the GitHub PAT
-TMP_DIR: The working directory where all sync operations will be done. Defaults to `tmp-${ Date.now().toString() }`
-DRY_RUN: Run everything except that nothing will be pushed. Defaults to false
-SKIP_CLEANUP: Skips removing the temporary directory. Useful for debugging. Defaults to false
 ```
 
 ## 📖 Examples
