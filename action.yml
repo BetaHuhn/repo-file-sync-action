@@ -48,5 +48,5 @@ runs:
   main: 'dist/index.js'
 
 branding:
-  icon: 'upload-cloud'
+  icon: 'git-pull-request'
   color: 'gray-dark'
