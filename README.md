@@ -179,7 +179,8 @@ COMMIT_EACH_FILE: Commit each file seperately. Defaults to true
 GIT_EMAIL: The e-mail address used to commit the synced files. Defaults to the email of the GitHub PAT
 GIT_USERNAME: The username used to commit the synced files. Defaults to the username of the GitHub PAT
 TMP_DIR: The working directory where all sync operations will be done. Defaults to `tmp-${ Date.now().toString() }`
-DRY_RUN: Run everything except that nothing will be pushed.
+DRY_RUN: Run everything except that nothing will be pushed. Defaults to false
+SKIP_CLEANUP: Skips removing the temporary directory. Useful for debugging. Defaults to false
 ```
 
 ## 📖 Examples
