@@ -6,18 +6,25 @@ require('dotenv').config()
 
 const REPLACE_DEFAULT = true
 
-const getVar = ({ key, default: dft, required = false, array = false }) => {
+const getVar = ({ key, default: dft, required = false, type = 'string' }) => {
 	const coreVar = core.getInput(key)
 	const envVar = process.env[key]
 
-	if (required === false && (coreVar === false || envVar === 'false'))
+	if (key === 'PR_LABELS' && (coreVar === false || envVar === 'false'))
 		return undefined
 
-	if (coreVar !== undefined && coreVar.length >= 1)
-		return array ? coreVar.split('\n') : coreVar
+	if (coreVar !== undefined && coreVar.length >= 1) {
+		if (type === 'array') return coreVar.split('\n')
 
-	if (envVar !== undefined && envVar.length >= 1)
-		return array ? envVar.split(',') : envVar
+		return coreVar
+	}
+
+	if (envVar !== undefined && envVar.length >= 1) {
+		if (type === 'array') return envVar.split(',')
+		if (type === 'boolean') return envVar === 'true'
+
+		return envVar
+	}
 
 	if (required === true)
 		return core.setFailed(`Variable ${ key } missing.`)
@@ -47,18 +54,17 @@ const context = {
 	}),
 	COMMIT_EACH_FILE: getVar({
 		key: 'COMMIT_EACH_FILE',
+		type: 'boolean',
 		default: true
 	}),
 	PR_LABELS: getVar({
 		key: 'PR_LABELS',
 		default: [ 'sync' ],
-		required: false,
-		array: true
+		type: 'array'
 	}),
 	ASSIGNEES: getVar({
 		key: 'ASSIGNEES',
-		required: false,
-		array: true
+		type: 'array'
 	}),
 	TMP_DIR: getVar({
 		key: 'TMP_DIR',
@@ -66,6 +72,7 @@ const context = {
 	}),
 	DRY_RUN: getVar({
 		key: 'DRY_RUN',
+		type: 'boolean',
 		default: false
 	}),
 	GITHUB_REPOSITORY: getVar({
