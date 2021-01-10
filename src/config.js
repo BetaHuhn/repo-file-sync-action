@@ -75,6 +75,11 @@ const context = {
 		type: 'boolean',
 		default: false
 	}),
+	SKIP_CLEANUP: getVar({
+		key: 'SKIP_CLEANUP',
+		type: 'boolean',
+		default: false
+	}),
 	GITHUB_REPOSITORY: getVar({
 		key: 'GITHUB_REPOSITORY',
 		required: true

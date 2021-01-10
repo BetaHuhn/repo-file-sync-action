@@ -14,7 +14,9 @@ const {
 	COMMIT_PREFIX,
 	PR_LABELS,
 	ASSIGNEES,
-	DRY_RUN
+	DRY_RUN,
+	TMP_DIR,
+	SKIP_CLEANUP
 } = require('./config')
 
 const run = async () => {
@@ -199,12 +201,18 @@ const run = async () => {
 		}
 	})
 
-	core.info('DONE')
+	if (SKIP_CLEANUP === true) {
+		core.info('Skipping cleanup')
+		return
+	}
+
+	await io.rmRF(TMP_DIR)
+	core.info('Cleanup complete')
 }
 
 run()
 	.then(() => {})
 	.catch((err) => {
-		console.error('ERROR', err)
+		core.error('ERROR', err)
 		core.setFailed(err.message)
 	})
