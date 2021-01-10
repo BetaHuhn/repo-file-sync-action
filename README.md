@@ -41,7 +41,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@master
       - name: Run GitHub File Sync
-        uses: BetaHuhn/repo-file-sync-action@master
+        uses: BetaHuhn/repo-file-sync-action@v1
         with:
           GH_PAT: ${{ secrets.GH_PAT }}
 ```
@@ -222,7 +222,7 @@ By default [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-ac
 
 ```yml
 - name: Run GitHub File Sync
-  uses: BetaHuhn/repo-file-sync-action@master
+  uses: BetaHuhn/repo-file-sync-action@v1
   with:
     GH_PAT: ${{ secrets.GH_PAT }}
     PR_LABELS: |
@@ -238,7 +238,7 @@ You can tell [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-
 
 ```yml
 - name: Run GitHub File Sync
-  uses: BetaHuhn/repo-file-sync-action@master
+  uses: BetaHuhn/repo-file-sync-action@v1
   with:
     GH_PAT: ${{ secrets.GH_PAT }}
     ASSIGNEES: BetaHuhn
