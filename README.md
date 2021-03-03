@@ -244,6 +244,28 @@ You can tell [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-
     ASSIGNEES: BetaHuhn
 ```
 
+### Custom GitHub Enterprise Host
+
+If your target repository is hosted on a GitHub Enterprise Server you can specify a custom host name like this:
+
+**.github/workflows/sync.yml**
+
+```yml
+https://custom.host/user/repo:
+  - path/to/file.txt
+
+# or in a group
+
+group:
+  - files:
+      - source: path/to/file.txt
+        dest: path/to/file.txt
+    repos: |
+      https://custom.host/user/repo
+```
+
+> **Note:** The key has to start with http to indicate that you want to use a custom host.
+
 ### Advanced sync config
 
 Here's how I keep common files in sync across my repositories. The main repository [`github-files`](https://github.com/BetaHuhn/github-files) contains all the files I want to sync and the [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) Action which runs on every push.
