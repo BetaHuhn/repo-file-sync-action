@@ -1,3 +1,11 @@
+## [v1.2.0] - 2021-03-03
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.2.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.1.1...v1.2.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.2.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.2.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.2.0.tar.gz))
+
+### New features
+
+- [`18215cb`](https://github.com/betahuhn/repo-file-sync-action/commit/18215cb)  Support custom GitHub Enterprise Host
+
 ## [v1.1.1] - 2021-01-18
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.1.1) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.1.0...v1.1.1) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.1.1) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.1.1.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.1.1.tar.gz))
