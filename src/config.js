@@ -129,7 +129,7 @@ const parseFiles = (files) => {
 			}
 		}
 
-		core.wanr('Warn: No source files specified')
+		core.warn('Warn: No source files specified')
 	})
 }
 
