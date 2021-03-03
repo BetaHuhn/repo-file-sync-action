@@ -28,7 +28,7 @@ const run = async () => {
 		core.info(`Repository Info`)
 		core.info(`Slug		: ${ item.repo.name }`)
 		core.info(`Owner		: ${ item.repo.user }`)
-		core.info(`Https Url	: https://github.com/${ item.repo.fullName }`)
+		core.info(`Https Url	: https://${ item.repo.fullName }`)
 		core.info(`Branch		: ${ item.repo.branch }`)
 		core.info('	')
 		try {

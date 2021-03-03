@@ -30257,12 +30257,24 @@ core.debug(
 )
 
 const parseRepoName = (fullRepo) => {
+	let host = 'github.com'
+
+	if (fullRepo.startsWith('http')) {
+		const url = new URL(fullRepo)
+		host = url.host
+
+		fullRepo = url.pathname.replace(/^\/+/, '') // Remove leading slash
+
+		core.info('Using custom host')
+	}
+
 	const user = fullRepo.split('/')[0]
 	const name = fullRepo.split('/')[1].split('@')[0]
 	const branch = fullRepo.split('/')[1].split('@')[1] || 'default'
 
 	return {
-		fullName: `${ user }/${ name }`,
+		fullName: `${ host }/${ user }/${ name }`,
+		host,
 		user,
 		name,
 		branch
@@ -30289,7 +30301,7 @@ const parseFiles = (files) => {
 			}
 		}
 
-		core.wanr('Warn: No source files specified')
+		core.warn('Warn: No source files specified')
 	})
 }
 
@@ -30375,7 +30387,7 @@ const {
 const init = (repo) => {
 
 	const localPath = path.join(TMP_DIR, repo.fullName)
-	const gitUrl = `https://${ GITHUB_TOKEN }@github.com/${ repo.fullName }.git`
+	const gitUrl = `https://${ GITHUB_TOKEN }@${ repo.fullName }.git`
 
 	const clone = () => {
 		core.info(`Cloning ${ repo.fullName } into ${ localPath }`)
@@ -30578,7 +30590,7 @@ const run = async () => {
 		core.info(`Repository Info`)
 		core.info(`Slug		: ${ item.repo.name }`)
 		core.info(`Owner		: ${ item.repo.user }`)
-		core.info(`Https Url	: https://github.com/${ item.repo.fullName }`)
+		core.info(`Https Url	: https://${ item.repo.fullName }`)
 		core.info(`Branch		: ${ item.repo.branch }`)
 		core.info('	')
 		try {

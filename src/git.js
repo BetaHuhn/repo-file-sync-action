@@ -15,7 +15,7 @@ const {
 const init = (repo) => {
 
 	const localPath = path.join(TMP_DIR, repo.fullName)
-	const gitUrl = `https://${ GITHUB_TOKEN }@github.com/${ repo.fullName }.git`
+	const gitUrl = `https://${ GITHUB_TOKEN }@${ repo.fullName }.git`
 
 	const clone = () => {
 		core.info(`Cloning ${ repo.fullName } into ${ localPath }`)

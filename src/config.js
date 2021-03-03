@@ -97,12 +97,24 @@ core.debug(
 )
 
 const parseRepoName = (fullRepo) => {
+	let host = 'github.com'
+
+	if (fullRepo.startsWith('http')) {
+		const url = new URL(fullRepo)
+		host = url.host
+
+		fullRepo = url.pathname.replace(/^\/+/, '') // Remove leading slash
+
+		core.info('Using custom host')
+	}
+
 	const user = fullRepo.split('/')[0]
 	const name = fullRepo.split('/')[1].split('@')[0]
 	const branch = fullRepo.split('/')[1].split('@')[1] || 'default'
 
 	return {
-		fullName: `${ user }/${ name }`,
+		fullName: `${ host }/${ user }/${ name }`,
+		host,
 		user,
 		name,
 		branch
