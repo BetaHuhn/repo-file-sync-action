@@ -4,7 +4,7 @@
 
 ### New features
 
-- [`18215cb`](https://github.com/betahuhn/repo-file-sync-action/commit/18215cb)  Support custom GitHub Enterprise Host
+- [`18215cb`](https://github.com/betahuhn/repo-file-sync-action/commit/18215cb)  Support custom GitHub Enterprise Host [#8](https://github.com/BetaHuhn/repo-file-sync-action/discussions/8)
 
 ## [v1.1.1] - 2021-01-18
 
