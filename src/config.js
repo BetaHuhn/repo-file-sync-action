@@ -80,6 +80,11 @@ const context = {
 		type: 'boolean',
 		default: false
 	}),
+	OVERWRITE_EXISTING_PR: getVar({
+		key: 'OVERWRITE_EXISTING_PR',
+		type: 'boolean',
+		default: true
+	}),
 	GITHUB_REPOSITORY: getVar({
 		key: 'GITHUB_REPOSITORY',
 		required: true

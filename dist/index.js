@@ -30240,6 +30240,11 @@ const context = {
 		type: 'boolean',
 		default: false
 	}),
+	OVERWRITE_EXISTING_PR: getVar({
+		key: 'OVERWRITE_EXISTING_PR',
+		type: 'boolean',
+		default: true
+	}),
 	GITHUB_REPOSITORY: getVar({
 		key: 'GITHUB_REPOSITORY',
 		required: true
@@ -30381,10 +30386,18 @@ const {
 	GIT_EMAIL,
 	TMP_DIR,
 	COMMIT_PREFIX,
-	GITHUB_REPOSITORY
+	GITHUB_REPOSITORY,
+	OVERWRITE_EXISTING_PR
 } = __nccwpck_require__(4570)
+const { dedent } = __nccwpck_require__(8505)
+
 
 const init = (repo) => {
+
+	let github
+	let baseBranch
+	let prBranch
+	let existingPr
 
 	const localPath = path.join(TMP_DIR, repo.fullName)
 	const gitUrl = `https://${ GITHUB_TOKEN }@${ repo.fullName }.git`
@@ -30400,9 +30413,10 @@ const init = (repo) => {
 	const setIdentity = async (client) => {
 		let username = GIT_USERNAME
 		let email = GIT_EMAIL
+		github = client
 
 		if (email === undefined) {
-			const { data } = await client.users.getAuthenticated()
+			const { data } = await github.users.getAuthenticated()
 			email = data.email
 			username = data.login
 		}
@@ -30415,8 +30429,8 @@ const init = (repo) => {
 		)
 	}
 
-	const currentBranch = async () => {
-		return execCmd(
+	const getBaseBranch = async () => {
+		baseBranch = await execCmd(
 			`git rev-parse --abbrev-ref HEAD`,
 			localPath
 		)
@@ -30424,8 +30438,11 @@ const init = (repo) => {
 
 	const createPrBranch = async () => {
 		return new Promise((resolve, reject) => {
-			const timestamp = Math.round((new Date()).getTime() / 1000)
-			const newBranch = `file-sync/${ repo.branch }-${ timestamp }`
+			let newBranch = `repo-sync/${ GITHUB_REPOSITORY.split('/')[1] }/${ repo.branch }`
+
+			if (OVERWRITE_EXISTING_PR === false) {
+				newBranch += `-${ Math.round((new Date()).getTime() / 1000) }`
+			}
 
 			core.info(`Creating PR Branch ${ newBranch }`)
 
@@ -30435,7 +30452,8 @@ const init = (repo) => {
 			).catch((err) => {
 				reject(err)
 			}).then(() => {
-				resolve(newBranch)
+				prBranch = newBranch
+				resolve()
 			})
 		})
 	}
@@ -30470,24 +30488,102 @@ const init = (repo) => {
 		)
 	}
 
-	const push = async () => {
+	const push = async ({ force }) => {
+		console.log(force)
 		return execCmd(
-			`git push ${ gitUrl }`,
+			`git push ${ gitUrl } ${ force ? '--force' : '' }`,
 			localPath
 		)
+	}
+
+	const findExistingPr = async () => {
+		const { data } = await github.pulls.list({
+			owner: repo.user,
+			repo: repo.name,
+			state: 'open',
+			head: `${ repo.user }:${ prBranch }`
+		})
+
+		existingPr = data[0]
+
+		return existingPr
+	}
+
+	const setPrWarning = async () => {
+		await github.pulls.update({
+			owner: repo.user,
+			repo: repo.name,
+			pull_number: existingPr.number,
+			body: dedent(`
+				⚠️ This PR is being automatically resynced ⚠️
+
+				${ existingPr.body }
+			`)
+		})
+	}
+
+	const removePrWarning = async () => {
+		await github.pulls.update({
+			owner: repo.user,
+			repo: repo.name,
+			pull_number: existingPr.number,
+			body: existingPr.body.replace('⚠️ This PR is being automatically resynced ⚠️', '')
+		})
+	}
+
+	const createOrUpdatePr = async (changedFiles) => {
+		const body = dedent(`
+			Synced local file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
+
+			${ changedFiles }
+
+			---
+
+			This PR was created automatically by the [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) workflow run [#${ process.env.GITHUB_RUN_ID || 0 }](https://github.com/${ GITHUB_REPOSITORY }/actions/runs/${ process.env.GITHUB_RUN_ID || 0 })
+		`)
+
+		if (existingPr) {
+			core.info(`Overwriting existing PR`)
+
+			const { data } = await github.pulls.update({
+				owner: repo.user,
+				repo: repo.name,
+				pull_number: existingPr.number,
+				body: body
+			})
+
+			return data
+		}
+
+		core.info(`Creating new PR`)
+
+		const { data } = await github.pulls.create({
+			owner: repo.user,
+			repo: repo.name,
+			title: `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }`,
+			body: body,
+			head: prBranch,
+			base: baseBranch
+		})
+
+		return data
 	}
 
 	return {
 		localPath,
 		clone,
 		setIdentity,
+		getBaseBranch,
 		createPrBranch,
 		add,
 		hasChange,
 		commit,
 		status,
 		push,
-		currentBranch
+		findExistingPr,
+		setPrWarning,
+		removePrWarning,
+		createOrUpdatePr
 	}
 }
 
@@ -30572,13 +30668,13 @@ const {
 	parseConfig,
 	GITHUB_TOKEN,
 	COMMIT_EACH_FILE,
-	GITHUB_REPOSITORY,
 	COMMIT_PREFIX,
 	PR_LABELS,
 	ASSIGNEES,
 	DRY_RUN,
 	TMP_DIR,
-	SKIP_CLEANUP
+	SKIP_CLEANUP,
+	OVERWRITE_EXISTING_PR
 } = __nccwpck_require__(4570)
 
 const run = async () => {
@@ -30598,9 +30694,14 @@ const run = async () => {
 
 			await git.clone()
 			await git.setIdentity(client)
+			await git.getBaseBranch()
+			await git.createPrBranch()
 
-			const currentBranch = await git.currentBranch()
-			const prBranch = await git.createPrBranch()
+			const existingPr = OVERWRITE_EXISTING_PR === true ? await git.findExistingPr() : undefined
+			if (existingPr !== undefined && DRY_RUN === false) {
+				core.info(`Found existing PR ${ existingPr.number }`)
+				await git.setPrWarning()
+			}
 
 			const modified = []
 
@@ -30675,6 +30776,9 @@ const run = async () => {
 			const hasChange = await git.hasChange()
 			if (hasChange === false && COMMIT_EACH_FILE === false) {
 				core.info('File(s) already up to date')
+
+				if (existingPr) await git.removePrWarning()
+
 				return
 			}
 
@@ -30688,11 +30792,14 @@ const run = async () => {
 
 			if (modified.length < 1) {
 				core.info('Nothing to push')
+
+				if (existingPr) await git.removePrWarning()
+
 				return
 			}
 
 			core.info(`Pushing changes to remote`)
-			await git.push()
+			await git.push({ force: true }) // Maybe first check if branch already exists in remote
 
 			let changedFiles = ''
 			let list = ``
@@ -30712,36 +30819,20 @@ const run = async () => {
 				`)
 			}
 
-			core.info(`Creating new PR`)
-			const { data } = await client.pulls.create({
-				owner: item.repo.user,
-				repo: item.repo.name,
-				title: `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }`,
-				body: dedent(`
-					Synced local file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
+			const pullRequest = await git.createOrUpdatePr(changedFiles)
 
-					${ changedFiles }
+			core.info(`Pull Request Created/Updated: #${ pullRequest.number }`)
+			core.info(`${ pullRequest.html_url }`)
 
-					---
-
-					This PR was created automatically by the [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) workflow run [#${ process.env.GITHUB_RUN_ID || 0 }](https://github.com/${ GITHUB_REPOSITORY }/actions/runs/${ process.env.GITHUB_RUN_ID || 0 })
-				`),
-				head: prBranch,
-				base: currentBranch
-			})
-
-			core.info(`Pull Request Created: #${ data.number }`)
-			core.info(`${ data.html_url }`)
-
-			core.setOutput('pull_request_number', data.number)
-			core.setOutput('pull_request_url', data.html_url)
+			core.setOutput('pull_request_number', pullRequest.number)
+			core.setOutput('pull_request_url', pullRequest.html_url)
 
 			if (PR_LABELS !== undefined && PR_LABELS.length > 0) {
 				core.info(`Adding label(s) "${ PR_LABELS.join(', ') }" to PR`)
 				await client.issues.addLabels({
 					owner: item.repo.user,
 					repo: item.repo.name,
-					issue_number: data.number,
+					issue_number: pullRequest.number,
 					labels: PR_LABELS
 				})
 			}
@@ -30751,7 +30842,7 @@ const run = async () => {
 				await client.issues.addAssignees({
 					owner: item.repo.user,
 					repo: item.repo.name,
-					issue_number: data.number,
+					issue_number: pullRequest.number,
 					assignees: ASSIGNEES
 				})
 			}

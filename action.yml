@@ -47,6 +47,10 @@ inputs:
     description: |
       Skip removing the temporary directory (useful for debugging). Defaults to false
     required: false
+  OVERWRITE_EXISTING_PR:
+    description: |
+      Overwrite any existing Sync PR with the new changes. Defaults to true
+    required: false
 
 runs:
   using: 'node12'
