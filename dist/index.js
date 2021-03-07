@@ -30802,7 +30802,7 @@ const run = async () => {
 				<details>
 				<summary>Changed files</summary>
 				<ul>
-				${ modified.map((file) => `<li>${ file.message }</li>`).join() }
+				${ modified.map((file) => `<li>${ file.message }</li>`).join('') }
 				</ul>
 				</details>
 			`)
