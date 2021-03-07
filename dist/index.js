@@ -30175,6 +30175,7 @@ const getVar = ({ key, default: dft, required = false, type = 'string' }) => {
 
 	if (coreVar !== undefined && coreVar.length >= 1) {
 		if (type === 'array') return coreVar.split('\n')
+		if (type === 'boolean') return coreVar === 'false' ? false : Boolean(coreVar)
 
 		return coreVar
 	}
@@ -30701,7 +30702,7 @@ const run = async () => {
 			await git.createPrBranch()
 
 			// Check for existing PR and add warning message that the PR maybe about to change
-			const existingPr = OVERWRITE_EXISTING_PR && await git.findExistingPr()
+			const existingPr = OVERWRITE_EXISTING_PR ? await git.findExistingPr() : undefined
 			if (existingPr && DRY_RUN === false) {
 				core.info(`Found existing PR ${ existingPr.number }`)
 				await git.setPrWarning()

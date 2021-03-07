@@ -41,7 +41,7 @@ const run = async () => {
 			await git.createPrBranch()
 
 			// Check for existing PR and add warning message that the PR maybe about to change
-			const existingPr = OVERWRITE_EXISTING_PR && await git.findExistingPr()
+			const existingPr = OVERWRITE_EXISTING_PR ? await git.findExistingPr() : undefined
 			if (existingPr && DRY_RUN === false) {
 				core.info(`Found existing PR ${ existingPr.number }`)
 				await git.setPrWarning()

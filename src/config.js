@@ -15,6 +15,7 @@ const getVar = ({ key, default: dft, required = false, type = 'string' }) => {
 
 	if (coreVar !== undefined && coreVar.length >= 1) {
 		if (type === 'array') return coreVar.split('\n')
+		if (type === 'boolean') return coreVar === 'false' ? false : Boolean(coreVar)
 
 		return coreVar
 	}
