@@ -40,7 +40,12 @@ inputs:
       The working directory where all sync operations will be done. Defaults to `tmp-${Date.now().toString()}`
     required: false
   DRY_RUN:
-    description: "Run everything except for nothing will be updated."
+    description: |
+      Run everything except for nothing will be updated. Defaults to false
+    required: false
+  SKIP_CLEANUP:
+    description: |
+      Skip removing the temporary directory (useful for debugging). Defaults to false
     required: false
 
 runs:
