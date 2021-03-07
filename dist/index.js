@@ -30369,7 +30369,6 @@ module.exports = {
 /***/ 109:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const { exec } = __nccwpck_require__(3129)
 const { parse } = __nccwpck_require__(1150)
 const core = __nccwpck_require__(2186)
 const path = __nccwpck_require__(5622)
@@ -30384,7 +30383,7 @@ const {
 	OVERWRITE_EXISTING_PR
 } = __nccwpck_require__(4570)
 
-const { dedent } = __nccwpck_require__(8505)
+const { dedent, execCmd } = __nccwpck_require__(8505)
 
 const init = (repo) => {
 	let github
@@ -30576,21 +30575,6 @@ const init = (repo) => {
 	}
 }
 
-const execCmd = (command, workingDir) => {
-	core.debug(`EXEC: "${ command }" IN ${ workingDir }`)
-	return new Promise((resolve, reject) => {
-		exec(
-			command,
-			{
-				cwd: workingDir
-			},
-			function(error, stdout) {
-				error ? reject(error) : resolve(stdout.trim())
-			}
-		)
-	})
-}
-
 module.exports = {
 	init
 }
@@ -30601,6 +30585,8 @@ module.exports = {
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const fs = __nccwpck_require__(5747)
+const { exec } = __nccwpck_require__(3129)
+const core = __nccwpck_require__(2186)
 
 // From https://github.com/toniov/p-iteration/blob/master/lib/static-methods.js - MIT © Antonio V
 const forEach = async (array, callback) => {
@@ -30637,6 +30623,21 @@ const dedent = function(templateStrings, ...values) {
 	return string
 }
 
+const execCmd = (command, workingDir) => {
+	core.debug(`EXEC: "${ command }" IN ${ workingDir }`)
+	return new Promise((resolve, reject) => {
+		exec(
+			command,
+			{
+				cwd: workingDir
+			},
+			function(error, stdout) {
+				error ? reject(error) : resolve(stdout.trim())
+			}
+		)
+	})
+}
+
 const addTrailingSlash = (str) => str.endsWith('/') ? str : str + '/'
 
 const pathIsDirectory = async (path) => {
@@ -30648,7 +30649,8 @@ module.exports = {
 	forEach,
 	dedent,
 	addTrailingSlash,
-	pathIsDirectory
+	pathIsDirectory,
+	execCmd
 }
 
 /***/ }),

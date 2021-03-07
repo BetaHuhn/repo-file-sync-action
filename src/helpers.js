@@ -1,4 +1,6 @@
 const fs = require('fs')
+const { exec } = require('child_process')
+const core = require('@actions/core')
 
 // From https://github.com/toniov/p-iteration/blob/master/lib/static-methods.js - MIT © Antonio V
 const forEach = async (array, callback) => {
@@ -35,6 +37,21 @@ const dedent = function(templateStrings, ...values) {
 	return string
 }
 
+const execCmd = (command, workingDir) => {
+	core.debug(`EXEC: "${ command }" IN ${ workingDir }`)
+	return new Promise((resolve, reject) => {
+		exec(
+			command,
+			{
+				cwd: workingDir
+			},
+			function(error, stdout) {
+				error ? reject(error) : resolve(stdout.trim())
+			}
+		)
+	})
+}
+
 const addTrailingSlash = (str) => str.endsWith('/') ? str : str + '/'
 
 const pathIsDirectory = async (path) => {
@@ -46,5 +63,6 @@ module.exports = {
 	forEach,
 	dedent,
 	addTrailingSlash,
-	pathIsDirectory
+	pathIsDirectory,
+	execCmd
 }

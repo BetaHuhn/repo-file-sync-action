@@ -1,4 +1,3 @@
-const { exec } = require('child_process')
 const { parse } = require('@putout/git-status-porcelain')
 const core = require('@actions/core')
 const path = require('path')
@@ -13,7 +12,7 @@ const {
 	OVERWRITE_EXISTING_PR
 } = require('./config')
 
-const { dedent } = require('./helpers')
+const { dedent, execCmd } = require('./helpers')
 
 const init = (repo) => {
 	let github
@@ -203,21 +202,6 @@ const init = (repo) => {
 		removePrWarning,
 		createOrUpdatePr
 	}
-}
-
-const execCmd = (command, workingDir) => {
-	core.debug(`EXEC: "${ command }" IN ${ workingDir }`)
-	return new Promise((resolve, reject) => {
-		exec(
-			command,
-			{
-				cwd: workingDir
-			},
-			function(error, stdout) {
-				error ? reject(error) : resolve(stdout.trim())
-			}
-		)
-	})
 }
 
 module.exports = {
