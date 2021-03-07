@@ -1,12 +1,14 @@
-name: Update latest tag
+name: Tag CI
 on:
   release:
     types: [published, edited]
 jobs:
-  actions-tagger:
+  latest:
+    name: Latest
     runs-on: windows-latest
     steps:
-      - uses: Actions-R-Us/actions-tagger@latest
+      - name: Update latest tag
+        uses: Actions-R-Us/actions-tagger@latest
         env:
           GITHUB_TOKEN: "${{ secrets.GH_PAT }}"
         with:
