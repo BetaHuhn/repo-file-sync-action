@@ -1,3 +1,5 @@
+const fs = require('fs')
+
 // From https://github.com/toniov/p-iteration/blob/master/lib/static-methods.js - MIT © Antonio V
 const forEach = async (array, callback) => {
 	for (let index = 0; index < array.length; index++) {
@@ -6,7 +8,7 @@ const forEach = async (array, callback) => {
 	}
 }
 
-// From https://github.com/MartinKolarik/dedent-js/blob/master/src/index.ts - Copyright (c) 2015 Martin Kolárik. Released under the MIT license.
+// From https://github.com/MartinKolarik/dedent-js/blob/master/src/index.ts - MIT © 2015 Martin Kolárik
 const dedent = function(templateStrings, ...values) {
 	const matches = []
 	const strings = typeof templateStrings === 'string' ? [ templateStrings ] : templateStrings.slice()
@@ -33,7 +35,16 @@ const dedent = function(templateStrings, ...values) {
 	return string
 }
 
+const addTrailingSlash = (str) => str.endsWith('/') ? str : str + '/'
+
+const pathIsDirectory = async (path) => {
+	const stat = await fs.promises.lstat(path)
+	return stat.isDirectory()
+}
+
 module.exports = {
 	forEach,
-	dedent
+	dedent,
+	addTrailingSlash,
+	pathIsDirectory
 }

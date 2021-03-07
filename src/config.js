@@ -93,13 +93,7 @@ const context = {
 
 core.setSecret(context.GITHUB_TOKEN)
 
-core.debug(
-	JSON.stringify(
-		context,
-		null,
-		2
-	)
-)
+core.debug(JSON.stringify(context, null, 2))
 
 const parseRepoName = (fullRepo) => {
 	let host = 'github.com'

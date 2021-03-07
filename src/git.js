@@ -12,24 +12,23 @@ const {
 	GITHUB_REPOSITORY,
 	OVERWRITE_EXISTING_PR
 } = require('./config')
+
 const { dedent } = require('./helpers')
 
-
 const init = (repo) => {
-
 	let github
 	let baseBranch
 	let prBranch
 	let existingPr
 
-	const localPath = path.join(TMP_DIR, repo.fullName)
+	const workingDir = path.join(TMP_DIR, repo.fullName)
 	const gitUrl = `https://${ GITHUB_TOKEN }@${ repo.fullName }.git`
 
 	const clone = () => {
-		core.info(`Cloning ${ repo.fullName } into ${ localPath }`)
+		core.debug(`Cloning ${ repo.fullName } into ${ workingDir }`)
 
 		return execCmd(
-			`git clone --depth 1 ${ repo.branch !== 'default' ? '--branch "' + repo.branch + '"' : '' } ${ gitUrl } ${ localPath }`
+			`git clone --depth 1 ${ repo.branch !== 'default' ? '--branch "' + repo.branch + '"' : '' } ${ gitUrl } ${ workingDir }`
 		)
 	}
 
@@ -44,78 +43,74 @@ const init = (repo) => {
 			username = data.login
 		}
 
-		core.info(`Setting git user to email: ${ email }, username: ${ username }`)
+		core.debug(`Setting git user to email: ${ email }, username: ${ username }`)
 
 		return execCmd(
 			`git config --local user.name "${ username }" && git config --local user.email "${ email }"`,
-			localPath
+			workingDir
 		)
 	}
 
 	const getBaseBranch = async () => {
 		baseBranch = await execCmd(
 			`git rev-parse --abbrev-ref HEAD`,
-			localPath
+			workingDir
 		)
 	}
 
 	const createPrBranch = async () => {
-		return new Promise((resolve, reject) => {
-			let newBranch = `repo-sync/${ GITHUB_REPOSITORY.split('/')[1] }/${ repo.branch }`
+		let newBranch = `repo-sync/${ GITHUB_REPOSITORY.split('/')[1] }/${ repo.branch }`
 
-			if (OVERWRITE_EXISTING_PR === false) {
-				newBranch += `-${ Math.round((new Date()).getTime() / 1000) }`
-			}
+		if (OVERWRITE_EXISTING_PR === false) {
+			newBranch += `-${ Math.round((new Date()).getTime() / 1000) }`
+		}
 
-			core.info(`Creating PR Branch ${ newBranch }`)
+		core.debug(`Creating PR Branch ${ newBranch }`)
 
-			execCmd(
-				`git checkout -b "${ newBranch }"`,
-				localPath
-			).catch((err) => {
-				reject(err)
-			}).then(() => {
-				prBranch = newBranch
-				resolve()
-			})
-		})
+		await execCmd(
+			`git checkout -b "${ newBranch }"`,
+			workingDir
+		)
+
+		prBranch = newBranch
 	}
 
 	const add = async (file) => {
 		return execCmd(
 			`git add -f ${ file }`,
-			localPath
+			workingDir
 		)
 	}
 
-	const hasChange = async () => {
+	const hasChanges = async () => {
 		const statusOutput = await execCmd(
 			`git status --porcelain`,
-			localPath
+			workingDir
 		)
+
 		return parse(statusOutput).length !== 0
 	}
 
 	const commit = async (msg) => {
 		const message = msg !== undefined ? msg : `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }`
+
 		return execCmd(
 			`git commit -m "${ message }"`,
-			localPath
+			workingDir
 		)
 	}
 
 	const status = async () => {
 		return execCmd(
 			`git status`,
-			localPath
+			workingDir
 		)
 	}
 
-	const push = async ({ force }) => {
-		console.log(force)
+	const push = async () => {
 		return execCmd(
-			`git push ${ gitUrl } ${ force ? '--force' : '' }`,
-			localPath
+			`git push ${ gitUrl } --force`,
+			workingDir
 		)
 	}
 
@@ -193,13 +188,13 @@ const init = (repo) => {
 	}
 
 	return {
-		localPath,
+		workingDir,
 		clone,
 		setIdentity,
 		getBaseBranch,
 		createPrBranch,
 		add,
-		hasChange,
+		hasChanges,
 		commit,
 		status,
 		push,
