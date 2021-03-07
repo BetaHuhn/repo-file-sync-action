@@ -99,6 +99,7 @@ Here are all the inputs [repo-file-sync-action](https://github.com/BetaHuhn/repo
 | `COMMIT_EACH_FILE` | Commit each file seperately | **No** | true |
 | `GIT_EMAIL` | The e-mail address used to commit the synced files | **No** | the email of the PAT used |
 | `GIT_USERNAME` | The username used to commit the synced files | **No** | the username of the PAT used |
+| `OVERWRITE_EXISTING_PR` | Overwrite any existing Sync PR with the new changes | **No** | true |
 | `TMP_DIR` | The working directory where all git operations will be done | **No** | tmp-${ Date.now().toString() } |
 | `DRY_RUN` | Run everything except that nothing will be pushed | **No** | false |
 | `SKIP_CLEANUP` | Skips removing the temporary directory. Useful for debugging | **No** | false |
