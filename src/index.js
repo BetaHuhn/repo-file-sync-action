@@ -47,12 +47,11 @@ const run = async () => {
 				await git.setPrWarning()
 			}
 
+			core.info(`Locally syncing file(s) between source and target repository`)
 			const modified = []
 
 			// Loop through all selected files of the source repo
 			await forEach(item.files, async (file) => {
-				core.info(`Looking for changed files`)
-
 				const fileExists = fs.existsSync(file.source)
 				if (fileExists === false) return core.warning(`Source ${ file.source } not found`)
 
