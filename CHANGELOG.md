@@ -2,6 +2,8 @@
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.3.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.2.0...v1.3.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.3.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.3.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.3.0.tar.gz))
 
+[repo-file-sync-action](https://github.com/betahuhn/repo-file-sync-action) will now check if there's an existing sync PR on the target repository and overwrite it with the new changes. This behavior can be turned of with the `OVERWRITE_EXISTING_PR` option.
+
 ### New features
 
 - [`2a4e127`](https://github.com/betahuhn/repo-file-sync-action/commit/2a4e127)  Check for and overwrite existing PR
