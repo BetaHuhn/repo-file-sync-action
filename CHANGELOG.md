@@ -1,3 +1,20 @@
+## [v1.3.0] - 2021-03-08
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.3.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.2.0...v1.3.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.3.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.3.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.3.0.tar.gz))
+
+### New features
+
+- [`2a4e127`](https://github.com/betahuhn/repo-file-sync-action/commit/2a4e127)  Check for and overwrite existing PR
+
+### Updates
+
+- [`5e590a1`](https://github.com/betahuhn/repo-file-sync-action/commit/5e590a1)  Improve code structure/readability
+- [`1e8745f`](https://github.com/betahuhn/repo-file-sync-action/commit/1e8745f)  Move exec function to helpers
+
+### Bug fixes
+
+- [`d7fe133`](https://github.com/betahuhn/repo-file-sync-action/commit/d7fe133)  Parse boolean action input as actual boolean
+
 ## [v1.2.0] - 2021-03-03
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.2.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.1.1...v1.2.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.2.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.2.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.2.0.tar.gz))
