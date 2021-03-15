@@ -122,7 +122,11 @@ const run = async () => {
 			if (hasChanges === false && modified.length < 1) {
 				core.info('File(s) already up to date')
 
-				if (!SKIP_PR && existingPr) {
+				if (SKIP_PR) {
+					return;
+				}
+
+				if (existingPr) {
 					await git.removePrWarning()
 				}
 
