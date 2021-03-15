@@ -6,7 +6,7 @@ module.exports =
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse("{\"_args\":[[\"@octokit/rest@16.43.2\",\"/home/betahuhn/programming/action-github-file-sync\"]],\"_from\":\"@octokit/rest@16.43.2\",\"_id\":\"@octokit/rest@16.43.2\",\"_inBundle\":false,\"_integrity\":\"sha512-ngDBevLbBTFfrHZeiS7SAMAZ6ssuVmXuya+F/7RaVvlysgGa1JKJkKWY+jV6TCJYcW0OALfJ7nTIGXcBXzycfQ==\",\"_location\":\"/@actions/github/@octokit/rest\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"version\",\"registry\":true,\"raw\":\"@octokit/rest@16.43.2\",\"name\":\"@octokit/rest\",\"escapedName\":\"@octokit%2frest\",\"scope\":\"@octokit\",\"rawSpec\":\"16.43.2\",\"saveSpec\":null,\"fetchSpec\":\"16.43.2\"},\"_requiredBy\":[\"/@actions/github\"],\"_resolved\":\"https://registry.npmjs.org/@octokit/rest/-/rest-16.43.2.tgz\",\"_spec\":\"16.43.2\",\"_where\":\"/home/betahuhn/programming/action-github-file-sync\",\"author\":{\"name\":\"Gregor Martynus\",\"url\":\"https://github.com/gr2m\"},\"bugs\":{\"url\":\"https://github.com/octokit/rest.js/issues\"},\"bundlesize\":[{\"path\":\"./dist/octokit-rest.min.js.gz\",\"maxSize\":\"33 kB\"}],\"contributors\":[{\"name\":\"Mike de Boer\",\"email\":\"info@mikedeboer.nl\"},{\"name\":\"Fabian Jakobs\",\"email\":\"fabian@c9.io\"},{\"name\":\"Joe Gallo\",\"email\":\"joe@brassafrax.com\"},{\"name\":\"Gregor Martynus\",\"url\":\"https://github.com/gr2m\"}],\"dependencies\":{\"@octokit/auth-token\":\"^2.4.0\",\"@octokit/plugin-paginate-rest\":\"^1.1.1\",\"@octokit/plugin-request-log\":\"^1.0.0\",\"@octokit/plugin-rest-endpoint-methods\":\"2.4.0\",\"@octokit/request\":\"^5.2.0\",\"@octokit/request-error\":\"^1.0.2\",\"atob-lite\":\"^2.0.0\",\"before-after-hook\":\"^2.0.0\",\"btoa-lite\":\"^1.0.0\",\"deprecation\":\"^2.0.0\",\"lodash.get\":\"^4.4.2\",\"lodash.set\":\"^4.3.2\",\"lodash.uniq\":\"^4.5.0\",\"octokit-pagination-methods\":\"^1.1.0\",\"once\":\"^1.4.0\",\"universal-user-agent\":\"^4.0.0\"},\"description\":\"GitHub REST API client for Node.js\",\"devDependencies\":{\"@gimenete/type-writer\":\"^0.1.3\",\"@octokit/auth\":\"^1.1.1\",\"@octokit/fixtures-server\":\"^5.0.6\",\"@octokit/graphql\":\"^4.2.0\",\"@types/node\":\"^13.1.0\",\"bundlesize\":\"^0.18.0\",\"chai\":\"^4.1.2\",\"compression-webpack-plugin\":\"^3.1.0\",\"cypress\":\"^4.0.0\",\"glob\":\"^7.1.2\",\"http-proxy-agent\":\"^4.0.0\",\"lodash.camelcase\":\"^4.3.0\",\"lodash.merge\":\"^4.6.1\",\"lodash.upperfirst\":\"^4.3.1\",\"lolex\":\"^6.0.0\",\"mkdirp\":\"^1.0.0\",\"mocha\":\"^7.0.1\",\"mustache\":\"^4.0.0\",\"nock\":\"^11.3.3\",\"npm-run-all\":\"^4.1.2\",\"nyc\":\"^15.0.0\",\"prettier\":\"^1.14.2\",\"proxy\":\"^1.0.0\",\"semantic-release\":\"^17.0.0\",\"sinon\":\"^8.0.0\",\"sinon-chai\":\"^3.0.0\",\"sort-keys\":\"^4.0.0\",\"string-to-arraybuffer\":\"^1.0.0\",\"string-to-jsdoc-comment\":\"^1.0.0\",\"typescript\":\"^3.3.1\",\"webpack\":\"^4.0.0\",\"webpack-bundle-analyzer\":\"^3.0.0\",\"webpack-cli\":\"^3.0.0\"},\"files\":[\"index.js\",\"index.d.ts\",\"lib\",\"plugins\"],\"homepage\":\"https://github.com/octokit/rest.js#readme\",\"keywords\":[\"octokit\",\"github\",\"rest\",\"api-client\"],\"license\":\"MIT\",\"name\":\"@octokit/rest\",\"nyc\":{\"ignore\":[\"test\"]},\"publishConfig\":{\"access\":\"public\"},\"release\":{\"publish\":[\"@semantic-release/npm\",{\"path\":\"@semantic-release/github\",\"assets\":[\"dist/*\",\"!dist/*.map.gz\"]}]},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/octokit/rest.js.git\"},\"scripts\":{\"build\":\"npm-run-all build:*\",\"build:browser\":\"npm-run-all build:browser:*\",\"build:browser:development\":\"webpack --mode development --entry . --output-library=Octokit --output=./dist/octokit-rest.js --profile --json > dist/bundle-stats.json\",\"build:browser:production\":\"webpack --mode production --entry . --plugin=compression-webpack-plugin --output-library=Octokit --output-path=./dist --output-filename=octokit-rest.min.js --devtool source-map\",\"build:ts\":\"npm run -s update-endpoints:typescript\",\"coverage\":\"nyc report --reporter=html && open coverage/index.html\",\"generate-bundle-report\":\"webpack-bundle-analyzer dist/bundle-stats.json --mode=static --no-open --report dist/bundle-report.html\",\"lint\":\"prettier --check '{lib,plugins,scripts,test}/**/*.{js,json,ts}' 'docs/*.{js,json}' 'docs/src/**/*' index.js README.md package.json\",\"lint:fix\":\"prettier --write '{lib,plugins,scripts,test}/**/*.{js,json,ts}' 'docs/*.{js,json}' 'docs/src/**/*' index.js README.md package.json\",\"postvalidate:ts\":\"tsc --noEmit --target es6 test/typescript-validate.ts\",\"prebuild:browser\":\"mkdirp dist/\",\"pretest\":\"npm run -s lint\",\"prevalidate:ts\":\"npm run -s build:ts\",\"start-fixtures-server\":\"octokit-fixtures-server\",\"test\":\"nyc mocha test/mocha-node-setup.js \\\"test/*/**/*-test.js\\\"\",\"test:browser\":\"cypress run --browser chrome\",\"update-endpoints\":\"npm-run-all update-endpoints:*\",\"update-endpoints:fetch-json\":\"node scripts/update-endpoints/fetch-json\",\"update-endpoints:typescript\":\"node scripts/update-endpoints/typescript\",\"validate:ts\":\"tsc --target es6 --noImplicitAny index.d.ts\"},\"types\":\"index.d.ts\",\"version\":\"16.43.2\"}");
+module.exports = JSON.parse("{\"_args\":[[\"@octokit/rest@16.43.2\",\"/Users/Shared/git/hub/repo-file-sync-action\"]],\"_from\":\"@octokit/rest@16.43.2\",\"_id\":\"@octokit/rest@16.43.2\",\"_inBundle\":false,\"_integrity\":\"sha512-ngDBevLbBTFfrHZeiS7SAMAZ6ssuVmXuya+F/7RaVvlysgGa1JKJkKWY+jV6TCJYcW0OALfJ7nTIGXcBXzycfQ==\",\"_location\":\"/@actions/github/@octokit/rest\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"version\",\"registry\":true,\"raw\":\"@octokit/rest@16.43.2\",\"name\":\"@octokit/rest\",\"escapedName\":\"@octokit%2frest\",\"scope\":\"@octokit\",\"rawSpec\":\"16.43.2\",\"saveSpec\":null,\"fetchSpec\":\"16.43.2\"},\"_requiredBy\":[\"/@actions/github\"],\"_resolved\":\"https://registry.npmjs.org/@octokit/rest/-/rest-16.43.2.tgz\",\"_spec\":\"16.43.2\",\"_where\":\"/Users/Shared/git/hub/repo-file-sync-action\",\"author\":{\"name\":\"Gregor Martynus\",\"url\":\"https://github.com/gr2m\"},\"bugs\":{\"url\":\"https://github.com/octokit/rest.js/issues\"},\"bundlesize\":[{\"path\":\"./dist/octokit-rest.min.js.gz\",\"maxSize\":\"33 kB\"}],\"contributors\":[{\"name\":\"Mike de Boer\",\"email\":\"info@mikedeboer.nl\"},{\"name\":\"Fabian Jakobs\",\"email\":\"fabian@c9.io\"},{\"name\":\"Joe Gallo\",\"email\":\"joe@brassafrax.com\"},{\"name\":\"Gregor Martynus\",\"url\":\"https://github.com/gr2m\"}],\"dependencies\":{\"@octokit/auth-token\":\"^2.4.0\",\"@octokit/plugin-paginate-rest\":\"^1.1.1\",\"@octokit/plugin-request-log\":\"^1.0.0\",\"@octokit/plugin-rest-endpoint-methods\":\"2.4.0\",\"@octokit/request\":\"^5.2.0\",\"@octokit/request-error\":\"^1.0.2\",\"atob-lite\":\"^2.0.0\",\"before-after-hook\":\"^2.0.0\",\"btoa-lite\":\"^1.0.0\",\"deprecation\":\"^2.0.0\",\"lodash.get\":\"^4.4.2\",\"lodash.set\":\"^4.3.2\",\"lodash.uniq\":\"^4.5.0\",\"octokit-pagination-methods\":\"^1.1.0\",\"once\":\"^1.4.0\",\"universal-user-agent\":\"^4.0.0\"},\"description\":\"GitHub REST API client for Node.js\",\"devDependencies\":{\"@gimenete/type-writer\":\"^0.1.3\",\"@octokit/auth\":\"^1.1.1\",\"@octokit/fixtures-server\":\"^5.0.6\",\"@octokit/graphql\":\"^4.2.0\",\"@types/node\":\"^13.1.0\",\"bundlesize\":\"^0.18.0\",\"chai\":\"^4.1.2\",\"compression-webpack-plugin\":\"^3.1.0\",\"cypress\":\"^4.0.0\",\"glob\":\"^7.1.2\",\"http-proxy-agent\":\"^4.0.0\",\"lodash.camelcase\":\"^4.3.0\",\"lodash.merge\":\"^4.6.1\",\"lodash.upperfirst\":\"^4.3.1\",\"lolex\":\"^6.0.0\",\"mkdirp\":\"^1.0.0\",\"mocha\":\"^7.0.1\",\"mustache\":\"^4.0.0\",\"nock\":\"^11.3.3\",\"npm-run-all\":\"^4.1.2\",\"nyc\":\"^15.0.0\",\"prettier\":\"^1.14.2\",\"proxy\":\"^1.0.0\",\"semantic-release\":\"^17.0.0\",\"sinon\":\"^8.0.0\",\"sinon-chai\":\"^3.0.0\",\"sort-keys\":\"^4.0.0\",\"string-to-arraybuffer\":\"^1.0.0\",\"string-to-jsdoc-comment\":\"^1.0.0\",\"typescript\":\"^3.3.1\",\"webpack\":\"^4.0.0\",\"webpack-bundle-analyzer\":\"^3.0.0\",\"webpack-cli\":\"^3.0.0\"},\"files\":[\"index.js\",\"index.d.ts\",\"lib\",\"plugins\"],\"homepage\":\"https://github.com/octokit/rest.js#readme\",\"keywords\":[\"octokit\",\"github\",\"rest\",\"api-client\"],\"license\":\"MIT\",\"name\":\"@octokit/rest\",\"nyc\":{\"ignore\":[\"test\"]},\"publishConfig\":{\"access\":\"public\"},\"release\":{\"publish\":[\"@semantic-release/npm\",{\"path\":\"@semantic-release/github\",\"assets\":[\"dist/*\",\"!dist/*.map.gz\"]}]},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/octokit/rest.js.git\"},\"scripts\":{\"build\":\"npm-run-all build:*\",\"build:browser\":\"npm-run-all build:browser:*\",\"build:browser:development\":\"webpack --mode development --entry . --output-library=Octokit --output=./dist/octokit-rest.js --profile --json > dist/bundle-stats.json\",\"build:browser:production\":\"webpack --mode production --entry . --plugin=compression-webpack-plugin --output-library=Octokit --output-path=./dist --output-filename=octokit-rest.min.js --devtool source-map\",\"build:ts\":\"npm run -s update-endpoints:typescript\",\"coverage\":\"nyc report --reporter=html && open coverage/index.html\",\"generate-bundle-report\":\"webpack-bundle-analyzer dist/bundle-stats.json --mode=static --no-open --report dist/bundle-report.html\",\"lint\":\"prettier --check '{lib,plugins,scripts,test}/**/*.{js,json,ts}' 'docs/*.{js,json}' 'docs/src/**/*' index.js README.md package.json\",\"lint:fix\":\"prettier --write '{lib,plugins,scripts,test}/**/*.{js,json,ts}' 'docs/*.{js,json}' 'docs/src/**/*' index.js README.md package.json\",\"postvalidate:ts\":\"tsc --noEmit --target es6 test/typescript-validate.ts\",\"prebuild:browser\":\"mkdirp dist/\",\"pretest\":\"npm run -s lint\",\"prevalidate:ts\":\"npm run -s build:ts\",\"start-fixtures-server\":\"octokit-fixtures-server\",\"test\":\"nyc mocha test/mocha-node-setup.js \\\"test/*/**/*-test.js\\\"\",\"test:browser\":\"cypress run --browser chrome\",\"update-endpoints\":\"npm-run-all update-endpoints:*\",\"update-endpoints:fetch-json\":\"node scripts/update-endpoints/fetch-json\",\"update-endpoints:typescript\":\"node scripts/update-endpoints/typescript\",\"validate:ts\":\"tsc --target es6 --noImplicitAny index.d.ts\"},\"types\":\"index.d.ts\",\"version\":\"16.43.2\"}");
 
 /***/ }),
 
@@ -30249,7 +30249,12 @@ const context = {
 	GITHUB_REPOSITORY: getVar({
 		key: 'GITHUB_REPOSITORY',
 		required: true
-	})
+	}),
+	SKIP_PR: getVar({
+		key: 'SKIP_PR',
+		required: false,
+		default: true
+	}),
 }
 
 core.setSecret(context.GITHUB_TOKEN)
@@ -30677,7 +30682,8 @@ const {
 	DRY_RUN,
 	TMP_DIR,
 	SKIP_CLEANUP,
-	OVERWRITE_EXISTING_PR
+	OVERWRITE_EXISTING_PR,
+	SKIP_PR
 } = __nccwpck_require__(4570)
 
 const run = async () => {
@@ -30699,13 +30705,16 @@ const run = async () => {
 			await git.clone()
 			await git.setIdentity(client)
 			await git.getBaseBranch()
-			await git.createPrBranch()
+			
+			if (!SKIP_PR) {
+				await git.createPrBranch()
 
-			// Check for existing PR and add warning message that the PR maybe about to change
-			const existingPr = OVERWRITE_EXISTING_PR ? await git.findExistingPr() : undefined
-			if (existingPr && DRY_RUN === false) {
-				core.info(`Found existing PR ${ existingPr.number }`)
-				await git.setPrWarning()
+				// Check for existing PR and add warning message that the PR maybe about to change
+				const existingPr = OVERWRITE_EXISTING_PR ? await git.findExistingPr() : undefined
+				if (existingPr && DRY_RUN === false) {
+					core.info(`Found existing PR ${ existingPr.number }`)
+					await git.setPrWarning()
+				}
 			}
 
 			core.info(`Locally syncing file(s) between source and target repository`)
@@ -30731,7 +30740,7 @@ const run = async () => {
 
 				await git.add(file.dest)
 
-				// Commit each file seperately, if option is set to false, commit all files at once later
+				// Commit each file separately, if option is set to false, commit all files at once later
 				if (COMMIT_EACH_FILE === true) {
 					const hasChanges = await git.hasChanges()
 
@@ -30784,7 +30793,7 @@ const run = async () => {
 				return
 			}
 
-			// If there are still local changes left (i.e. not committed each file seperately), commit them before pushing
+			// If there are still local changes left (i.e. not committed each file separately), commit them before pushing
 			if (hasChanges === true) {
 				core.debug(`Creating commit for remaining files`)
 
@@ -30796,44 +30805,45 @@ const run = async () => {
 
 			core.info(`Pushing changes to target repository`)
 			await git.push()
+			
+			if (!SKIP_PR) {
+				// If each file was committed separately, list them in the PR description
+				const changedFiles = dedent(`
+					<details>
+					<summary>Changed files</summary>
+					<ul>
+					${ modified.map((file) => `<li>${ file.message }</li>`).join('') }
+					</ul>
+					</details>
+				`)
 
-			// If each file was committed seperately, list them in the PR description
-			const changedFiles = dedent(`
-				<details>
-				<summary>Changed files</summary>
-				<ul>
-				${ modified.map((file) => `<li>${ file.message }</li>`).join('') }
-				</ul>
-				</details>
-			`)
+				const pullRequest = await git.createOrUpdatePr(COMMIT_EACH_FILE ? changedFiles : '')
 
-			const pullRequest = await git.createOrUpdatePr(COMMIT_EACH_FILE ? changedFiles : '')
+				core.info(`Pull Request #${ pullRequest.number } created/updated: ${ pullRequest.html_url }`)
 
-			core.info(`Pull Request #${ pullRequest.number } created/updated: ${ pullRequest.html_url }`)
+				core.setOutput('pull_request_number', pullRequest.number)
+				core.setOutput('pull_request_url', pullRequest.html_url)
 
-			core.setOutput('pull_request_number', pullRequest.number)
-			core.setOutput('pull_request_url', pullRequest.html_url)
+				if (PR_LABELS !== undefined && PR_LABELS.length > 0) {
+					core.info(`Adding label(s) "${ PR_LABELS.join(', ') }" to PR`)
+					await client.issues.addLabels({
+						owner: item.repo.user,
+						repo: item.repo.name,
+						issue_number: pullRequest.number,
+						labels: PR_LABELS
+					})
+				}
 
-			if (PR_LABELS !== undefined && PR_LABELS.length > 0) {
-				core.info(`Adding label(s) "${ PR_LABELS.join(', ') }" to PR`)
-				await client.issues.addLabels({
-					owner: item.repo.user,
-					repo: item.repo.name,
-					issue_number: pullRequest.number,
-					labels: PR_LABELS
-				})
+				if (ASSIGNEES !== undefined && ASSIGNEES.length > 0) {
+					core.info(`Adding assignee(s) "${ ASSIGNEES.join(', ') }" to PR`)
+					await client.issues.addAssignees({
+						owner: item.repo.user,
+						repo: item.repo.name,
+						issue_number: pullRequest.number,
+						assignees: ASSIGNEES
+					})
+				}
 			}
-
-			if (ASSIGNEES !== undefined && ASSIGNEES.length > 0) {
-				core.info(`Adding assignee(s) "${ ASSIGNEES.join(', ') }" to PR`)
-				await client.issues.addAssignees({
-					owner: item.repo.user,
-					repo: item.repo.name,
-					issue_number: pullRequest.number,
-					assignees: ASSIGNEES
-				})
-			}
-
 			core.info('	')
 		} catch (err) {
 			core.error(err.message)
