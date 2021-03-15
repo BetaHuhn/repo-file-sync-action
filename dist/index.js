@@ -30253,7 +30253,7 @@ const context = {
 	SKIP_PR: getVar({
 		key: 'SKIP_PR',
 		required: false,
-		default: true
+		default: false
 	}),
 }
 
@@ -30788,7 +30788,13 @@ const run = async () => {
 			if (hasChanges === false && modified.length < 1) {
 				core.info('File(s) already up to date')
 
-				if (existingPr) await git.removePrWarning()
+				if (SKIP_PR) {
+					return;
+				}
+
+				if (existingPr) {
+					await git.removePrWarning()
+				}
 
 				return
 			}
