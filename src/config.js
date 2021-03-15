@@ -89,7 +89,12 @@ const context = {
 	GITHUB_REPOSITORY: getVar({
 		key: 'GITHUB_REPOSITORY',
 		required: true
-	})
+	}),
+	SKIP_PR: getVar({
+		key: 'SKIP_PR',
+		required: false,
+		default: false
+	}),
 }
 
 core.setSecret(context.GITHUB_TOKEN)

@@ -16,7 +16,8 @@ const {
 	DRY_RUN,
 	TMP_DIR,
 	SKIP_CLEANUP,
-	OVERWRITE_EXISTING_PR
+	OVERWRITE_EXISTING_PR,
+	SKIP_PR
 } = require('./config')
 
 const run = async () => {
@@ -38,13 +39,16 @@ const run = async () => {
 			await git.clone()
 			await git.setIdentity(client)
 			await git.getBaseBranch()
-			await git.createPrBranch()
+			
+			if (!SKIP_PR) {
+				await git.createPrBranch()
 
-			// Check for existing PR and add warning message that the PR maybe about to change
-			const existingPr = OVERWRITE_EXISTING_PR ? await git.findExistingPr() : undefined
-			if (existingPr && DRY_RUN === false) {
-				core.info(`Found existing PR ${ existingPr.number }`)
-				await git.setPrWarning()
+				// Check for existing PR and add warning message that the PR maybe about to change
+				const existingPr = OVERWRITE_EXISTING_PR ? await git.findExistingPr() : undefined
+				if (existingPr && DRY_RUN === false) {
+					core.info(`Found existing PR ${ existingPr.number }`)
+					await git.setPrWarning()
+				}
 			}
 
 			core.info(`Locally syncing file(s) between source and target repository`)
@@ -70,7 +74,7 @@ const run = async () => {
 
 				await git.add(file.dest)
 
-				// Commit each file seperately, if option is set to false, commit all files at once later
+				// Commit each file separately, if option is set to false, commit all files at once later
 				if (COMMIT_EACH_FILE === true) {
 					const hasChanges = await git.hasChanges()
 
@@ -118,12 +122,14 @@ const run = async () => {
 			if (hasChanges === false && modified.length < 1) {
 				core.info('File(s) already up to date')
 
-				if (existingPr) await git.removePrWarning()
+				if (!SKIP_PR && existingPr) {
+					await git.removePrWarning()
+				}
 
 				return
 			}
 
-			// If there are still local changes left (i.e. not committed each file seperately), commit them before pushing
+			// If there are still local changes left (i.e. not committed each file separately), commit them before pushing
 			if (hasChanges === true) {
 				core.debug(`Creating commit for remaining files`)
 
@@ -135,44 +141,45 @@ const run = async () => {
 
 			core.info(`Pushing changes to target repository`)
 			await git.push()
+			
+			if (!SKIP_PR) {
+				// If each file was committed separately, list them in the PR description
+				const changedFiles = dedent(`
+					<details>
+					<summary>Changed files</summary>
+					<ul>
+					${ modified.map((file) => `<li>${ file.message }</li>`).join('') }
+					</ul>
+					</details>
+				`)
 
-			// If each file was committed seperately, list them in the PR description
-			const changedFiles = dedent(`
-				<details>
-				<summary>Changed files</summary>
-				<ul>
-				${ modified.map((file) => `<li>${ file.message }</li>`).join('') }
-				</ul>
-				</details>
-			`)
+				const pullRequest = await git.createOrUpdatePr(COMMIT_EACH_FILE ? changedFiles : '')
 
-			const pullRequest = await git.createOrUpdatePr(COMMIT_EACH_FILE ? changedFiles : '')
+				core.info(`Pull Request #${ pullRequest.number } created/updated: ${ pullRequest.html_url }`)
 
-			core.info(`Pull Request #${ pullRequest.number } created/updated: ${ pullRequest.html_url }`)
+				core.setOutput('pull_request_number', pullRequest.number)
+				core.setOutput('pull_request_url', pullRequest.html_url)
 
-			core.setOutput('pull_request_number', pullRequest.number)
-			core.setOutput('pull_request_url', pullRequest.html_url)
+				if (PR_LABELS !== undefined && PR_LABELS.length > 0) {
+					core.info(`Adding label(s) "${ PR_LABELS.join(', ') }" to PR`)
+					await client.issues.addLabels({
+						owner: item.repo.user,
+						repo: item.repo.name,
+						issue_number: pullRequest.number,
+						labels: PR_LABELS
+					})
+				}
 
-			if (PR_LABELS !== undefined && PR_LABELS.length > 0) {
-				core.info(`Adding label(s) "${ PR_LABELS.join(', ') }" to PR`)
-				await client.issues.addLabels({
-					owner: item.repo.user,
-					repo: item.repo.name,
-					issue_number: pullRequest.number,
-					labels: PR_LABELS
-				})
+				if (ASSIGNEES !== undefined && ASSIGNEES.length > 0) {
+					core.info(`Adding assignee(s) "${ ASSIGNEES.join(', ') }" to PR`)
+					await client.issues.addAssignees({
+						owner: item.repo.user,
+						repo: item.repo.name,
+						issue_number: pullRequest.number,
+						assignees: ASSIGNEES
+					})
+				}
 			}
-
-			if (ASSIGNEES !== undefined && ASSIGNEES.length > 0) {
-				core.info(`Adding assignee(s) "${ ASSIGNEES.join(', ') }" to PR`)
-				await client.issues.addAssignees({
-					owner: item.repo.user,
-					repo: item.repo.name,
-					issue_number: pullRequest.number,
-					assignees: ASSIGNEES
-				})
-			}
-
 			core.info('	')
 		} catch (err) {
 			core.error(err.message)
