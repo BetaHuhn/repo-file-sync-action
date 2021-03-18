@@ -1,3 +1,17 @@
+## [v1.4.0] - 2021-03-18
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.4.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.3.1...v1.4.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.4.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.4.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.4.0.tar.gz))
+
+### New features
+
+- [`d359236`](https://github.com/betahuhn/repo-file-sync-action/commit/d359236)  Add skip PR option #14
+(Issues: [`#14`](https://github.com/betahuhn/repo-file-sync-action/issues/14))
+
+### Dependency updates
+
+- [`4c44045`](https://github.com/betahuhn/repo-file-sync-action/commit/4c44045)  Bump eslint from 7.21.0 to 7.22.0 (#12)
+(Issues: [`#12`](https://github.com/betahuhn/repo-file-sync-action/issues/12))
+
 ## [v1.3.1] - 2021-03-15
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.3.1) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.3.0...v1.3.1) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.3.1) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.3.1.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.3.1.tar.gz))
