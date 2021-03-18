@@ -92,7 +92,7 @@ const context = {
 	}),
 	SKIP_PR: getVar({
 		key: 'SKIP_PR',
-		required: false,
+		type: 'boolean',
 		default: false
 	}),
 }
