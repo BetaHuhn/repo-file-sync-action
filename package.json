@@ -29,7 +29,7 @@
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@actions/github": "^2.2.0",
-    "@actions/io": "^1.0.2",
+    "@actions/io": "^1.1.0",
     "@putout/git-status-porcelain": "^1.1.0",
     "dotenv": "^8.2.0",
     "js-yaml": "^4.0.0"
