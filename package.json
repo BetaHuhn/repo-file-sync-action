@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/marketplace/actions/github-file-sync",
   "dependencies": {
-    "@actions/core": "^1.2.6",
+    "@actions/core": "^1.2.7",
     "@actions/github": "^2.2.0",
     "@actions/io": "^1.0.2",
     "@putout/git-status-porcelain": "^1.1.0",
