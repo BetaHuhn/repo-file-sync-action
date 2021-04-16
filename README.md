@@ -153,6 +153,21 @@ user/repo:
     dest: .github/workflows/
 ```
 
+### Exclude certain files when syncing directories
+
+Using the `exclude` key you can specify files you want to exclude when syncing entire directories (#26).
+
+```yml
+user/repo:
+  - source: workflows/
+    dest: .github/workflows/
+    exclude: |
+      node.yml
+      lint.yml
+```
+
+> **Note:** the exclude file path is relative to the source path
+
 ### Don't replace existing file(s)
 
 By default if a file already exists in the target repository, it will be replaced. You can change this behaviour by setting the `replace` option to `false`:
