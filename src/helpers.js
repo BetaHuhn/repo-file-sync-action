@@ -1,4 +1,4 @@
-const fs = require('fs')
+const fs = require('fs-extra')
 const { exec } = require('child_process')
 const core = require('@actions/core')
 
@@ -55,8 +55,22 @@ const execCmd = (command, workingDir) => {
 const addTrailingSlash = (str) => str.endsWith('/') ? str : str + '/'
 
 const pathIsDirectory = async (path) => {
-	const stat = await fs.promises.lstat(path)
+	const stat = await fs.lstat(path)
 	return stat.isDirectory()
+}
+
+const copy = async (src, dest) => {
+
+	core.debug(`CP: ${ src } TO ${ dest }`)
+
+	return fs.copy(src, dest)
+}
+
+const remove = async (src) => {
+
+	core.debug(`RM: ${ src }`)
+
+	return fs.remove(src)
 }
 
 module.exports = {
@@ -64,5 +78,7 @@ module.exports = {
 	dedent,
 	addTrailingSlash,
 	pathIsDirectory,
-	execCmd
+	execCmd,
+	copy,
+	remove
 }

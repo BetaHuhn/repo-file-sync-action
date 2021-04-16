@@ -1,10 +1,9 @@
 const core = require('@actions/core')
 const github = require('@actions/github')
-const io = require('@actions/io')
 const fs = require('fs')
 
 const Git = require('./git')
-const { forEach, dedent, addTrailingSlash, pathIsDirectory } = require('./helpers')
+const { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove } = require('./helpers')
 
 const {
 	parseConfig,
@@ -70,12 +69,11 @@ const run = async () => {
 
 				if (isDirectory) core.warning(`Source is directory`)
 
-				core.debug(`Copying ${ source } to ${ localDestination }`)
-				await io.cp(source, localDestination, { recursive: true, force: true })
+				await copy(source, localDestination)
 
 				await git.add(file.dest)
 
-				// Commit each file separately, if option is set to false, commit all files at once later
+				// Commit each file separately, if option is set to false commit all files at once later
 				if (COMMIT_EACH_FILE === true) {
 					const hasChanges = await git.hasChanges()
 
@@ -192,7 +190,7 @@ const run = async () => {
 		return
 	}
 
-	await io.rmRF(TMP_DIR)
+	await remove(TMP_DIR)
 	core.info('Cleanup complete')
 }
 

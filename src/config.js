@@ -1,6 +1,6 @@
 const core = require('@actions/core')
 const yaml = require('js-yaml')
-const fs = require('fs')
+const fs = require('fs-extra')
 
 require('dotenv').config()
 
@@ -125,7 +125,6 @@ const parseRepoName = (fullRepo) => {
 		branch
 	}
 }
-
 
 const parseFiles = (files) => {
 	return files.map((item) => {
