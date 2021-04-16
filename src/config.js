@@ -1,6 +1,7 @@
 const core = require('@actions/core')
 const yaml = require('js-yaml')
 const fs = require('fs-extra')
+const path = require('path')
 
 require('dotenv').config()
 
@@ -126,6 +127,14 @@ const parseRepoName = (fullRepo) => {
 	}
 }
 
+const parseExclude = (text, src) => {
+	if (text === undefined || typeof text !== 'string') return undefined
+
+	const files = text.split('\n').filter((i) => i)
+
+	return files.map((file) => path.join(src, file))
+}
+
 const parseFiles = (files) => {
 	return files.map((item) => {
 
@@ -141,7 +150,8 @@ const parseFiles = (files) => {
 			return {
 				source: item.source,
 				dest: item.dest !== undefined ? item.dest : item.source,
-				replace: item.replace !== undefined ? item.replace : REPLACE_DEFAULT
+				replace: item.replace !== undefined ? item.replace : REPLACE_DEFAULT,
+				exclude: parseExclude(item.exclude, item.source)
 			}
 		}
 

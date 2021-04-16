@@ -59,11 +59,21 @@ const pathIsDirectory = async (path) => {
 	return stat.isDirectory()
 }
 
-const copy = async (src, dest) => {
+const copy = async (src, dest, exclude) => {
 
 	core.debug(`CP: ${ src } TO ${ dest }`)
 
-	return fs.copy(src, dest)
+	const filterFunc = (file) => {
+
+		if (exclude.includes(file)) {
+			core.debug(`Excluding file ${ file }`)
+			return false
+		}
+
+		return true
+	}
+
+	return fs.copy(src, dest, (exclude !== undefined && { filter: filterFunc }))
 }
 
 const remove = async (src) => {
