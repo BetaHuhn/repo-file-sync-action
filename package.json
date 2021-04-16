@@ -27,16 +27,16 @@
   },
   "homepage": "https://github.com/marketplace/actions/github-file-sync",
   "dependencies": {
-    "@actions/core": "^1.2.6",
+    "@actions/core": "^1.2.7",
     "@actions/github": "^2.2.0",
-    "@actions/io": "^1.0.2",
+    "@actions/io": "^1.1.0",
     "@putout/git-status-porcelain": "^1.1.0",
     "dotenv": "^8.2.0",
-    "js-yaml": "^4.0.0"
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
-    "@betahuhn/config": "^1.0.2",
+    "@betahuhn/config": "^1.1.0",
     "@vercel/ncc": "^0.27.0",
-    "eslint": "^7.22.0"
+    "eslint": "^7.24.0"
   }
 }
