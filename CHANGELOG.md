@@ -1,3 +1,21 @@
+## [v1.5.0] - 2021-04-19
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.5.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.4.0...v1.5.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.5.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.5.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.5.0.tar.gz))
+
+### New features
+
+- [`b557527`](https://github.com/betahuhn/repo-file-sync-action/commit/b557527)  Add option to exclude certain files when syncing directories #26
+(Issues: [`#26`](https://github.com/betahuhn/repo-file-sync-action/issues/26))
+
+### Bug fixes
+
+- [`9dc51bf`](https://github.com/betahuhn/repo-file-sync-action/commit/9dc51bf)  Use fs-extra instead of actions/io #15
+(Issues: [`#15`](https://github.com/betahuhn/repo-file-sync-action/issues/15))
+
+### Dependency updates
+
+- [`bd44655`](https://github.com/betahuhn/repo-file-sync-action/commit/bd44655)  Update dependencies
+
 ## [v1.4.0] - 2021-03-18
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.4.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.3.1...v1.4.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.4.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.4.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.4.0.tar.gz))
