@@ -32,7 +32,7 @@
     "@actions/io": "^1.0.2",
     "@putout/git-status-porcelain": "^1.1.0",
     "dotenv": "^8.2.0",
-    "js-yaml": "^4.0.0"
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
     "@betahuhn/config": "^1.0.2",
