@@ -9,7 +9,8 @@ const {
 	TMP_DIR,
 	COMMIT_PREFIX,
 	GITHUB_REPOSITORY,
-	OVERWRITE_EXISTING_PR
+	OVERWRITE_EXISTING_PR,
+	BRANCH_PREFIX
 } = require('./config')
 
 const { dedent, execCmd } = require('./helpers')
@@ -58,7 +59,9 @@ const init = (repo) => {
 	}
 
 	const createPrBranch = async () => {
-		let newBranch = `repo-sync/${ GITHUB_REPOSITORY.split('/')[1] }/${ repo.branch }`
+		const prefix = BRANCH_PREFIX.replace('SOURCE_REPO_NAME', GITHUB_REPOSITORY.split('/')[1])
+
+		let newBranch = path.join(prefix, repo.branch)
 
 		if (OVERWRITE_EXISTING_PR === false) {
 			newBranch += `-${ Math.round((new Date()).getTime() / 1000) }`

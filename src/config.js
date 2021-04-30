@@ -95,6 +95,10 @@ const context = {
 		key: 'SKIP_PR',
 		type: 'boolean',
 		default: false
+	}),
+	BRANCH_PREFIX: getVar({
+		key: 'BRANCH_PREFIX',
+		default: 'repo-sync/SOURCE_REPO_NAME'
 	})
 }
 
