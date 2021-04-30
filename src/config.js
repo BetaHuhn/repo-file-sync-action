@@ -159,7 +159,7 @@ const parseFiles = (files) => {
 			}
 		}
 
-		core.warn('Warn: No source files specified')
+		core.warning('Warn: No source files specified')
 	})
 }
 
@@ -215,7 +215,7 @@ const parseConfig = async () => {
 
 while (fs.existsSync(context.TMP_DIR)) {
 	context.TMP_DIR = `tmp-${ Date.now().toString() }`
-	core.warn(`TEMP_DIR already exists. Using "${ context.TMP_DIR }" now.`)
+	core.warning(`TEMP_DIR already exists. Using "${ context.TMP_DIR }" now.`)
 }
 
 module.exports = {
