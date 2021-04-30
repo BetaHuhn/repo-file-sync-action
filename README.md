@@ -304,7 +304,7 @@ group:
 
 By default all new branches created in the target repo will be in the this format: `repo-sync/SOURCE_REPO_NAME/SOURCE_BRANCH_NAME`, with the SOURCE_REPO_NAME being replaced with the name of the source repo and SOURCE_BRANCH_NAME with the name of the source branch.
 
-If your repo name contains invalid characters, like a dot (#32), you can specify a different prefix for the branch (the text before `/SOURCE_BRANCH_NAME`):
+If your repo name contains invalid characters, like a dot ([#32](https://github.com/BetaHuhn/repo-file-sync-action/issues/32)), you can specify a different prefix for the branch (the text before `/SOURCE_BRANCH_NAME`):
 
 **.github/workflows/sync.yml**
 
