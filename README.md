@@ -100,6 +100,7 @@ Here are all the inputs [repo-file-sync-action](https://github.com/BetaHuhn/repo
 | `GIT_EMAIL` | The e-mail address used to commit the synced files | **No** | the email of the PAT used |
 | `GIT_USERNAME` | The username used to commit the synced files | **No** | the username of the PAT used |
 | `OVERWRITE_EXISTING_PR` | Overwrite any existing Sync PR with the new changes | **No** | true |
+| `BRANCH_PREFIX` | Specify a different prefix for the new branch in the target repo | **No** | repo-sync/SOURCE_REPO_NAME |
 | `TMP_DIR` | The working directory where all git operations will be done | **No** | tmp-${ Date.now().toString() } |
 | `DRY_RUN` | Run everything except that nothing will be pushed | **No** | false |
 | `SKIP_CLEANUP` | Skips removing the temporary directory. Useful for debugging | **No** | false |
@@ -298,6 +299,25 @@ group:
 ```
 
 > **Note:** The key has to start with http to indicate that you want to use a custom host.
+
+### Different branch prefix
+
+By default all new branches created in the target repo will be in the this format: `repo-sync/SOURCE_REPO_NAME/SOURCE_BRANCH_NAME`, with the SOURCE_REPO_NAME being replaced with the name of the source repo and SOURCE_BRANCH_NAME with the name of the source branch.
+
+If your repo name contains invalid characters, like a dot (#32), you can specify a different prefix for the branch (the text before `/SOURCE_BRANCH_NAME`):
+
+**.github/workflows/sync.yml**
+
+```yml
+uses: BetaHuhn/repo-file-sync-action@v1
+with:
+    GH_PAT: ${{ secrets.GH_PAT }}
+    BRANCH_PREFIX: custom-branch
+```
+
+The new branch will then be `custom-branch/SOURCE_BRANCH_NAME`.
+
+> You can use `SOURCE_REPO_NAME` in your custom branch prefix as well and it will be replaced with the actual repo name
 
 ### Advanced sync config
 
