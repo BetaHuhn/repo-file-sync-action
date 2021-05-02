@@ -16493,6 +16493,100 @@ function pick(files, {added, modified, deleted, untracked, renamed}) {
 
 /***/ }),
 
+/***/ 4623:
+/***/ (function(module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getInput = void 0;
+var dotenv_1 = __importDefault(__nccwpck_require__(2437));
+dotenv_1.default.config();
+var VALID_TYPES = ['string', 'array', 'boolean'];
+var DEFAULT_OPTIONS = {
+    required: false,
+    type: 'string',
+    disableable: false
+};
+var getEnvVar = function (key) {
+    var parsed = process.env["INPUT_" + key.replace(/ /g, '_').toUpperCase()];
+    var raw = process.env[key];
+    return parsed || raw || undefined;
+};
+var parseArray = function (val) {
+    var array = val.split('\n').join(',').split(',');
+    var filtered = array.filter(function (n) { return n; });
+    return filtered.map(function (n) { return n.trim(); });
+};
+var parseBoolean = function (val) {
+    var trueValue = ['true', 'True', 'TRUE'];
+    var falseValue = ['false', 'False', 'FALSE'];
+    if (trueValue.includes(val))
+        return true;
+    if (falseValue.includes(val))
+        return false;
+    throw new Error('boolean input has to be one of \`true | True | TRUE | false | False | FALSE\`');
+};
+var parseValue = function (val, type) {
+    if (type === 'array') {
+        return parseArray(val);
+    }
+    if (type === 'boolean') {
+        return parseBoolean(val);
+    }
+    return val.trim();
+};
+var getInput = function (key, opts) {
+    var parsedOptions;
+    if (typeof key === 'string') {
+        parsedOptions = __assign({ key: key }, opts);
+    }
+    else if (typeof key === 'object') {
+        parsedOptions = key;
+    }
+    else {
+        throw new Error('No key for input specified');
+    }
+    if (!parsedOptions.key)
+        throw new Error('No key for input specified');
+    var options = Object.assign({}, DEFAULT_OPTIONS, parsedOptions);
+    if (VALID_TYPES.includes(options.type) === false)
+        throw new Error('option type has to be one of `string | array | boolean`');
+    var val = getEnvVar(options.key);
+    if (options.disableable && val === 'false')
+        return undefined;
+    var parsed = val !== undefined ? parseValue(val, options.type) : undefined;
+    if (parsed === undefined) {
+        if (options.required)
+            throw new Error("Input `" + options.key + "` is required but was not provided.");
+        if (options.default !== undefined)
+            return options.default;
+        return undefined;
+    }
+    if (options.modifier)
+        return options.modifier(parsed);
+    return parsed;
+};
+exports.getInput = getInput;
+module.exports.getInput = exports.getInput;
+
+
+/***/ }),
+
 /***/ 5995:
 /***/ ((module) => {
 
@@ -32780,109 +32874,93 @@ const core = __nccwpck_require__(2186)
 const yaml = __nccwpck_require__(1917)
 const fs = __nccwpck_require__(5630)
 const path = __nccwpck_require__(5622)
-
-__nccwpck_require__(2437).config()
+const { getInput } = __nccwpck_require__(4623)
 
 const REPLACE_DEFAULT = true
+let context
 
-const getVar = ({ key, default: dft, required = false, type = 'string' }) => {
-	const coreVar = core.getInput(key)
-	const envVar = process.env[key]
-
-	if (key === 'PR_LABELS' && (coreVar === false || envVar === 'false'))
-		return undefined
-
-	if (coreVar !== undefined && coreVar.length >= 1) {
-		if (type === 'array') return coreVar.split('\n')
-		if (type === 'boolean') return coreVar === 'false' ? false : Boolean(coreVar)
-
-		return coreVar
+try {
+	context = {
+		GITHUB_TOKEN: getInput({
+			key: 'GH_PAT',
+			required: true
+		}),
+		GIT_EMAIL: getInput({
+			key: 'GIT_EMAIL'
+		}),
+		GIT_USERNAME: getInput({
+			key: 'GIT_USERNAME'
+		}),
+		CONFIG_PATH: getInput({
+			key: 'CONFIG_PATH',
+			default: '.github/sync.yml'
+		}),
+		COMMIT_PREFIX: getInput({
+			key: 'COMMIT_PREFIX',
+			default: '🔄'
+		}),
+		COMMIT_EACH_FILE: getInput({
+			key: 'COMMIT_EACH_FILE',
+			type: 'boolean',
+			default: true
+		}),
+		PR_LABELS: getInput({
+			key: 'PR_LABELS',
+			default: [ 'sync' ],
+			type: 'array',
+			disableable: true
+		}),
+		ASSIGNEES: getInput({
+			key: 'ASSIGNEES',
+			type: 'array'
+		}),
+		TMP_DIR: getInput({
+			key: 'TMP_DIR',
+			default: `tmp-${ Date.now().toString() }`
+		}),
+		DRY_RUN: getInput({
+			key: 'DRY_RUN',
+			type: 'boolean',
+			default: false
+		}),
+		SKIP_CLEANUP: getInput({
+			key: 'SKIP_CLEANUP',
+			type: 'boolean',
+			default: false
+		}),
+		OVERWRITE_EXISTING_PR: getInput({
+			key: 'OVERWRITE_EXISTING_PR',
+			type: 'boolean',
+			default: true
+		}),
+		GITHUB_REPOSITORY: getInput({
+			key: 'GITHUB_REPOSITORY',
+			required: true
+		}),
+		SKIP_PR: getInput({
+			key: 'SKIP_PR',
+			type: 'boolean',
+			default: false
+		}),
+		BRANCH_PREFIX: getInput({
+			key: 'BRANCH_PREFIX',
+			default: 'repo-sync/SOURCE_REPO_NAME'
+		})
 	}
 
-	if (envVar !== undefined && envVar.length >= 1) {
-		if (type === 'array') return envVar.split(',')
-		if (type === 'boolean') return envVar === 'true'
+	core.setSecret(context.GITHUB_TOKEN)
 
-		return envVar
+	core.debug(JSON.stringify(context, null, 2))
+
+	while (fs.existsSync(context.TMP_DIR)) {
+		context.TMP_DIR = `tmp-${ Date.now().toString() }`
+		core.warning(`TEMP_DIR already exists. Using "${ context.TMP_DIR }" now.`)
 	}
 
-	if (required === true)
-		return core.setFailed(`Variable ${ key } missing.`)
-
-	return dft
-
+} catch (err) {
+	core.setFailed(err.message)
+	process.exit(1)
 }
-
-const context = {
-	GITHUB_TOKEN: getVar({
-		key: 'GH_PAT',
-		required: true
-	}),
-	GIT_EMAIL: getVar({
-		key: 'GIT_EMAIL'
-	}),
-	GIT_USERNAME: getVar({
-		key: 'GIT_USERNAME'
-	}),
-	CONFIG_PATH: getVar({
-		key: 'CONFIG_PATH',
-		default: '.github/sync.yml'
-	}),
-	COMMIT_PREFIX: getVar({
-		key: 'COMMIT_PREFIX',
-		default: '🔄'
-	}),
-	COMMIT_EACH_FILE: getVar({
-		key: 'COMMIT_EACH_FILE',
-		type: 'boolean',
-		default: true
-	}),
-	PR_LABELS: getVar({
-		key: 'PR_LABELS',
-		default: [ 'sync' ],
-		type: 'array'
-	}),
-	ASSIGNEES: getVar({
-		key: 'ASSIGNEES',
-		type: 'array'
-	}),
-	TMP_DIR: getVar({
-		key: 'TMP_DIR',
-		default: `tmp-${ Date.now().toString() }`
-	}),
-	DRY_RUN: getVar({
-		key: 'DRY_RUN',
-		type: 'boolean',
-		default: false
-	}),
-	SKIP_CLEANUP: getVar({
-		key: 'SKIP_CLEANUP',
-		type: 'boolean',
-		default: false
-	}),
-	OVERWRITE_EXISTING_PR: getVar({
-		key: 'OVERWRITE_EXISTING_PR',
-		type: 'boolean',
-		default: true
-	}),
-	GITHUB_REPOSITORY: getVar({
-		key: 'GITHUB_REPOSITORY',
-		required: true
-	}),
-	SKIP_PR: getVar({
-		key: 'SKIP_PR',
-		type: 'boolean',
-		default: false
-	}),
-	BRANCH_PREFIX: getVar({
-		key: 'BRANCH_PREFIX',
-		default: 'repo-sync/SOURCE_REPO_NAME'
-	})
-}
-
-core.setSecret(context.GITHUB_TOKEN)
-
-core.debug(JSON.stringify(context, null, 2))
 
 const parseRepoName = (fullRepo) => {
 	let host = 'github.com'
@@ -32989,11 +33067,6 @@ const parseConfig = async () => {
 	})
 
 	return Object.values(result)
-}
-
-while (fs.existsSync(context.TMP_DIR)) {
-	context.TMP_DIR = `tmp-${ Date.now().toString() }`
-	core.warning(`TEMP_DIR already exists. Using "${ context.TMP_DIR }" now.`)
 }
 
 module.exports = {

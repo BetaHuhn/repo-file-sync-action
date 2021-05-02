@@ -2,109 +2,93 @@ const core = require('@actions/core')
 const yaml = require('js-yaml')
 const fs = require('fs-extra')
 const path = require('path')
-
-require('dotenv').config()
+const { getInput } = require('action-input-parser')
 
 const REPLACE_DEFAULT = true
+let context
 
-const getVar = ({ key, default: dft, required = false, type = 'string' }) => {
-	const coreVar = core.getInput(key)
-	const envVar = process.env[key]
-
-	if (key === 'PR_LABELS' && (coreVar === false || envVar === 'false'))
-		return undefined
-
-	if (coreVar !== undefined && coreVar.length >= 1) {
-		if (type === 'array') return coreVar.split('\n')
-		if (type === 'boolean') return coreVar === 'false' ? false : Boolean(coreVar)
-
-		return coreVar
+try {
+	context = {
+		GITHUB_TOKEN: getInput({
+			key: 'GH_PAT',
+			required: true
+		}),
+		GIT_EMAIL: getInput({
+			key: 'GIT_EMAIL'
+		}),
+		GIT_USERNAME: getInput({
+			key: 'GIT_USERNAME'
+		}),
+		CONFIG_PATH: getInput({
+			key: 'CONFIG_PATH',
+			default: '.github/sync.yml'
+		}),
+		COMMIT_PREFIX: getInput({
+			key: 'COMMIT_PREFIX',
+			default: '🔄'
+		}),
+		COMMIT_EACH_FILE: getInput({
+			key: 'COMMIT_EACH_FILE',
+			type: 'boolean',
+			default: true
+		}),
+		PR_LABELS: getInput({
+			key: 'PR_LABELS',
+			default: [ 'sync' ],
+			type: 'array',
+			disableable: true
+		}),
+		ASSIGNEES: getInput({
+			key: 'ASSIGNEES',
+			type: 'array'
+		}),
+		TMP_DIR: getInput({
+			key: 'TMP_DIR',
+			default: `tmp-${ Date.now().toString() }`
+		}),
+		DRY_RUN: getInput({
+			key: 'DRY_RUN',
+			type: 'boolean',
+			default: false
+		}),
+		SKIP_CLEANUP: getInput({
+			key: 'SKIP_CLEANUP',
+			type: 'boolean',
+			default: false
+		}),
+		OVERWRITE_EXISTING_PR: getInput({
+			key: 'OVERWRITE_EXISTING_PR',
+			type: 'boolean',
+			default: true
+		}),
+		GITHUB_REPOSITORY: getInput({
+			key: 'GITHUB_REPOSITORY',
+			required: true
+		}),
+		SKIP_PR: getInput({
+			key: 'SKIP_PR',
+			type: 'boolean',
+			default: false
+		}),
+		BRANCH_PREFIX: getInput({
+			key: 'BRANCH_PREFIX',
+			default: 'repo-sync/SOURCE_REPO_NAME'
+		})
 	}
 
-	if (envVar !== undefined && envVar.length >= 1) {
-		if (type === 'array') return envVar.split(',')
-		if (type === 'boolean') return envVar === 'true'
+	core.setSecret(context.GITHUB_TOKEN)
 
-		return envVar
+	core.debug(JSON.stringify(context, null, 2))
+
+	while (fs.existsSync(context.TMP_DIR)) {
+		context.TMP_DIR = `tmp-${ Date.now().toString() }`
+		core.warning(`TEMP_DIR already exists. Using "${ context.TMP_DIR }" now.`)
 	}
 
-	if (required === true)
-		return core.setFailed(`Variable ${ key } missing.`)
-
-	return dft
-
+} catch (err) {
+	core.setFailed(err.message)
+	process.exit(1)
 }
-
-const context = {
-	GITHUB_TOKEN: getVar({
-		key: 'GH_PAT',
-		required: true
-	}),
-	GIT_EMAIL: getVar({
-		key: 'GIT_EMAIL'
-	}),
-	GIT_USERNAME: getVar({
-		key: 'GIT_USERNAME'
-	}),
-	CONFIG_PATH: getVar({
-		key: 'CONFIG_PATH',
-		default: '.github/sync.yml'
-	}),
-	COMMIT_PREFIX: getVar({
-		key: 'COMMIT_PREFIX',
-		default: '🔄'
-	}),
-	COMMIT_EACH_FILE: getVar({
-		key: 'COMMIT_EACH_FILE',
-		type: 'boolean',
-		default: true
-	}),
-	PR_LABELS: getVar({
-		key: 'PR_LABELS',
-		default: [ 'sync' ],
-		type: 'array'
-	}),
-	ASSIGNEES: getVar({
-		key: 'ASSIGNEES',
-		type: 'array'
-	}),
-	TMP_DIR: getVar({
-		key: 'TMP_DIR',
-		default: `tmp-${ Date.now().toString() }`
-	}),
-	DRY_RUN: getVar({
-		key: 'DRY_RUN',
-		type: 'boolean',
-		default: false
-	}),
-	SKIP_CLEANUP: getVar({
-		key: 'SKIP_CLEANUP',
-		type: 'boolean',
-		default: false
-	}),
-	OVERWRITE_EXISTING_PR: getVar({
-		key: 'OVERWRITE_EXISTING_PR',
-		type: 'boolean',
-		default: true
-	}),
-	GITHUB_REPOSITORY: getVar({
-		key: 'GITHUB_REPOSITORY',
-		required: true
-	}),
-	SKIP_PR: getVar({
-		key: 'SKIP_PR',
-		type: 'boolean',
-		default: false
-	}),
-	BRANCH_PREFIX: getVar({
-		key: 'BRANCH_PREFIX',
-		default: 'repo-sync/SOURCE_REPO_NAME'
-	})
-}
-
-core.setSecret(context.GITHUB_TOKEN)
-
-core.debug(JSON.stringify(context, null, 2))
 
 const parseRepoName = (fullRepo) => {
 	let host = 'github.com'
@@ -211,11 +195,6 @@ const parseConfig = async () => {
 	})
 
 	return Object.values(result)
-}
-
-while (fs.existsSync(context.TMP_DIR)) {
-	context.TMP_DIR = `tmp-${ Date.now().toString() }`
-	core.warning(`TEMP_DIR already exists. Using "${ context.TMP_DIR }" now.`)
 }
 
 module.exports = {
