@@ -1,3 +1,12 @@
+## [v1.5.1] - 2021-05-03
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.5.1) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.5.0...v1.5.1) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.5.1) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.5.1.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.5.1.tar.gz))
+
+### Dependency updates
+
+- [`000bf45`](https://github.com/betahuhn/repo-file-sync-action/commit/000bf45)  Bump eslint from 7.24.0 to 7.25.0 (#29)
+(Issues: [`#29`](https://github.com/betahuhn/repo-file-sync-action/issues/29))
+
 ## [v1.5.0] - 2021-04-19
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.5.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.4.0...v1.5.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.5.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.5.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.5.0.tar.gz))
