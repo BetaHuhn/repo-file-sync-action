@@ -31,7 +31,7 @@
     "@actions/github": "^2.2.0",
     "@putout/git-status-porcelain": "^1.1.0",
     "dotenv": "^8.2.0",
-    "fs-extra": "^9.1.0",
+    "fs-extra": "^10.0.0",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
