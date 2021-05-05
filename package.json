@@ -25,18 +25,18 @@
   "bugs": {
     "url": "https://github.com/betahuhn/repo-file-sync-action/issues"
   },
-  "homepage": "https://github.com/marketplace/actions/github-file-sync",
+  "homepage": "https://github.com/marketplace/actions/repo-file-sync-action",
   "dependencies": {
     "@actions/core": "^1.2.7",
     "@actions/github": "^2.2.0",
     "@putout/git-status-porcelain": "^1.1.0",
-    "action-input-parser": "^1.0.1",
-    "fs-extra": "^9.1.0",
+    "action-input-parser": "^1.1.0",
+    "fs-extra": "^10.0.0",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
     "@betahuhn/config": "^1.1.0",
-    "@vercel/ncc": "^0.27.0",
+    "@vercel/ncc": "^0.28.5",
     "eslint": "^7.25.0"
   }
 }
