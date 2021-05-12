@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 14
       - name: Cache node modules
-        uses: c-hive/gha-npm-cache@v1
+        uses: c-hive/gha-npm-cache@v1.0.2
       - name: Install dependencies
         run: npm ci
       - name: Run lint command
@@ -33,7 +33,7 @@ jobs:
         with:
           node-version: 14
       - name: Cache node modules
-        uses: c-hive/gha-npm-cache@v1
+        uses: c-hive/gha-npm-cache@v1.0.2
       - name: Install dependencies
         run: npm ci
       - name: Run build command
@@ -51,7 +51,7 @@ jobs:
         with:
           node-version: 14
       - name: Cache node modules
-        uses: c-hive/gha-npm-cache@v1
+        uses: c-hive/gha-npm-cache@v1.0.2
       - name: Install dependencies
         run: npm ci
       - name: Run Semantic Release
