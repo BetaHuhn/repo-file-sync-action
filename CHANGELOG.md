@@ -1,3 +1,12 @@
+## [v1.7.0] - 2021-05-21
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.7.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.6.0...v1.7.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.7.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.7.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.7.0.tar.gz))
+
+### New features
+
+- [`6f08f7d`](https://github.com/betahuhn/repo-file-sync-action/commit/6f08f7d)  Add COMMIT_BODY option (#44)
+(Issues: [`#44`](https://github.com/betahuhn/repo-file-sync-action/issues/44))
+
 ## [v1.6.0] - 2021-05-05
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.6.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.5.1...v1.6.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.6.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.6.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.6.0.tar.gz))
