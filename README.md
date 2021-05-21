@@ -320,6 +320,27 @@ The new branch will then be `custom-branch/SOURCE_BRANCH_NAME`.
 
 > You can use `SOURCE_REPO_NAME` in your custom branch prefix as well and it will be replaced with the actual repo name
 
+### Custom commit body
+
+You can specify a custom commit body. This will be appended to the commit message, separated by two new lines. For example:
+
+**.github/workflows/sync.yml**
+
+```yml
+- name: Run GitHub File Sync
+  uses: BetaHuhn/repo-file-sync-action@v1
+  with:
+    GH_PAT: ${{ secrets.GH_PAT }}
+    COMMIT_BODY: "Change-type: patch"
+```
+
+The above example would result in a commit message that looks something like this:
+```
+🔄 Synced local '<filename>' with remote '<filename>'
+
+Change-type: patch
+```
+
 ### Advanced sync config
 
 Here's how I keep common files in sync across my repositories. The main repository [`github-files`](https://github.com/BetaHuhn/github-files) contains all the files I want to sync and the [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) Action which runs on every push.
