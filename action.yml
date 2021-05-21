@@ -23,6 +23,10 @@ inputs:
     description: |
       Prefix for commit message and pull request title. Defaults to 🔄
     required: false
+  COMMIT_BODY:
+    description: |
+      Commit message body. Will be appended to commit message, separated by two line returns. Defaults to ''
+    required: false
   COMMIT_EACH_FILE:
     description: |
       Commit each file seperately. Defaults to true
