@@ -7,6 +7,7 @@ const {
 	GIT_USERNAME,
 	GIT_EMAIL,
 	TMP_DIR,
+	COMMIT_BODY,
 	COMMIT_PREFIX,
 	GITHUB_REPOSITORY,
 	OVERWRITE_EXISTING_PR,
@@ -94,8 +95,10 @@ const init = (repo) => {
 	}
 
 	const commit = async (msg) => {
-		const message = msg !== undefined ? msg : `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }`
-
+		let message = msg !== undefined ? msg : `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }`
+		if (COMMIT_BODY) {
+			message += `\n\n${ COMMIT_BODY }`
+		}
 		return execCmd(
 			`git commit -m "${ message }"`,
 			workingDir

@@ -23,6 +23,10 @@ try {
 			key: 'CONFIG_PATH',
 			default: '.github/sync.yml'
 		}),
+		COMMIT_BODY: getInput({
+			key: 'COMMIT_BODY',
+			default: ''
+		}),
 		COMMIT_PREFIX: getInput({
 			key: 'COMMIT_PREFIX',
 			default: '🔄'
