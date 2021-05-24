@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/marketplace/actions/repo-file-sync-action",
   "dependencies": {
-    "@actions/core": "^1.2.7",
+    "@actions/core": "^1.3.0",
     "@actions/github": "^2.2.0",
     "@putout/git-status-porcelain": "^1.1.0",
     "action-input-parser": "^1.1.0",
