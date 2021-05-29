@@ -1,5 +1,4 @@
 const core = require('@actions/core')
-const github = require('@actions/github')
 const fs = require('fs')
 
 const Git = require('./git')
@@ -20,7 +19,8 @@ const {
 } = require('./config')
 
 const run = async () => {
-	const client = github.getOctokit(GITHUB_TOKEN)
+	const client = Git.getOctokit(GITHUB_TOKEN)
+	// const client = github.getOctokit(GITHUB_TOKEN)
 
 	const repos = await parseConfig()
 

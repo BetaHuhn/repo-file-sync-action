@@ -1,5 +1,7 @@
 const { parse } = require('@putout/git-status-porcelain')
 const core = require('@actions/core')
+const { GitHub, getOctokitOptions } = require('@actions/github/lib/utils')
+const { throttling } = require('@octokit/plugin-throttling')
 const path = require('path')
 
 const {
@@ -15,6 +17,30 @@ const {
 } = require('./config')
 
 const { dedent, execCmd } = require('./helpers')
+
+const getOctokit = (token) => {
+	const Octokit = GitHub.plugin(throttling)
+
+	const options = getOctokitOptions(token, {
+		throttle: {
+			onRateLimit: (retryAfter, options) => {
+				core.warning(`Request quota exhausted for request ${ options.method } ${ options.url }`)
+
+				if (options.request.retryCount === 0) {
+					// only retries once
+					core.info(`Retrying after ${ retryAfter } seconds!`)
+					return true
+				}
+			},
+			onAbuseLimit: (retryAfter, options) => {
+				// does not retry, only logs a warning
+				core.warning(`Abuse detected for request ${ options.method } ${ options.url }`)
+			}
+		}
+	})
+
+	return new Octokit(options)
+}
 
 const init = (repo) => {
 	let github
@@ -211,5 +237,6 @@ const init = (repo) => {
 }
 
 module.exports = {
-	init
+	init,
+	getOctokit
 }
