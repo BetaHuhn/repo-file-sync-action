@@ -39,7 +39,8 @@ const getOctokit = (token) => {
 		}
 	})
 
-	return new Octokit(options)
+	const client = new Octokit(options)
+	return client.rest
 }
 
 const init = (repo) => {

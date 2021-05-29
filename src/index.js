@@ -20,7 +20,6 @@ const {
 
 const run = async () => {
 	const client = Git.getOctokit(GITHUB_TOKEN)
-	// const client = github.getOctokit(GITHUB_TOKEN)
 
 	const repos = await parseConfig()
 
