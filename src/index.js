@@ -20,7 +20,7 @@ const {
 } = require('./config')
 
 const run = async () => {
-	const client = new github.GitHub(GITHUB_TOKEN)
+	const client = github.getOctokit(GITHUB_TOKEN)
 
 	const repos = await parseConfig()
 
