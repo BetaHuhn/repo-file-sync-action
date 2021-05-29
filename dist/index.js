@@ -15517,54 +15517,64 @@ const {
 
 const { dedent, execCmd } = __nccwpck_require__(8505)
 
-const getOctokit = (token) => {
-	const Octokit = GitHub.plugin(throttling)
+class Git {
+	constructor() {
+		const Octokit = GitHub.plugin(throttling)
 
-	const options = getOctokitOptions(token, {
-		throttle: {
-			onRateLimit: (retryAfter, options) => {
-				core.warning(`Request quota exhausted for request ${ options.method } ${ options.url }`)
+		const options = getOctokitOptions(GITHUB_TOKEN, {
+			throttle: {
+				onRateLimit: (retryAfter, options) => {
+					core.warning(`Request quota exhausted for request ${ options.method } ${ options.url }`)
 
-				if (options.request.retryCount === 0) {
-					// only retries once
-					core.info(`Retrying after ${ retryAfter } seconds!`)
-					return true
+					if (options.request.retryCount === 0) {
+						// only retries once
+						core.info(`Retrying after ${ retryAfter } seconds!`)
+						return true
+					}
+				},
+				onAbuseLimit: (retryAfter, options) => {
+					// does not retry, only logs a warning
+					core.warning(`Abuse detected for request ${ options.method } ${ options.url }`)
 				}
-			},
-			onAbuseLimit: (retryAfter, options) => {
-				// does not retry, only logs a warning
-				core.warning(`Abuse detected for request ${ options.method } ${ options.url }`)
 			}
-		}
-	})
+		})
 
-	return new Octokit(options)
-}
+		const octokit = new Octokit(options)
 
-const init = (repo) => {
-	let github
-	let baseBranch
-	let prBranch
-	let existingPr
+		// We only need the rest client
+		this.github = octokit.rest
+	}
 
-	const workingDir = path.join(TMP_DIR, repo.fullName)
-	const gitUrl = `https://${ GITHUB_TOKEN }@${ repo.fullName }.git`
+	async initRepo(repo) {
+		// Reset repo specific values
+		this.existingPr = undefined
+		this.prBranch = undefined
+		this.baseBranch = undefined
 
-	const clone = () => {
-		core.debug(`Cloning ${ repo.fullName } into ${ workingDir }`)
+		// Set values to current repo
+		this.repo = repo
+		this.workingDir = path.join(TMP_DIR, repo.fullName)
+		this.gitUrl = `https://${ GITHUB_TOKEN }@${ repo.fullName }.git`
+
+		await this.clone()
+		await this.setIdentity()
+		await this.getBaseBranch()
+	}
+
+	async clone() {
+		core.debug(`Cloning ${ this.repo.fullName } into ${ this.workingDir }`)
 
 		return execCmd(
-			`git clone --depth 1 ${ repo.branch !== 'default' ? '--branch "' + repo.branch + '"' : '' } ${ gitUrl } ${ workingDir }`
+			`git clone --depth 1 ${ this.repo.branch !== 'default' ? '--branch "' + this.repo.branch + '"' : '' } ${ this.gitUrl } ${ this.workingDir }`
 		)
 	}
 
-	const setIdentity = async (client) => {
+	async setIdentity() {
 		let username = GIT_USERNAME
 		let email = GIT_EMAIL
-		github = client
 
 		if (email === undefined) {
-			const { data } = await github.users.getAuthenticated()
+			const { data } = await this.github.users.getAuthenticated()
 			email = data.email
 			username = data.login
 		}
@@ -15573,21 +15583,21 @@ const init = (repo) => {
 
 		return execCmd(
 			`git config --local user.name "${ username }" && git config --local user.email "${ email }"`,
-			workingDir
+			this.workingDir
 		)
 	}
 
-	const getBaseBranch = async () => {
-		baseBranch = await execCmd(
+	async getBaseBranch() {
+		this.baseBranch = await execCmd(
 			`git rev-parse --abbrev-ref HEAD`,
-			workingDir
+			this.workingDir
 		)
 	}
 
-	const createPrBranch = async () => {
+	async createPrBranch() {
 		const prefix = BRANCH_PREFIX.replace('SOURCE_REPO_NAME', GITHUB_REPOSITORY.split('/')[1])
 
-		let newBranch = path.join(prefix, repo.branch)
+		let newBranch = path.join(prefix, this.repo.branch)
 
 		if (OVERWRITE_EXISTING_PR === false) {
 			newBranch += `-${ Math.round((new Date()).getTime() / 1000) }`
@@ -15597,89 +15607,89 @@ const init = (repo) => {
 
 		await execCmd(
 			`git checkout -b "${ newBranch }"`,
-			workingDir
+			this.workingDir
 		)
 
-		prBranch = newBranch
+		this.prBranch = newBranch
 	}
 
-	const add = async (file) => {
+	async add(file) {
 		return execCmd(
 			`git add -f ${ file }`,
-			workingDir
+			this.workingDir
 		)
 	}
 
-	const hasChanges = async () => {
+	async hasChanges() {
 		const statusOutput = await execCmd(
 			`git status --porcelain`,
-			workingDir
+			this.workingDir
 		)
 
 		return parse(statusOutput).length !== 0
 	}
 
-	const commit = async (msg) => {
+	async commit(msg) {
 		let message = msg !== undefined ? msg : `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }`
 		if (COMMIT_BODY) {
 			message += `\n\n${ COMMIT_BODY }`
 		}
 		return execCmd(
 			`git commit -m "${ message }"`,
-			workingDir
+			this.workingDir
 		)
 	}
 
-	const status = async () => {
+	async status() {
 		return execCmd(
 			`git status`,
-			workingDir
+			this.workingDir
 		)
 	}
 
-	const push = async () => {
+	async push() {
 		return execCmd(
-			`git push ${ gitUrl } --force`,
-			workingDir
+			`git push ${ this.gitUrl } --force`,
+			this.workingDir
 		)
 	}
 
-	const findExistingPr = async () => {
-		const { data } = await github.pulls.list({
-			owner: repo.user,
-			repo: repo.name,
+	async findExistingPr() {
+		const { data } = await this.github.pulls.list({
+			owner: this.repo.user,
+			repo: this.repo.name,
 			state: 'open',
-			head: `${ repo.user }:${ prBranch }`
+			head: `${ this.repo.user }:${ this.prBranch }`
 		})
 
-		existingPr = data[0]
+		this.existingPr = data[0]
 
-		return existingPr
+		return this.existingPr
 	}
 
-	const setPrWarning = async () => {
-		await github.pulls.update({
-			owner: repo.user,
-			repo: repo.name,
-			pull_number: existingPr.number,
+	async setPrWarning() {
+		await this.github.pulls.update({
+			owner: this.repo.user,
+			repo: this.repo.name,
+			pull_number: this.existingPr.number,
 			body: dedent(`
 				⚠️ This PR is being automatically resynced ⚠️
 
-				${ existingPr.body }
+				${ this.existingPr.body }
 			`)
 		})
 	}
 
-	const removePrWarning = async () => {
-		await github.pulls.update({
-			owner: repo.user,
-			repo: repo.name,
-			pull_number: existingPr.number,
-			body: existingPr.body.replace('⚠️ This PR is being automatically resynced ⚠️', '')
+	async removePrWarning() {
+		await this.github.pulls.update({
+			owner: this.repo.user,
+			repo: this.repo.name,
+			pull_number: this.existingPr.number,
+			body: this.existingPr.body.replace('⚠️ This PR is being automatically resynced ⚠️', '')
 		})
 	}
 
-	const createOrUpdatePr = async (changedFiles) => {
+	async createOrUpdatePr(changedFiles) {
 		const body = dedent(`
 			Synced local file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
 
@@ -15690,13 +15700,13 @@ const init = (repo) => {
 			This PR was created automatically by the [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) workflow run [#${ process.env.GITHUB_RUN_ID || 0 }](https://github.com/${ GITHUB_REPOSITORY }/actions/runs/${ process.env.GITHUB_RUN_ID || 0 })
 		`)
 
-		if (existingPr) {
+		if (this.existingPr) {
 			core.info(`Overwriting existing PR`)
 
-			const { data } = await github.pulls.update({
-				owner: repo.user,
-				repo: repo.name,
-				pull_number: existingPr.number,
+			const { data } = await this.github.pulls.update({
+				owner: this.repo.user,
+				repo: this.repo.name,
+				pull_number: this.existingPr.number,
 				body: body
 			})
 
@@ -15705,40 +15715,40 @@ const init = (repo) => {
 
 		core.info(`Creating new PR`)
 
-		const { data } = await github.pulls.create({
-			owner: repo.user,
-			repo: repo.name,
+		const { data } = await this.github.pulls.create({
+			owner: this.repo.user,
+			repo: this.repo.name,
 			title: `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }`,
 			body: body,
-			head: prBranch,
-			base: baseBranch
+			head: this.prBranch,
+			base: this.baseBranch
 		})
+
+		this.existingPr = data
 
 		return data
 	}
 
-	return {
-		workingDir,
-		clone,
-		setIdentity,
-		getBaseBranch,
-		createPrBranch,
-		add,
-		hasChanges,
-		commit,
-		status,
-		push,
-		findExistingPr,
-		setPrWarning,
-		removePrWarning,
-		createOrUpdatePr
+	async addPrLabels(labels) {
+		await this.github.issues.addLabels({
+			owner: this.repo.user,
+			repo: this.repo.name,
+			issue_number: this.existingPr.number,
+			labels: labels
+		})
+	}
+
+	async addPrAssignees(assignees) {
+		await this.github.issues.addAssignees({
+			owner: this.repo.user,
+			repo: this.repo.name,
+			issue_number: this.existingPr.number,
+			assignees: assignees
+		})
 	}
 }
 
-module.exports = {
-	init,
-	getOctokit
-}
+module.exports = Git
 
 /***/ }),
 
@@ -16017,7 +16027,6 @@ const { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove } = __n
 
 const {
 	parseConfig,
-	GITHUB_TOKEN,
 	COMMIT_EACH_FILE,
 	COMMIT_PREFIX,
 	PR_LABELS,
@@ -16030,8 +16039,8 @@ const {
 } = __nccwpck_require__(4570)
 
 const run = async () => {
-	const client = Git.getOctokit(GITHUB_TOKEN)
-	// const client = github.getOctokit(GITHUB_TOKEN)
+	// Reuse octokit for each repo
+	const git = new Git()
 
 	const repos = await parseConfig()
 
@@ -16043,12 +16052,9 @@ const run = async () => {
 		core.info(`Branch		: ${ item.repo.branch }`)
 		core.info('	')
 		try {
-			const git = Git.init(item.repo)
 
 			// Clone and setup the git repository locally
-			await git.clone()
-			await git.setIdentity(client)
-			await git.getBaseBranch()
+			await git.initRepo(item.repo)
 
 			let existingPr
 			if (SKIP_PR === false) {
@@ -16170,22 +16176,12 @@ const run = async () => {
 
 				if (PR_LABELS !== undefined && PR_LABELS.length > 0) {
 					core.info(`Adding label(s) "${ PR_LABELS.join(', ') }" to PR`)
-					await client.issues.addLabels({
-						owner: item.repo.user,
-						repo: item.repo.name,
-						issue_number: pullRequest.number,
-						labels: PR_LABELS
-					})
+					await git.addPrLabels(PR_LABELS)
 				}
 
 				if (ASSIGNEES !== undefined && ASSIGNEES.length > 0) {
 					core.info(`Adding assignee(s) "${ ASSIGNEES.join(', ') }" to PR`)
-					await client.issues.addAssignees({
-						owner: item.repo.user,
-						repo: item.repo.name,
-						issue_number: pullRequest.number,
-						assignees: ASSIGNEES
-					})
+					await git.addPrAssignees(ASSIGNEES)
 				}
 			}
 

@@ -6,7 +6,6 @@ const { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove } = req
 
 const {
 	parseConfig,
-	GITHUB_TOKEN,
 	COMMIT_EACH_FILE,
 	COMMIT_PREFIX,
 	PR_LABELS,
@@ -19,7 +18,8 @@ const {
 } = require('./config')
 
 const run = async () => {
-	const client = Git.getOctokit(GITHUB_TOKEN)
+	// Reuse octokit for each repo
+	const git = new Git()
 
 	const repos = await parseConfig()
 
@@ -31,12 +31,9 @@ const run = async () => {
 		core.info(`Branch		: ${ item.repo.branch }`)
 		core.info('	')
 		try {
-			const git = Git.init(item.repo)
 
 			// Clone and setup the git repository locally
-			await git.clone()
-			await git.setIdentity(client)
-			await git.getBaseBranch()
+			await git.initRepo(item.repo)
 
 			let existingPr
 			if (SKIP_PR === false) {
@@ -158,22 +155,12 @@ const run = async () => {
 
 				if (PR_LABELS !== undefined && PR_LABELS.length > 0) {
 					core.info(`Adding label(s) "${ PR_LABELS.join(', ') }" to PR`)
-					await client.issues.addLabels({
-						owner: item.repo.user,
-						repo: item.repo.name,
-						issue_number: pullRequest.number,
-						labels: PR_LABELS
-					})
+					await git.addPrLabels(PR_LABELS)
 				}
 
 				if (ASSIGNEES !== undefined && ASSIGNEES.length > 0) {
 					core.info(`Adding assignee(s) "${ ASSIGNEES.join(', ') }" to PR`)
-					await client.issues.addAssignees({
-						owner: item.repo.user,
-						repo: item.repo.name,
-						issue_number: pullRequest.number,
-						assignees: ASSIGNEES
-					})
+					await git.addPrAssignees(ASSIGNEES)
 				}
 			}
 
