@@ -54,7 +54,7 @@ class Git {
 
 		// Set values to current repo
 		this.repo = repo
-		this.workingDir = path.join(TMP_DIR, repo.fullName)
+		this.workingDir = path.join(TMP_DIR, repo.uniqueName)
 		this.gitUrl = `https://${ GITHUB_TOKEN }@${ repo.fullName }.git`
 
 		await this.clone()
