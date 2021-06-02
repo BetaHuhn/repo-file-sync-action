@@ -112,6 +112,7 @@ const parseRepoName = (fullRepo) => {
 
 	return {
 		fullName: `${ host }/${ user }/${ name }`,
+		uniqueName: `${ host }/${ user }/${ name }@${ branch }`,
 		host,
 		user,
 		name,
@@ -171,12 +172,12 @@ const parseConfig = async () => {
 					const files = parseFiles(group.files)
 					const repo = parseRepoName(name)
 
-					if (result[repo.fullName] !== undefined) {
-						result[repo.fullName].files.push(...files)
+					if (result[repo.uniqueName] !== undefined) {
+						result[repo.uniqueName].files.push(...files)
 						return
 					}
 
-					result[repo.fullName] = {
+					result[repo.uniqueName] = {
 						repo,
 						files
 					}
@@ -186,12 +187,12 @@ const parseConfig = async () => {
 			const files = parseFiles(configObject[key])
 			const repo = parseRepoName(key)
 
-			if (result[repo.fullName] !== undefined) {
-				result[repo.fullName].files.push(...files)
+			if (result[repo.uniqueName] !== undefined) {
+				result[repo.uniqueName].files.push(...files)
 				return
 			}
 
-			result[repo.fullName] = {
+			result[repo.uniqueName] = {
 				repo,
 				files
 			}
