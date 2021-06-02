@@ -1,3 +1,16 @@
+## [v1.8.0] - 2021-06-02
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.8.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.7.1...v1.8.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.8.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.8.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.8.0.tar.gz))
+
+### New features
+
+- [`2e2ce4d`](https://github.com/betahuhn/repo-file-sync-action/commit/2e2ce4d) Allow same repository with different branches (#52)
+(Issues: [`#52`](https://github.com/betahuhn/repo-file-sync-action/issues/52))
+
+### Dependency updates
+
+- [`75e0b78`](https://github.com/betahuhn/repo-file-sync-action/commit/75e0b78)  Update dependencies
+
 ## [v1.7.1] - 2021-05-31
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.7.1) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.7.0...v1.7.1) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.7.1) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.7.1.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.7.1.tar.gz))
