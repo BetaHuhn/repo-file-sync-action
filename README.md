@@ -10,7 +10,7 @@ Keep files like Action workflows or entire directories in sync between multiple 
 
 ## 👋 Introduction
 
-With [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) you can sync files, like workflow `.yml` files, configuration files or whole directories between repositories. It works by running a GitHub Action in your main repository everytime you push something to that repo. The action will use a `sync.yml` config file to figure out which files it should sync where. If it finds a file which is out of sync it will open a pull request in the target repository with the changes.
+With [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) you can sync files, like workflow `.yml` files, configuration files or whole directories between repositories or branches. It works by running a GitHub Action in your main repository everytime you push something to that repo. The action will use a `sync.yml` config file to figure out which files it should sync where. If it finds a file which is out of sync it will open a pull request in the target repository with the changes.
 
 ## 🚀 Features
 
@@ -218,6 +218,23 @@ group:
       user/repo3
       user/repo4
 ```
+
+### Syncing branches
+
+You can also sync different branches from the same or different repositories (#51). For example, a repository named `foo/bar` with branch `main`, and `sync.yml` contents:
+
+```yml
+group:
+  repos: |
+    foo/bar@de
+    foo/bar@es
+    foo/bar@fr
+  files:
+    - source: .github/workflows/
+      dest: .github/workflows/
+```
+
+Here all files in `.github/workflows/` will be synced from the `main` branch to the branches `de`/`es`/`fr`.
 
 ## 📖 Examples
 
