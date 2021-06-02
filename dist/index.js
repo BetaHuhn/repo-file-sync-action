@@ -3604,29 +3604,18 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var BottleneckLight = _interopDefault(__nccwpck_require__(1174));
 
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-
-  return obj;
-}
-
 function ownKeys(object, enumerableOnly) {
   var keys = Object.keys(object);
 
   if (Object.getOwnPropertySymbols) {
     var symbols = Object.getOwnPropertySymbols(object);
-    if (enumerableOnly) symbols = symbols.filter(function (sym) {
-      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-    });
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
     keys.push.apply(keys, symbols);
   }
 
@@ -3653,7 +3642,22 @@ function _objectSpread2(target) {
   return target;
 }
 
-const VERSION = "3.4.1";
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+const VERSION = "3.4.2";
 
 const noop = () => Promise.resolve(); // @ts-ignore
 
@@ -3781,7 +3785,8 @@ function throttling(octokit, octokitOptions = {}) {
     id = "no-id",
     timeout = 1000 * 60 * 2,
     // Redis TTL: 2 minutes
-    connection
+    connection // @ts-ignore
+
   } = octokitOptions.throttle || {};
 
   if (!enabled) {
@@ -15398,6 +15403,7 @@ const parseRepoName = (fullRepo) => {
 
 	return {
 		fullName: `${ host }/${ user }/${ name }`,
+		uniqueName: `${ host }/${ user }/${ name }@${ branch }`,
 		host,
 		user,
 		name,
@@ -15457,12 +15463,12 @@ const parseConfig = async () => {
 					const files = parseFiles(group.files)
 					const repo = parseRepoName(name)
 
-					if (result[repo.fullName] !== undefined) {
-						result[repo.fullName].files.push(...files)
+					if (result[repo.uniqueName] !== undefined) {
+						result[repo.uniqueName].files.push(...files)
 						return
 					}
 
-					result[repo.fullName] = {
+					result[repo.uniqueName] = {
 						repo,
 						files
 					}
@@ -15472,12 +15478,12 @@ const parseConfig = async () => {
 			const files = parseFiles(configObject[key])
 			const repo = parseRepoName(key)
 
-			if (result[repo.fullName] !== undefined) {
-				result[repo.fullName].files.push(...files)
+			if (result[repo.uniqueName] !== undefined) {
+				result[repo.uniqueName].files.push(...files)
 				return
 			}
 
-			result[repo.fullName] = {
+			result[repo.uniqueName] = {
 				repo,
 				files
 			}
@@ -15553,7 +15559,7 @@ class Git {
 
 		// Set values to current repo
 		this.repo = repo
-		this.workingDir = path.join(TMP_DIR, repo.fullName)
+		this.workingDir = path.join(TMP_DIR, repo.uniqueName)
 		this.gitUrl = `https://${ GITHUB_TOKEN }@${ repo.fullName }.git`
 
 		await this.clone()
