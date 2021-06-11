@@ -15399,7 +15399,7 @@ const parseRepoName = (fullRepo) => {
 
 	const user = fullRepo.split('/')[0]
 	const name = fullRepo.split('/')[1].split('@')[0]
-	const branch = fullRepo.split('/')[1].split('@')[1] || 'default'
+	const branch = fullRepo.split('@')[1] || 'default'
 
 	return {
 		fullName: `${ host }/${ user }/${ name }`,
