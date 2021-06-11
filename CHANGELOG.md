@@ -1,3 +1,16 @@
+## [v1.8.1] - 2021-06-11
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.8.1) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.8.0...v1.8.1) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.8.1) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.8.1.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.8.1.tar.gz))
+
+### Bug fixes
+
+- [`6e6698c`](https://github.com/betahuhn/repo-file-sync-action/commit/6e6698c)  Allow branch name to contain slash (#57)
+(Issues: [`#57`](https://github.com/betahuhn/repo-file-sync-action/issues/57))
+
+### Dependency updates
+
+- [`3f93a28`](https://github.com/betahuhn/repo-file-sync-action/commit/3f93a28)  Upgrade dependencies
+
 ## [v1.8.0] - 2021-06-02
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.8.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.7.1...v1.8.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.8.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.8.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.8.0.tar.gz))
