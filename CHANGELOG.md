@@ -1,3 +1,7 @@
+## [v1.8.3] - 2021-06-28
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.8.3) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.8.2...v1.8.3) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.8.3) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.8.3.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.8.3.tar.gz))
+
 ## [v1.8.2] - 2021-06-21
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.8.2) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.8.1...v1.8.2) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.8.2) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.8.2.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.8.2.tar.gz))
