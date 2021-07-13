@@ -65,7 +65,7 @@ const run = async () => {
 
 				if (isDirectory) core.warning(`Source is directory`)
 
-				await copy(source, localDestination, file.exclude)
+				await copy(source, localDestination, isDirectory, file.exclude)
 
 				await git.add(file.dest)
 

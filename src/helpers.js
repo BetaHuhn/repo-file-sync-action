@@ -59,7 +59,7 @@ const pathIsDirectory = async (path) => {
 	return stat.isDirectory()
 }
 
-const copy = async (src, dest, exclude) => {
+const copy = async (src, dest, isDirectory, exclude) => {
 
 	core.debug(`CP: ${ src } TO ${ dest }`)
 
@@ -73,7 +73,20 @@ const copy = async (src, dest, exclude) => {
 		return true
 	}
 
-	return fs.copy(src, dest, (exclude !== undefined && { filter: filterFunc }))
+	await fs.copy(src, dest, exclude !== undefined && { filter: filterFunc })
+
+	// If it is a directory - check if there are any files that were removed from source dir and remove them in destination dir
+	if (isDirectory) {
+		const srcFileList = await fs.readdir(src)
+		const destFileList = await fs.readdir(dest)
+
+		for (const file of destFileList) {
+			if (srcFileList.indexOf(file) === -1) {
+				core.debug(`Found a deleted file in the source repo - ${ dest }${ file }`)
+				await fs.remove(`${ dest }${ file }`)
+			}
+		}
+	}
 }
 
 const remove = async (src) => {

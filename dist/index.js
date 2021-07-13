@@ -3672,7 +3672,7 @@ function _defineProperty(obj, key, value) {
   return obj;
 }
 
-const VERSION = "3.4.2";
+const VERSION = "3.5.1";
 
 const noop = () => Promise.resolve(); // @ts-ignore
 
@@ -3683,8 +3683,11 @@ function wrapRequest(state, request, options) {
 
 async function doRequest(state, request, options) {
   const isWrite = options.method !== "GET" && options.method !== "HEAD";
-  const isSearch = options.method === "GET" && options.url.startsWith("/search/");
-  const isGraphQL = options.url.startsWith("/graphql");
+  const {
+    pathname
+  } = new URL(options.url, "http://github.test");
+  const isSearch = options.method === "GET" && pathname.startsWith("/search/");
+  const isGraphQL = pathname.startsWith("/graphql");
   const retryCount = ~~options.request.retryCount;
   const jobOptions = retryCount > 0 ? {
     priority: 0,
@@ -3705,7 +3708,7 @@ async function doRequest(state, request, options) {
   } // Guarantee at least 3000ms between requests that trigger notifications
 
 
-  if (isWrite && state.triggersNotification(options.url)) {
+  if (isWrite && state.triggersNotification(pathname)) {
     await state.notifications.key(state.id).schedule(jobOptions, noop);
   } // Guarantee at least 2000ms between search requests
 
@@ -3722,7 +3725,7 @@ async function doRequest(state, request, options) {
     if (res.data.errors != null && // @ts-ignore
     res.data.errors.some(error => error.type === "RATE_LIMITED")) {
       const error = Object.assign(new Error("GraphQL Rate Limit Exceeded"), {
-        headers: res.headers,
+        response: res,
         data: res.data
       });
       throw error;
@@ -3805,7 +3808,7 @@ function throttling(octokit, octokitOptions = {}) {
   } = octokitOptions.throttle || {};
 
   if (!enabled) {
-    return;
+    return {};
   }
 
   const common = {
@@ -3852,7 +3855,10 @@ function throttling(octokit, octokitOptions = {}) {
 
   state.retryLimiter.on("failed", async function (error, info) {
     const options = info.args[info.args.length - 1];
-    const shouldRetryGraphQL = options.url.startsWith("/graphql") && error.status !== 401;
+    const {
+      pathname
+    } = new URL(options.url, "http://github.test");
+    const shouldRetryGraphQL = pathname.startsWith("/graphql") && error.status !== 401;
 
     if (!(shouldRetryGraphQL || error.status === 403)) {
       return;
@@ -3869,7 +3875,7 @@ function throttling(octokit, octokitOptions = {}) {
         // https://docs.github.com/en/rest/overview/resources-in-the-rest-api#abuse-rate-limits
         // The Retry-After header can sometimes be blank when hitting an abuse limit,
         // but is always present after 2-3s, so make sure to set `retryAfter` to at least 5s by default.
-        const retryAfter = Math.max(~~error.headers["retry-after"], state.minimumAbuseRetryAfter);
+        const retryAfter = Math.max(~~error.response.headers["retry-after"], state.minimumAbuseRetryAfter);
         const wantRetry = await emitter.trigger("abuse-limit", retryAfter, options, octokit);
         return {
           wantRetry,
@@ -3877,11 +3883,11 @@ function throttling(octokit, octokitOptions = {}) {
         };
       }
 
-      if (error.headers != null && error.headers["x-ratelimit-remaining"] === "0") {
+      if (error.response.headers != null && error.response.headers["x-ratelimit-remaining"] === "0") {
         // The user has used all their allowed calls for the current time period (REST and GraphQL)
         // https://docs.github.com/en/rest/reference/rate-limit (REST)
         // https://docs.github.com/en/graphql/overview/resource-limitations#rate-limit (GraphQL)
-        const rateLimitReset = new Date(~~error.headers["x-ratelimit-reset"] * 1000).getTime();
+        const rateLimitReset = new Date(~~error.response.headers["x-ratelimit-reset"] * 1000).getTime();
         const retryAfter = Math.max(Math.ceil((rateLimitReset - Date.now()) / 1000), 0);
         const wantRetry = await emitter.trigger("rate-limit", retryAfter, options, octokit);
         return {
@@ -3900,6 +3906,7 @@ function throttling(octokit, octokitOptions = {}) {
     }
   });
   octokit.hook.wrap("request", wrapRequest.bind(null, state));
+  return {};
 }
 throttling.VERSION = VERSION;
 throttling.triggersNotification = triggersNotification;
@@ -15837,7 +15844,7 @@ const pathIsDirectory = async (path) => {
 	return stat.isDirectory()
 }
 
-const copy = async (src, dest, exclude) => {
+const copy = async (src, dest, isDirectory, exclude) => {
 
 	core.debug(`CP: ${ src } TO ${ dest }`)
 
@@ -15851,7 +15858,20 @@ const copy = async (src, dest, exclude) => {
 		return true
 	}
 
-	return fs.copy(src, dest, (exclude !== undefined && { filter: filterFunc }))
+	await fs.copy(src, dest, exclude !== undefined && { filter: filterFunc })
+
+	// If it is a directory - check if there are any files that were removed from source dir and remove them in destination dir
+	if (isDirectory) {
+		const srcFileList = await fs.readdir(src)
+		const destFileList = await fs.readdir(dest)
+
+		for (const file of destFileList) {
+			if (srcFileList.indexOf(file) === -1) {
+				core.debug(`Found a deleted file in the source repo - ${ dest }${ file }`)
+				await fs.remove(`${ dest }${ file }`)
+			}
+		}
+	}
 }
 
 const remove = async (src) => {
@@ -16107,7 +16127,7 @@ const run = async () => {
 
 				if (isDirectory) core.warning(`Source is directory`)
 
-				await copy(source, localDestination, file.exclude)
+				await copy(source, localDestination, isDirectory, file.exclude)
 
 				await git.add(file.dest)
 
