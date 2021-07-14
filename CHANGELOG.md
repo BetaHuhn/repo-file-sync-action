@@ -1,3 +1,16 @@
+## [v1.9.0] - 2021-07-14
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.9.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.8.5...v1.9.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.9.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.9.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.9.0.tar.gz))
+
+### New features
+
+- [`4a9f0ed`](https://github.com/betahuhn/repo-file-sync-action/commit/4a9f0ed) Add deleteOrphaned option to delete files in the target when they are deleted in the source (#69)
+(Issues: [`#69`](https://github.com/betahuhn/repo-file-sync-action/issues/69))
+
+### Dependency updates
+
+- [`1a071eb`](https://github.com/betahuhn/repo-file-sync-action/commit/1a071eb)  Bump action-input-parser from 1.2.7 to 1.2.8
+
 ## [v1.8.5] - 2021-07-12
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.8.5) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.8.4...v1.8.5) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.8.5) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.8.5.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.8.5.tar.gz))
