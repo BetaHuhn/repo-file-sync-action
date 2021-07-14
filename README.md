@@ -178,6 +178,19 @@ user/repo:
     replace: false
 ```
 
+### Delete orphaned files
+
+With the `deleteOrphaned` option you can choose to delete files in the target repository if they are deleted in the source repository. The option defaults to `false` and only works when [syncing entire directories](#sync-entire-directories):
+
+```yml
+user/repo:
+  - source: workflows/
+    dest: .github/workflows/
+    deleteOrphaned: true
+```
+
+It only takes effect on that specific directory.
+
 ### Sync the same files to multiple repositories
 
 Instead of repeating yourself listing the same files for multiple repositories, you can create a group:
