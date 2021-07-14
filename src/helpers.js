@@ -1,4 +1,5 @@
 const fs = require('fs-extra')
+const readfiles = require('node-readfiles')
 const { exec } = require('child_process')
 const core = require('@actions/core')
 
@@ -59,7 +60,7 @@ const pathIsDirectory = async (path) => {
 	return stat.isDirectory()
 }
 
-const copy = async (src, dest, exclude) => {
+const copy = async (src, dest, deleteOrphaned, exclude) => {
 
 	core.debug(`CP: ${ src } TO ${ dest }`)
 
@@ -73,7 +74,21 @@ const copy = async (src, dest, exclude) => {
 		return true
 	}
 
-	return fs.copy(src, dest, (exclude !== undefined && { filter: filterFunc }))
+	await fs.copy(src, dest, exclude !== undefined && { filter: filterFunc })
+
+	// If it is a directory and deleteOrphaned is enabled - check if there are any files that were removed from source dir and remove them in destination dir
+	if (deleteOrphaned) {
+
+		const srcFileList = await readfiles(src, { readContents: false })
+		const destFileList = await readfiles(dest, { readContents: false })
+
+		for (const file of destFileList) {
+			if (srcFileList.indexOf(file) === -1) {
+				core.debug(`Found a orphaned file in the target repo - ${ dest }${ file }`)
+				await fs.remove(`${ dest }${ file }`)
+			}
+		}
+	}
 }
 
 const remove = async (src) => {

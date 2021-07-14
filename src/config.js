@@ -5,6 +5,8 @@ const path = require('path')
 const { getInput } = require('action-input-parser')
 
 const REPLACE_DEFAULT = true
+const DELETE_ORPHANED_DEFAULT = false
+
 let context
 
 try {
@@ -135,15 +137,17 @@ const parseFiles = (files) => {
 			return {
 				source: item,
 				dest: item,
-				replace: REPLACE_DEFAULT
+				replace: REPLACE_DEFAULT,
+				deleteOrphaned: DELETE_ORPHANED_DEFAULT
 			}
 		}
 
 		if (item.source !== undefined) {
 			return {
 				source: item.source,
-				dest: item.dest !== undefined ? item.dest : item.source,
-				replace: item.replace !== undefined ? item.replace : REPLACE_DEFAULT,
+				dest: item.dest || item.source,
+				replace: item.replace || REPLACE_DEFAULT,
+				deleteOrphaned: item.deleteOrphaned || DELETE_ORPHANED_DEFAULT,
 				exclude: parseExclude(item.exclude, item.source)
 			}
 		}
