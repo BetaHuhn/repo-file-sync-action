@@ -33,7 +33,8 @@
     "@putout/git-status-porcelain": "^1.1.0",
     "action-input-parser": "^1.2.8",
     "fs-extra": "^10.0.0",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "node-readfiles": "^0.2.0"
   },
   "devDependencies": {
     "@betahuhn/config": "^1.1.0",

@@ -1,4 +1,5 @@
 const fs = require('fs-extra')
+const readfiles = require('node-readfiles')
 const { exec } = require('child_process')
 const core = require('@actions/core')
 
@@ -77,8 +78,9 @@ const copy = async (src, dest, isDirectory, exclude) => {
 
 	// If it is a directory - check if there are any files that were removed from source dir and remove them in destination dir
 	if (isDirectory) {
-		const srcFileList = await fs.readdir(src)
-		const destFileList = await fs.readdir(dest)
+
+		const srcFileList = await readfiles(src, { readContents: false })
+		const destFileList = await readfiles(dest, { readContents: false })
 
 		for (const file of destFileList) {
 			if (srcFileList.indexOf(file) === -1) {
