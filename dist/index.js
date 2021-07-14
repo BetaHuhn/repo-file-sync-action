@@ -16659,6 +16659,8 @@ const path = __nccwpck_require__(5622)
 const { getInput } = __nccwpck_require__(4623)
 
 const REPLACE_DEFAULT = true
+const DELETE_ORPHANED_DEFAULT = false
+
 let context
 
 try {
@@ -16789,15 +16791,17 @@ const parseFiles = (files) => {
 			return {
 				source: item,
 				dest: item,
-				replace: REPLACE_DEFAULT
+				replace: REPLACE_DEFAULT,
+				deleteOrphaned: DELETE_ORPHANED_DEFAULT
 			}
 		}
 
 		if (item.source !== undefined) {
 			return {
 				source: item.source,
-				dest: item.dest !== undefined ? item.dest : item.source,
-				replace: item.replace !== undefined ? item.replace : REPLACE_DEFAULT,
+				dest: item.dest || item.source,
+				replace: item.replace || REPLACE_DEFAULT,
+				deleteOrphaned: item.deleteOrphaned || DELETE_ORPHANED_DEFAULT,
 				exclude: parseExclude(item.exclude, item.source)
 			}
 		}
@@ -17186,7 +17190,7 @@ const pathIsDirectory = async (path) => {
 	return stat.isDirectory()
 }
 
-const copy = async (src, dest, isDirectory, exclude) => {
+const copy = async (src, dest, deleteOrphaned, exclude) => {
 
 	core.debug(`CP: ${ src } TO ${ dest }`)
 
@@ -17202,15 +17206,15 @@ const copy = async (src, dest, isDirectory, exclude) => {
 
 	await fs.copy(src, dest, exclude !== undefined && { filter: filterFunc })
 
-	// If it is a directory - check if there are any files that were removed from source dir and remove them in destination dir
-	if (isDirectory) {
+	// If it is a directory and deleteOrphaned is enabled - check if there are any files that were removed from source dir and remove them in destination dir
+	if (deleteOrphaned) {
 
 		const srcFileList = await readfiles(src, { readContents: false })
 		const destFileList = await readfiles(dest, { readContents: false })
 
 		for (const file of destFileList) {
 			if (srcFileList.indexOf(file) === -1) {
-				core.debug(`Found a deleted file in the source repo - ${ dest }${ file }`)
+				core.debug(`Found a orphaned file in the target repo - ${ dest }${ file }`)
 				await fs.remove(`${ dest }${ file }`)
 			}
 		}
@@ -17470,7 +17474,9 @@ const run = async () => {
 
 				if (isDirectory) core.warning(`Source is directory`)
 
-				await copy(source, localDestination, isDirectory, file.exclude)
+				const deleteOrphaned = isDirectory && file.deleteOrphaned
+
+				await copy(source, localDestination, deleteOrphaned, file.exclude)
 
 				await git.add(file.dest)
 

@@ -60,7 +60,7 @@ const pathIsDirectory = async (path) => {
 	return stat.isDirectory()
 }
 
-const copy = async (src, dest, isDirectory, exclude) => {
+const copy = async (src, dest, deleteOrphaned, exclude) => {
 
 	core.debug(`CP: ${ src } TO ${ dest }`)
 
@@ -76,15 +76,15 @@ const copy = async (src, dest, isDirectory, exclude) => {
 
 	await fs.copy(src, dest, exclude !== undefined && { filter: filterFunc })
 
-	// If it is a directory - check if there are any files that were removed from source dir and remove them in destination dir
-	if (isDirectory) {
+	// If it is a directory and deleteOrphaned is enabled - check if there are any files that were removed from source dir and remove them in destination dir
+	if (deleteOrphaned) {
 
 		const srcFileList = await readfiles(src, { readContents: false })
 		const destFileList = await readfiles(dest, { readContents: false })
 
 		for (const file of destFileList) {
 			if (srcFileList.indexOf(file) === -1) {
-				core.debug(`Found a deleted file in the source repo - ${ dest }${ file }`)
+				core.debug(`Found a orphaned file in the target repo - ${ dest }${ file }`)
 				await fs.remove(`${ dest }${ file }`)
 			}
 		}
