@@ -6,6 +6,7 @@ const path = require('path')
 
 const {
 	GITHUB_TOKEN,
+	IS_INSTALLATION_TOKEN,
 	GIT_USERNAME,
 	GIT_EMAIL,
 	TMP_DIR,
@@ -55,7 +56,7 @@ class Git {
 		// Set values to current repo
 		this.repo = repo
 		this.workingDir = path.join(TMP_DIR, repo.uniqueName)
-		this.gitUrl = `https://${ GITHUB_TOKEN }@${ repo.fullName }.git`
+		this.gitUrl = `https://${IS_INSTALLATION_TOKEN ? 'x-access-token:' : ''}${ GITHUB_TOKEN }@${ repo.fullName }.git`
 
 		await this.clone()
 		await this.setIdentity()

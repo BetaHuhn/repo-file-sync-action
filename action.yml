@@ -7,6 +7,10 @@ inputs:
     description: |
       GitHub Personal Access Token to use to get repos and write secrets
     required: false
+  IS_INSTALLATION_TOKEN:
+    description: |
+      Is GitHub Personal Access Token a Github App Installation Token?
+    required: false
   CONFIG_PATH:
     description: | 
       The path for the sync configuration file
