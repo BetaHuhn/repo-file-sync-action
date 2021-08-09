@@ -1,3 +1,12 @@
+## [v1.9.4] - 2021-08-09
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.9.4) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.9.3...v1.9.4) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.9.4) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.9.4.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.9.4.tar.gz))
+
+### Dependency updates
+
+- [`b848ad5`](https://github.com/betahuhn/repo-file-sync-action/commit/b848ad5)  Bump eslint from 7.31.0 to 7.32.0
+- [`fe7d8a0`](https://github.com/betahuhn/repo-file-sync-action/commit/fe7d8a0)  Bump action-input-parser from 1.2.10 to 1.2.11
+
 ## [v1.9.3] - 2021-08-02
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.9.3) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.9.2...v1.9.3) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.9.3) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.9.3.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.9.3.tar.gz))
