@@ -195,9 +195,9 @@ class Git {
 		const body = dedent(`
 			Synced local file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
 
-			${ changedFiles }
-
 			${ PR_BODY }
+			
+			${ changedFiles }
 
 			---
 
