@@ -13,6 +13,7 @@ const {
 	COMMIT_PREFIX,
 	GITHUB_REPOSITORY,
 	OVERWRITE_EXISTING_PR,
+	PR_BODY,
 	BRANCH_PREFIX
 } = require('./config')
 
@@ -195,6 +196,8 @@ class Git {
 			Synced local file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
 
 			${ changedFiles }
+
+			${ PR_BODY }
 
 			---
 
