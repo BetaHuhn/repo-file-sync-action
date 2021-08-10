@@ -46,7 +46,7 @@ try {
 		}),
 		PR_BODY: getInput({
 			key: 'PR_BODY',
-			default: [ '' ]
+			default: ''
 		}),
 		ASSIGNEES: getInput({
 			key: 'ASSIGNEES',
