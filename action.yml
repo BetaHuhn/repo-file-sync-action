@@ -15,6 +15,10 @@ inputs:
     description: |
       Labels which will be added to the pull request. Defaults to sync. Set to false to turn off
     required: false
+  PR_BODY:
+    description: |
+      Additional content to add in the PR description. Defaults to ''
+    required: false
   ASSIGNEES:
     description: |
       People to assign to the pull request. Defaults to none
