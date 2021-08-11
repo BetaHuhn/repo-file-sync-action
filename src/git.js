@@ -13,6 +13,7 @@ const {
 	COMMIT_PREFIX,
 	GITHUB_REPOSITORY,
 	OVERWRITE_EXISTING_PR,
+	PR_BODY,
 	BRANCH_PREFIX
 } = require('./config')
 
@@ -194,6 +195,8 @@ class Git {
 		const body = dedent(`
 			Synced local file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
 
+			${ PR_BODY }
+			
 			${ changedFiles }
 
 			---

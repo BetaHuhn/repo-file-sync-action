@@ -44,6 +44,10 @@ try {
 			type: 'array',
 			disableable: true
 		}),
+		PR_BODY: getInput({
+			key: 'PR_BODY',
+			default: ''
+		}),
 		ASSIGNEES: getInput({
 			key: 'ASSIGNEES',
 			type: 'array'
