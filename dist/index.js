@@ -16698,6 +16698,10 @@ try {
 			type: 'array',
 			disableable: true
 		}),
+		PR_BODY: getInput({
+			key: 'PR_BODY',
+			default: ''
+		}),
 		ASSIGNEES: getInput({
 			key: 'ASSIGNEES',
 			type: 'array'
@@ -16865,6 +16869,7 @@ module.exports = {
 	parseConfig
 }
 
+
 /***/ }),
 
 /***/ 109:
@@ -16885,6 +16890,7 @@ const {
 	COMMIT_PREFIX,
 	GITHUB_REPOSITORY,
 	OVERWRITE_EXISTING_PR,
+	PR_BODY,
 	BRANCH_PREFIX
 } = __nccwpck_require__(4570)
 
@@ -17066,6 +17072,8 @@ class Git {
 		const body = dedent(`
 			Synced local file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
 
+			${ PR_BODY }
+			
 			${ changedFiles }
 
 			---
@@ -17122,6 +17130,7 @@ class Git {
 }
 
 module.exports = Git
+
 
 /***/ }),
 
