@@ -1,3 +1,17 @@
+## [v1.10.0] - 2021-08-11
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.10.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.9.4...v1.10.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.10.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.10.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.10.0.tar.gz))
+
+### New features
+
+- [`d910669`](https://github.com/betahuhn/repo-file-sync-action/commit/d910669)  Add PR_BODY option (#80)
+(Issues: [`#80`](https://github.com/betahuhn/repo-file-sync-action/issues/80) [`#78`](https://github.com/betahuhn/repo-file-sync-action/issues/78))
+
+### Dependency updates
+
+- [`ef72279`](https://github.com/betahuhn/repo-file-sync-action/commit/ef72279)  Bump action-input-parser from 1.2.11 to 1.2.12
+- [`a0ee16b`](https://github.com/betahuhn/repo-file-sync-action/commit/a0ee16b)  Upgrade dependencies
+
 ## [v1.9.4] - 2021-08-09
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.9.4) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.9.3...v1.9.4) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.9.4) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.9.4.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.9.4.tar.gz))
