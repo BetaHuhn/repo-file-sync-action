@@ -63,7 +63,7 @@ const run = async () => {
 				const isDirectory = await pathIsDirectory(file.source)
 				const source = isDirectory ? `${ addTrailingSlash(file.source) }` : file.source
 
-				if (isDirectory) core.warning(`Source is directory`)
+				if (isDirectory) core.info(`Source is directory`)
 
 				const deleteOrphaned = isDirectory && file.deleteOrphaned
 
