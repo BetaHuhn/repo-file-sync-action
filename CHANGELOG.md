@@ -1,3 +1,12 @@
+## [v1.10.3] - 2021-08-30
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.10.3) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.10.2...v1.10.3) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.10.3) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.10.3.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.10.3.tar.gz))
+
+### Dependency updates
+
+- [`daa09dd`](https://github.com/betahuhn/repo-file-sync-action/commit/daa09dd)  Bump action-input-parser from 1.2.13 to 1.2.14
+- [`e25059e`](https://github.com/betahuhn/repo-file-sync-action/commit/e25059e)  Bump @vercel/ncc from 0.29.2 to 0.30.0
+
 ## [v1.10.2] - 2021-08-23
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.10.2) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.10.1...v1.10.2) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.10.2) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.10.2.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.10.2.tar.gz))
