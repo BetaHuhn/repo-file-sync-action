@@ -23,6 +23,9 @@ With [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) 
 
 ## 📚 Usage
 
+
+### Workflow
+
 Create a `.yml` file in your `.github/workflows` folder (you can find more info about the structure in the [GitHub Docs](https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions)):
 
 **.github/workflows/sync.yml**
@@ -46,10 +49,19 @@ jobs:
           GH_PAT: ${{ secrets.GH_PAT }}
 ```
 
+#### Token
 In order for the Action to access your repositories you have to specify a [Personal Access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) as the value for `GH_PAT` (`GITHUB_TOKEN` will **not** work). The PAT needs the full repo scope ([#31](https://github.com/BetaHuhn/repo-file-sync-action/discussions/31#discussioncomment-674804)).
 
 It is recommneded to set the token as a
 [Repository Secret](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository).
+
+Alternatively, you can provide the token of a GitHub App Installation via the `GH_INSTALLATION_TOKEN` input. You can obtain such token for example via [this](https://github.com/marketplace/actions/github-app-token) action. Tokens from apps have the advantage that they provide more granular access control.
+
+The app needs to be configured for each repo you want to sync to, and have the `Contents` read & write and `Metadata` read-only permission. If you want to use PRs (default setting) you additionally need `Pull requests` read & write access, and to sync workflow files you need `Workflows` read & write access.
+
+If using an installation token you are required to provide the `GIT_EMAIL` and `GIT_USERNAME` input.
+
+### Sync configuration
 
 The last step is to create a `.yml` file in the `.github` folder of your repository and specify what file(s) to sync to which repositories:
 
@@ -89,15 +101,16 @@ Here are all the inputs [repo-file-sync-action](https://github.com/BetaHuhn/repo
 
 | Key | Value | Required | Default |
 | ------------- | ------------- | ------------- | ------------- |
-| `GH_PAT` | Your [Personal Access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) | **Yes** | N/A |
+| `GH_PAT` | Your [Personal Access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) | **`GH_PAT` or `GH_INSTALLATION_TOKEN` required** | N/A |
+| `GH_INSTALLATION_TOKEN` | Token from a GitHub App installation | **`GH_PAT` or `GH_INSTALLATION_TOKEN` required** | N/A |
 | `CONFIG_PATH` | Path to the sync configuration file | **No** | .github/sync.yml |
 | `PR_LABELS` | Labels which will be added to the pull request. Set to false to turn off | **No** | sync |
 | `ASSIGNEES` | People to assign to the pull request | **No** | N/A |
 | `COMMIT_PREFIX` | Prefix for commit message and pull request title | **No** | 🔄 |
 | `COMMIT_BODY` | Commit message body. Will be appended to commit message, separated by two line returns. | **No** | '' |
 | `COMMIT_EACH_FILE` | Commit each file seperately | **No** | true |
-| `GIT_EMAIL` | The e-mail address used to commit the synced files | **No** | the email of the PAT used |
-| `GIT_USERNAME` | The username used to commit the synced files | **No** | the username of the PAT used |
+| `GIT_EMAIL` | The e-mail address used to commit the synced files | **Only when using installation token** | the email of the PAT used |
+| `GIT_USERNAME` | The username used to commit the synced files | **Only when using installation token** | the username of the PAT used |
 | `OVERWRITE_EXISTING_PR` | Overwrite any existing Sync PR with the new changes | **No** | true |
 | `BRANCH_PREFIX` | Specify a different prefix for the new branch in the target repo | **No** | repo-sync/SOURCE_REPO_NAME |
 | `TMP_DIR` | The working directory where all git operations will be done | **No** | tmp-${ Date.now().toString() } |

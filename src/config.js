@@ -10,11 +10,26 @@ const DELETE_ORPHANED_DEFAULT = false
 let context
 
 try {
+
+	let isInstallationToken = false
+	let token = getInput({
+		key: 'GH_PAT'
+	})
+
+	if (!token) {
+		token = getInput({
+			key: 'GH_INSTALLATION_TOKEN'
+		})
+		isInstallationToken = true
+		if (!token) {
+			core.setFailed('You must provide either GH_PAT or GH_INSTALLATION_TOKEN')
+			process.exit(1)
+		}
+	}
+
 	context = {
-		GITHUB_TOKEN: getInput({
-			key: 'GH_PAT',
-			required: true
-		}),
+		GITHUB_TOKEN: token,
+		IS_INSTALLATION_TOKEN: isInstallationToken,
 		GIT_EMAIL: getInput({
 			key: 'GIT_EMAIL'
 		}),
