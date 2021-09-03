@@ -1,3 +1,16 @@
+## [v1.11.0] - 2021-09-03
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.11.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.10.3...v1.11.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.11.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.11.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.11.0.tar.gz))
+
+### New features
+
+- [`4e6eff1`](https://github.com/betahuhn/repo-file-sync-action/commit/4e6eff1)  Add option to provide an installation token instead of a PAT (#91)
+(Issues: [`#91`](https://github.com/betahuhn/repo-file-sync-action/issues/91))
+
+### Dependency updates
+
+- [`5b9070f`](https://github.com/betahuhn/repo-file-sync-action/commit/5b9070f)  Bump action-input-parser from 1.2.14 to 1.2.15
+
 ## [v1.10.3] - 2021-08-30
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.10.3) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.10.2...v1.10.3) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.10.3) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.10.3.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.10.3.tar.gz))
