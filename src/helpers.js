@@ -98,6 +98,8 @@ const remove = async (src) => {
 	return fs.remove(src)
 }
 
+const arrayEquals = (array1, array2) => Array.isArray(array1) && Array.isArray(array2) && array1.length === array2.length && array1.every((value, i) => value === array2[i])
+
 module.exports = {
 	forEach,
 	dedent,
@@ -105,5 +107,6 @@ module.exports = {
 	pathIsDirectory,
 	execCmd,
 	copy,
-	remove
+	remove,
+	arrayEquals
 }

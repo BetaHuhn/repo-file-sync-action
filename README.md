@@ -108,6 +108,7 @@ Here are all the inputs [repo-file-sync-action](https://github.com/BetaHuhn/repo
 | `ASSIGNEES` | People to assign to the pull request | **No** | N/A |
 | `COMMIT_PREFIX` | Prefix for commit message and pull request title | **No** | 🔄 |
 | `COMMIT_BODY` | Commit message body. Will be appended to commit message, separated by two line returns. | **No** | '' |
+| `ORIGINAL_MESSAGE` | Use original commit message instead. Only works if the file(s) where changed and the action was triggered by pushing a single commit. | **No** | false |
 | `COMMIT_EACH_FILE` | Commit each file seperately | **No** | true |
 | `GIT_EMAIL` | The e-mail address used to commit the synced files | **Only when using installation token** | the email of the PAT used |
 | `GIT_USERNAME` | The username used to commit the synced files | **Only when using installation token** | the username of the PAT used |

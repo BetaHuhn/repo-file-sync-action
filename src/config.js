@@ -95,6 +95,11 @@ try {
 			type: 'boolean',
 			default: false
 		}),
+		ORIGINAL_MESSAGE: getInput({
+			key: 'ORIGINAL_MESSAGE',
+			type: 'boolean',
+			default: false
+		}),
 		BRANCH_PREFIX: getInput({
 			key: 'BRANCH_PREFIX',
 			default: 'repo-sync/SOURCE_REPO_NAME'
