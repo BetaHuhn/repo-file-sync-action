@@ -16664,11 +16664,26 @@ const DELETE_ORPHANED_DEFAULT = false
 let context
 
 try {
+
+	let isInstallationToken = false
+	let token = getInput({
+		key: 'GH_PAT'
+	})
+
+	if (!token) {
+		token = getInput({
+			key: 'GH_INSTALLATION_TOKEN'
+		})
+		isInstallationToken = true
+		if (!token) {
+			core.setFailed('You must provide either GH_PAT or GH_INSTALLATION_TOKEN')
+			process.exit(1)
+		}
+	}
+
 	context = {
-		GITHUB_TOKEN: getInput({
-			key: 'GH_PAT',
-			required: true
-		}),
+		GITHUB_TOKEN: token,
+		IS_INSTALLATION_TOKEN: isInstallationToken,
 		GIT_EMAIL: getInput({
 			key: 'GIT_EMAIL'
 		}),
@@ -16882,6 +16897,7 @@ const path = __nccwpck_require__(5622)
 
 const {
 	GITHUB_TOKEN,
+	IS_INSTALLATION_TOKEN,
 	GIT_USERNAME,
 	GIT_EMAIL,
 	TMP_DIR,
@@ -16932,7 +16948,7 @@ class Git {
 		// Set values to current repo
 		this.repo = repo
 		this.workingDir = path.join(TMP_DIR, repo.uniqueName)
-		this.gitUrl = `https://${ GITHUB_TOKEN }@${ repo.fullName }.git`
+		this.gitUrl = `https://${ IS_INSTALLATION_TOKEN ? 'x-access-token:' : '' }${ GITHUB_TOKEN }@${ repo.fullName }.git`
 
 		await this.clone()
 		await this.setIdentity()
@@ -16952,6 +16968,10 @@ class Git {
 		let email = GIT_EMAIL
 
 		if (email === undefined) {
+			if (IS_INSTALLATION_TOKEN) {
+				core.setFailed('When using an installation token you must provide GIT_EMAIL and GIT_USERNAME')
+				process.exit(1)
+			}
 			const { data } = await this.github.users.getAuthenticated()
 			email = data.email
 			username = data.login
@@ -17259,7 +17279,7 @@ module.exports = eval("require")("encoding");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("assert");;
+module.exports = require("assert");
 
 /***/ }),
 
@@ -17267,7 +17287,7 @@ module.exports = require("assert");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("child_process");;
+module.exports = require("child_process");
 
 /***/ }),
 
@@ -17275,7 +17295,7 @@ module.exports = require("child_process");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("constants");;
+module.exports = require("constants");
 
 /***/ }),
 
@@ -17283,7 +17303,7 @@ module.exports = require("constants");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("events");;
+module.exports = require("events");
 
 /***/ }),
 
@@ -17291,7 +17311,7 @@ module.exports = require("events");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("fs");;
+module.exports = require("fs");
 
 /***/ }),
 
@@ -17299,7 +17319,7 @@ module.exports = require("fs");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("http");;
+module.exports = require("http");
 
 /***/ }),
 
@@ -17307,7 +17327,7 @@ module.exports = require("http");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("https");;
+module.exports = require("https");
 
 /***/ }),
 
@@ -17315,7 +17335,7 @@ module.exports = require("https");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("net");;
+module.exports = require("net");
 
 /***/ }),
 
@@ -17323,7 +17343,7 @@ module.exports = require("net");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("os");;
+module.exports = require("os");
 
 /***/ }),
 
@@ -17331,7 +17351,7 @@ module.exports = require("os");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("path");;
+module.exports = require("path");
 
 /***/ }),
 
@@ -17339,7 +17359,7 @@ module.exports = require("path");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("stream");;
+module.exports = require("stream");
 
 /***/ }),
 
@@ -17347,7 +17367,7 @@ module.exports = require("stream");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("tls");;
+module.exports = require("tls");
 
 /***/ }),
 
@@ -17355,7 +17375,7 @@ module.exports = require("tls");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("url");;
+module.exports = require("url");
 
 /***/ }),
 
@@ -17363,7 +17383,7 @@ module.exports = require("url");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("util");;
+module.exports = require("util");
 
 /***/ }),
 
@@ -17371,7 +17391,7 @@ module.exports = require("util");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("zlib");;
+module.exports = require("zlib");
 
 /***/ })
 
@@ -17410,7 +17430,9 @@ module.exports = require("zlib");;
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
-/******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";/************************************************************************/
+/******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
+/******/ 	
+/************************************************************************/
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
@@ -17479,7 +17501,7 @@ const run = async () => {
 				const isDirectory = await pathIsDirectory(file.source)
 				const source = isDirectory ? `${ addTrailingSlash(file.source) }` : file.source
 
-				if (isDirectory) core.warning(`Source is directory`)
+				if (isDirectory) core.info(`Source is directory`)
 
 				const deleteOrphaned = isDirectory && file.deleteOrphaned
 
