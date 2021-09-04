@@ -63,6 +63,10 @@ inputs:
     description: |
       Overwrite any existing Sync PR with the new changes. Defaults to true
     required: false
+  ORIGINAL_MESSAGE:
+    description: |
+      Re-use the original commit message for commits. Works only if the action is triggered by pushing one commit. Defaults to false
+    required: false
   SKIP_PR:
     description: |
       Skips creating a Pull Request and pushes directly to the default branch. Defaults to false

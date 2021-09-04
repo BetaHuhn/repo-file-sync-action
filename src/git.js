@@ -1,5 +1,6 @@
 const { parse } = require('@putout/git-status-porcelain')
 const core = require('@actions/core')
+const github = require('@actions/github')
 const { GitHub, getOctokitOptions } = require('@actions/github/lib/utils')
 const { throttling } = require('@octokit/plugin-throttling')
 const path = require('path')
@@ -127,6 +128,58 @@ class Git {
 		)
 	}
 
+	isOneCommitPush() {
+		return github.context.eventName === 'push' && github.context.payload.commits.length === 1
+	}
+
+	originalCommitMessage() {
+		return github.context.payload.commits[0].message
+	}
+
+	parseGitDiffOutput(string) { // parses git diff output and returns a dictionary mapping the file path to the diff output for this file
+		// split diff into separate entries for separate files. \ndiff --git should be a reliable way to detect the separation, as content of files is always indented
+		return `\n${ string }`.split('\ndiff --git').slice(1).reduce((resultDict, fileDiff) => {
+			const lines = fileDiff.split('\n')
+			const lastHeaderLineIndex = lines.findIndex((line) => line.startsWith('+++'))
+			const plainDiff = lines.slice(lastHeaderLineIndex + 1).join('\n').trim()
+			let filePath = ''
+			if (lines[lastHeaderLineIndex].startsWith('+++ b/')) { // every file except removed files
+				filePath = lines[lastHeaderLineIndex].slice(6) // remove '+++ b/'
+			} else { // for removed file need to use header line with filename before deletion
+				filePath = lines[lastHeaderLineIndex - 1].slice(6) // remove '--- a/'
+			}
+			return { ...resultDict, [filePath]: plainDiff }
+		}, {})
+	}
+
+	async getChangesFromLastCommit(source) { // gets array of git diffs for the source, which either can be a file or a dict
+		if (this.lastCommitChanges === undefined) {
+			const diff = await this.github.repos.compareCommits({
+				mediaType: {
+					format: 'diff'
+				},
+				owner: github.context.payload.repository.owner.name,
+				repo: github.context.payload.repository.name,
+				base: github.context.payload.before,
+				head: github.context.payload.after
+			})
+			this.lastCommitChanges = this.parseGitDiffOutput(diff.data)
+		}
+		if (source.endsWith('/')) {
+			return Object.keys(this.lastCommitChanges).filter((filePath) => filePath.startsWith(source)).reduce((result, key) => [ ...result, this.lastCommitChanges[key] ], [])
+		} else {
+			return this.lastCommitChanges[source] === undefined ? [] : [ this.lastCommitChanges[source] ]
+		}
+	}
+
+	async changes(destination) { // gets array of git diffs for the destination, which either can be a file or a dict
+		const output = await execCmd(
+			`git diff HEAD ${ destination }`,
+			this.workingDir
+		)
+		return Object.values(this.parseGitDiffOutput(output))
+	}
+
 	async hasChanges() {
 		const statusOutput = await execCmd(
 			`git status --porcelain`,
@@ -142,7 +195,7 @@ class Git {
 			message += `\n\n${ COMMIT_BODY }`
 		}
 		return execCmd(
-			`git commit -m "${ message }"`,
+			`git commit -m "${ message.replace(/"/g, '\\"') }"`,
 			this.workingDir
 		)
 	}

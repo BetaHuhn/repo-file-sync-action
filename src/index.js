@@ -2,7 +2,7 @@ const core = require('@actions/core')
 const fs = require('fs')
 
 const Git = require('./git')
-const { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove } = require('./helpers')
+const { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove, arrayEquals } = require('./helpers')
 
 const {
 	parseConfig,
@@ -14,7 +14,8 @@ const {
 	TMP_DIR,
 	SKIP_CLEANUP,
 	OVERWRITE_EXISTING_PR,
-	SKIP_PR
+	SKIP_PR,
+	ORIGINAL_MESSAGE
 } = require('./config')
 
 const run = async () => {
@@ -82,14 +83,15 @@ const run = async () => {
 					// Use different commit/pr message based on if the source is a directory or file
 					const directory = isDirectory ? 'directory' : ''
 					const otherFiles = isDirectory ? 'and copied all sub files/folders' : ''
+					const useOriginalCommitMessage = ORIGINAL_MESSAGE && git.isOneCommitPush() && arrayEquals(await git.getChangesFromLastCommit(file.source), await git.changes(file.dest))
 
 					const message = {
 						true: {
-							commit: `${ COMMIT_PREFIX } Synced local '${ file.dest }' with remote '${ file.source }'`,
+							commit: useOriginalCommitMessage ? git.originalCommitMessage() : `${ COMMIT_PREFIX } Synced local '${ file.dest }' with remote '${ file.source }'`,
 							pr: `Synced local ${ directory } <code>${ file.dest }</code> with remote ${ directory } <code>${ file.source }</code>`
 						},
 						false: {
-							commit: `${ COMMIT_PREFIX } Created local '${ file.dest }' from remote '${ file.source }'`,
+							commit: useOriginalCommitMessage ? git.originalCommitMessage() : `${ COMMIT_PREFIX } Created local '${ file.dest }' from remote '${ file.source }'`,
 							pr: `Created local ${ directory } <code>${ file.dest }</code> ${ otherFiles } from remote ${ directory } <code>${ file.source }</code>`
 						}
 					}
@@ -128,7 +130,14 @@ const run = async () => {
 			if (hasChanges === true) {
 				core.debug(`Creating commit for remaining files`)
 
-				await git.commit()
+				let useOriginalCommitMessage = ORIGINAL_MESSAGE && git.isOneCommitPush()
+				if (useOriginalCommitMessage) {
+					await forEach(item.files, async (file) => {
+						useOriginalCommitMessage = useOriginalCommitMessage && arrayEquals(await git.getChangesFromLastCommit(file.source), await git.changes(file.dest))
+					})
+				}
+
+				await git.commit(useOriginalCommitMessage ? git.originalCommitMessage() : undefined)
 				modified.push({
 					dest: git.workingDir
 				})
