@@ -538,6 +538,49 @@ exports.Context = Context;
 
 /***/ }),
 
+/***/ 5438:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getOctokit = exports.context = void 0;
+const Context = __importStar(__nccwpck_require__(4087));
+const utils_1 = __nccwpck_require__(3030);
+exports.context = new Context.Context();
+/**
+ * Returns a hydrated octokit ready to use for GitHub Actions
+ *
+ * @param     token    the repo PAT or GITHUB_TOKEN
+ * @param     options  other options to set
+ */
+function getOctokit(token, options) {
+    return new utils_1.GitHub(utils_1.getOctokitOptions(token, options));
+}
+exports.getOctokit = getOctokit;
+//# sourceMappingURL=github.js.map
+
+/***/ }),
+
 /***/ 7914:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -16749,6 +16792,11 @@ try {
 			type: 'boolean',
 			default: false
 		}),
+		ORIGINAL_MESSAGE: getInput({
+			key: 'ORIGINAL_MESSAGE',
+			type: 'boolean',
+			default: false
+		}),
 		BRANCH_PREFIX: getInput({
 			key: 'BRANCH_PREFIX',
 			default: 'repo-sync/SOURCE_REPO_NAME'
@@ -16891,6 +16939,7 @@ module.exports = {
 
 const { parse } = __nccwpck_require__(1150)
 const core = __nccwpck_require__(2186)
+const github = __nccwpck_require__(5438)
 const { GitHub, getOctokitOptions } = __nccwpck_require__(3030)
 const { throttling } = __nccwpck_require__(9968)
 const path = __nccwpck_require__(5622)
@@ -17018,6 +17067,58 @@ class Git {
 		)
 	}
 
+	isOneCommitPush() {
+		return github.context.eventName === 'push' && github.context.payload.commits.length === 1
+	}
+
+	originalCommitMessage() {
+		return github.context.payload.commits[0].message
+	}
+
+	parseGitDiffOutput(string) { // parses git diff output and returns a dictionary mapping the file path to the diff output for this file
+		// split diff into separate entries for separate files. \ndiff --git should be a reliable way to detect the separation, as content of files is always indented
+		return `\n${ string }`.split('\ndiff --git').slice(1).reduce((resultDict, fileDiff) => {
+			const lines = fileDiff.split('\n')
+			const lastHeaderLineIndex = lines.findIndex((line) => line.startsWith('+++'))
+			const plainDiff = lines.slice(lastHeaderLineIndex + 1).join('\n').trim()
+			let filePath = ''
+			if (lines[lastHeaderLineIndex].startsWith('+++ b/')) { // every file except removed files
+				filePath = lines[lastHeaderLineIndex].slice(6) // remove '+++ b/'
+			} else { // for removed file need to use header line with filename before deletion
+				filePath = lines[lastHeaderLineIndex - 1].slice(6) // remove '--- a/'
+			}
+			return { ...resultDict, [filePath]: plainDiff }
+		}, {})
+	}
+
+	async getChangesFromLastCommit(source) { // gets array of git diffs for the source, which either can be a file or a dict
+		if (this.lastCommitChanges === undefined) {
+			const diff = await this.github.repos.compareCommits({
+				mediaType: {
+					format: 'diff'
+				},
+				owner: github.context.payload.repository.owner.name,
+				repo: github.context.payload.repository.name,
+				base: github.context.payload.before,
+				head: github.context.payload.after
+			})
+			this.lastCommitChanges = this.parseGitDiffOutput(diff.data)
+		}
+		if (source.endsWith('/')) {
+			return Object.keys(this.lastCommitChanges).filter((filePath) => filePath.startsWith(source)).reduce((result, key) => [ ...result, this.lastCommitChanges[key] ], [])
+		} else {
+			return this.lastCommitChanges[source] === undefined ? [] : [ this.lastCommitChanges[source] ]
+		}
+	}
+
+	async changes(destination) { // gets array of git diffs for the destination, which either can be a file or a dict
+		const output = await execCmd(
+			`git diff HEAD ${ destination }`,
+			this.workingDir
+		)
+		return Object.values(this.parseGitDiffOutput(output))
+	}
+
 	async hasChanges() {
 		const statusOutput = await execCmd(
 			`git status --porcelain`,
@@ -17033,7 +17134,7 @@ class Git {
 			message += `\n\n${ COMMIT_BODY }`
 		}
 		return execCmd(
-			`git commit -m "${ message }"`,
+			`git commit -m "${ message.replace(/"/g, '\\"') }"`,
 			this.workingDir
 		)
 	}
@@ -17255,6 +17356,8 @@ const remove = async (src) => {
 	return fs.remove(src)
 }
 
+const arrayEquals = (array1, array2) => Array.isArray(array1) && Array.isArray(array2) && array1.length === array2.length && array1.every((value, i) => value === array2[i])
+
 module.exports = {
 	forEach,
 	dedent,
@@ -17262,7 +17365,8 @@ module.exports = {
 	pathIsDirectory,
 	execCmd,
 	copy,
-	remove
+	remove,
+	arrayEquals
 }
 
 /***/ }),
@@ -17440,7 +17544,7 @@ const core = __nccwpck_require__(2186)
 const fs = __nccwpck_require__(5747)
 
 const Git = __nccwpck_require__(109)
-const { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove } = __nccwpck_require__(8505)
+const { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove, arrayEquals } = __nccwpck_require__(8505)
 
 const {
 	parseConfig,
@@ -17452,7 +17556,8 @@ const {
 	TMP_DIR,
 	SKIP_CLEANUP,
 	OVERWRITE_EXISTING_PR,
-	SKIP_PR
+	SKIP_PR,
+	ORIGINAL_MESSAGE
 } = __nccwpck_require__(4570)
 
 const run = async () => {
@@ -17520,14 +17625,15 @@ const run = async () => {
 					// Use different commit/pr message based on if the source is a directory or file
 					const directory = isDirectory ? 'directory' : ''
 					const otherFiles = isDirectory ? 'and copied all sub files/folders' : ''
+					const useOriginalCommitMessage = ORIGINAL_MESSAGE && git.isOneCommitPush() && arrayEquals(await git.getChangesFromLastCommit(file.source), await git.changes(file.dest))
 
 					const message = {
 						true: {
-							commit: `${ COMMIT_PREFIX } Synced local '${ file.dest }' with remote '${ file.source }'`,
+							commit: useOriginalCommitMessage ? git.originalCommitMessage() : `${ COMMIT_PREFIX } Synced local '${ file.dest }' with remote '${ file.source }'`,
 							pr: `Synced local ${ directory } <code>${ file.dest }</code> with remote ${ directory } <code>${ file.source }</code>`
 						},
 						false: {
-							commit: `${ COMMIT_PREFIX } Created local '${ file.dest }' from remote '${ file.source }'`,
+							commit: useOriginalCommitMessage ? git.originalCommitMessage() : `${ COMMIT_PREFIX } Created local '${ file.dest }' from remote '${ file.source }'`,
 							pr: `Created local ${ directory } <code>${ file.dest }</code> ${ otherFiles } from remote ${ directory } <code>${ file.source }</code>`
 						}
 					}
@@ -17566,7 +17672,14 @@ const run = async () => {
 			if (hasChanges === true) {
 				core.debug(`Creating commit for remaining files`)
 
-				await git.commit()
+				let useOriginalCommitMessage = ORIGINAL_MESSAGE && git.isOneCommitPush()
+				if (useOriginalCommitMessage) {
+					await forEach(item.files, async (file) => {
+						useOriginalCommitMessage = useOriginalCommitMessage && arrayEquals(await git.getChangesFromLastCommit(file.source), await git.changes(file.dest))
+					})
+				}
+
+				await git.commit(useOriginalCommitMessage ? git.originalCommitMessage() : undefined)
 				modified.push({
 					dest: git.workingDir
 				})
