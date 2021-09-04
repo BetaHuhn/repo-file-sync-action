@@ -134,7 +134,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.notice = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
+exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
 const command_1 = __nccwpck_require__(7351);
 const file_command_1 = __nccwpck_require__(717);
 const utils_1 = __nccwpck_require__(5278);
@@ -312,30 +312,19 @@ exports.debug = debug;
 /**
  * Adds an error issue
  * @param message error issue message. Errors will be converted to string via toString()
- * @param properties optional properties to add to the annotation.
  */
-function error(message, properties = {}) {
-    command_1.issueCommand('error', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+function error(message) {
+    command_1.issue('error', message instanceof Error ? message.toString() : message);
 }
 exports.error = error;
 /**
- * Adds a warning issue
+ * Adds an warning issue
  * @param message warning issue message. Errors will be converted to string via toString()
- * @param properties optional properties to add to the annotation.
  */
-function warning(message, properties = {}) {
-    command_1.issueCommand('warning', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+function warning(message) {
+    command_1.issue('warning', message instanceof Error ? message.toString() : message);
 }
 exports.warning = warning;
-/**
- * Adds a notice issue
- * @param message notice issue message. Errors will be converted to string via toString()
- * @param properties optional properties to add to the annotation.
- */
-function notice(message, properties = {}) {
-    command_1.issueCommand('notice', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
-}
-exports.notice = notice;
 /**
  * Writes info to log with console.log.
  * @param message info message
@@ -469,7 +458,7 @@ exports.issueCommand = issueCommand;
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.toCommandProperties = exports.toCommandValue = void 0;
+exports.toCommandValue = void 0;
 /**
  * Sanitizes an input into a string so it can be passed into issueCommand safely
  * @param input input to sanitize into a string
@@ -484,25 +473,6 @@ function toCommandValue(input) {
     return JSON.stringify(input);
 }
 exports.toCommandValue = toCommandValue;
-/**
- *
- * @param annotationProperties
- * @returns The command properties to send with the actual annotation command
- * See IssueCommandProperties: https://github.com/actions/runner/blob/main/src/Runner.Worker/ActionCommandManager.cs#L646
- */
-function toCommandProperties(annotationProperties) {
-    if (!Object.keys(annotationProperties).length) {
-        return {};
-    }
-    return {
-        title: annotationProperties.title,
-        line: annotationProperties.startLine,
-        endLine: annotationProperties.endLine,
-        col: annotationProperties.startColumn,
-        endColumn: annotationProperties.endColumn
-    };
-}
-exports.toCommandProperties = toCommandProperties;
 //# sourceMappingURL=utils.js.map
 
 /***/ }),
@@ -565,49 +535,6 @@ class Context {
 }
 exports.Context = Context;
 //# sourceMappingURL=context.js.map
-
-/***/ }),
-
-/***/ 5438:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getOctokit = exports.context = void 0;
-const Context = __importStar(__nccwpck_require__(4087));
-const utils_1 = __nccwpck_require__(3030);
-exports.context = new Context.Context();
-/**
- * Returns a hydrated octokit ready to use for GitHub Actions
- *
- * @param     token    the repo PAT or GITHUB_TOKEN
- * @param     options  other options to set
- */
-function getOctokit(token, options) {
-    return new utils_1.GitHub(utils_1.getOctokitOptions(token, options));
-}
-exports.getOctokit = getOctokit;
-//# sourceMappingURL=github.js.map
 
 /***/ }),
 
@@ -16737,26 +16664,11 @@ const DELETE_ORPHANED_DEFAULT = false
 let context
 
 try {
-
-	let isInstallationToken = false
-	let token = getInput({
-		key: 'GH_PAT'
-	})
-
-	if (!token) {
-		token = getInput({
-			key: 'GH_INSTALLATION_TOKEN'
-		})
-		isInstallationToken = true
-		if (!token) {
-			core.setFailed('You must provide either GH_PAT or GH_INSTALLATION_TOKEN')
-			process.exit(1)
-		}
-	}
-
 	context = {
-		GITHUB_TOKEN: token,
-		IS_INSTALLATION_TOKEN: isInstallationToken,
+		GITHUB_TOKEN: getInput({
+			key: 'GH_PAT',
+			required: true
+		}),
 		GIT_EMAIL: getInput({
 			key: 'GIT_EMAIL'
 		}),
@@ -16819,11 +16731,6 @@ try {
 		}),
 		SKIP_PR: getInput({
 			key: 'SKIP_PR',
-			type: 'boolean',
-			default: false
-		}),
-		ORIGINAL_MESSAGE: getInput({
-			key: 'ORIGINAL_MESSAGE',
 			type: 'boolean',
 			default: false
 		}),
@@ -16969,14 +16876,12 @@ module.exports = {
 
 const { parse } = __nccwpck_require__(1150)
 const core = __nccwpck_require__(2186)
-const github = __nccwpck_require__(5438)
 const { GitHub, getOctokitOptions } = __nccwpck_require__(3030)
 const { throttling } = __nccwpck_require__(9968)
 const path = __nccwpck_require__(5622)
 
 const {
 	GITHUB_TOKEN,
-	IS_INSTALLATION_TOKEN,
 	GIT_USERNAME,
 	GIT_EMAIL,
 	TMP_DIR,
@@ -17027,7 +16932,7 @@ class Git {
 		// Set values to current repo
 		this.repo = repo
 		this.workingDir = path.join(TMP_DIR, repo.uniqueName)
-		this.gitUrl = `https://${ IS_INSTALLATION_TOKEN ? 'x-access-token:' : '' }${ GITHUB_TOKEN }@${ repo.fullName }.git`
+		this.gitUrl = `https://${ GITHUB_TOKEN }@${ repo.fullName }.git`
 
 		await this.clone()
 		await this.setIdentity()
@@ -17047,10 +16952,6 @@ class Git {
 		let email = GIT_EMAIL
 
 		if (email === undefined) {
-			if (IS_INSTALLATION_TOKEN) {
-				core.setFailed('When using an installation token you must provide GIT_EMAIL and GIT_USERNAME')
-				process.exit(1)
-			}
 			const { data } = await this.github.users.getAuthenticated()
 			email = data.email
 			username = data.login
@@ -17097,58 +16998,6 @@ class Git {
 		)
 	}
 
-	isOneCommitPush() {
-		return github.context.eventName === 'push' && github.context.payload.commits.length === 1
-	}
-
-	originalCommitMessage() {
-		return github.context.payload.commits[0].message
-	}
-
-	parseGitDiffOutput(string) { // parses git diff output and returns a dictionary mapping the file path to the diff output for this file
-		// split diff into separate entries for separate files. \ndiff --git should be a reliable way to detect the separation, as content of files is always indented
-		return `\n${ string }`.split('\ndiff --git').slice(1).reduce((resultDict, fileDiff) => {
-			const lines = fileDiff.split('\n')
-			const lastHeaderLineIndex = lines.findIndex((line) => line.startsWith('+++'))
-			const plainDiff = lines.slice(lastHeaderLineIndex + 1).join('\n').trim()
-			let filePath = ''
-			if (lines[lastHeaderLineIndex].startsWith('+++ b/')) { // every file except removed files
-				filePath = lines[lastHeaderLineIndex].slice(6) // remove '+++ b/'
-			} else { // for removed file need to use header line with filename before deletion
-				filePath = lines[lastHeaderLineIndex - 1].slice(6) // remove '--- a/'
-			}
-			return { ...resultDict, [filePath]: plainDiff }
-		}, {})
-	}
-
-	async getChangesFromLastCommit(source) { // gets array of git diffs for the source, which either can be a file or a dict
-		if (this.lastCommitChanges === undefined) {
-			const diff = await this.github.repos.compareCommits({
-				mediaType: {
-					format: 'diff'
-				},
-				owner: github.context.payload.repository.owner.name,
-				repo: github.context.payload.repository.name,
-				base: github.context.payload.before,
-				head: github.context.payload.after
-			})
-			this.lastCommitChanges = this.parseGitDiffOutput(diff.data)
-		}
-		if (source.endsWith('/')) {
-			return Object.keys(this.lastCommitChanges).filter((filePath) => filePath.startsWith(source)).reduce((result, key) => [ ...result, this.lastCommitChanges[key] ], [])
-		} else {
-			return this.lastCommitChanges[source] === undefined ? [] : [ this.lastCommitChanges[source] ]
-		}
-	}
-
-	async changes(destination) { // gets array of git diffs for the destination, which either can be a file or a dict
-		const output = await execCmd(
-			`git diff HEAD ${ destination }`,
-			this.workingDir
-		)
-		return Object.values(this.parseGitDiffOutput(output))
-	}
-
 	async hasChanges() {
 		const statusOutput = await execCmd(
 			`git status --porcelain`,
@@ -17164,7 +17013,7 @@ class Git {
 			message += `\n\n${ COMMIT_BODY }`
 		}
 		return execCmd(
-			`git commit -m "${ message.replace(/"/g, '\\"') }"`,
+			`git commit -m "${ message }"`,
 			this.workingDir
 		)
 	}
@@ -17386,8 +17235,6 @@ const remove = async (src) => {
 	return fs.remove(src)
 }
 
-const arrayEquals = (array1, array2) => Array.isArray(array1) && Array.isArray(array2) && array1.length === array2.length && array1.every((value, i) => value === array2[i])
-
 module.exports = {
 	forEach,
 	dedent,
@@ -17395,8 +17242,7 @@ module.exports = {
 	pathIsDirectory,
 	execCmd,
 	copy,
-	remove,
-	arrayEquals
+	remove
 }
 
 /***/ }),
@@ -17413,7 +17259,7 @@ module.exports = eval("require")("encoding");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("assert");
+module.exports = require("assert");;
 
 /***/ }),
 
@@ -17421,7 +17267,7 @@ module.exports = require("assert");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("child_process");
+module.exports = require("child_process");;
 
 /***/ }),
 
@@ -17429,7 +17275,7 @@ module.exports = require("child_process");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("constants");
+module.exports = require("constants");;
 
 /***/ }),
 
@@ -17437,7 +17283,7 @@ module.exports = require("constants");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("events");
+module.exports = require("events");;
 
 /***/ }),
 
@@ -17445,7 +17291,7 @@ module.exports = require("events");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("fs");
+module.exports = require("fs");;
 
 /***/ }),
 
@@ -17453,7 +17299,7 @@ module.exports = require("fs");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("http");
+module.exports = require("http");;
 
 /***/ }),
 
@@ -17461,7 +17307,7 @@ module.exports = require("http");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("https");
+module.exports = require("https");;
 
 /***/ }),
 
@@ -17469,7 +17315,7 @@ module.exports = require("https");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("net");
+module.exports = require("net");;
 
 /***/ }),
 
@@ -17477,7 +17323,7 @@ module.exports = require("net");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("os");
+module.exports = require("os");;
 
 /***/ }),
 
@@ -17485,7 +17331,7 @@ module.exports = require("os");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("path");
+module.exports = require("path");;
 
 /***/ }),
 
@@ -17493,7 +17339,7 @@ module.exports = require("path");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("stream");
+module.exports = require("stream");;
 
 /***/ }),
 
@@ -17501,7 +17347,7 @@ module.exports = require("stream");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("tls");
+module.exports = require("tls");;
 
 /***/ }),
 
@@ -17509,7 +17355,7 @@ module.exports = require("tls");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("url");
+module.exports = require("url");;
 
 /***/ }),
 
@@ -17517,7 +17363,7 @@ module.exports = require("url");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("util");
+module.exports = require("util");;
 
 /***/ }),
 
@@ -17525,7 +17371,7 @@ module.exports = require("util");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("zlib");
+module.exports = require("zlib");;
 
 /***/ })
 
@@ -17564,9 +17410,7 @@ module.exports = require("zlib");
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
-/******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
-/******/ 	
-/************************************************************************/
+/******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";/************************************************************************/
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
@@ -17574,7 +17418,7 @@ const core = __nccwpck_require__(2186)
 const fs = __nccwpck_require__(5747)
 
 const Git = __nccwpck_require__(109)
-const { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove, arrayEquals } = __nccwpck_require__(8505)
+const { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove } = __nccwpck_require__(8505)
 
 const {
 	parseConfig,
@@ -17586,8 +17430,7 @@ const {
 	TMP_DIR,
 	SKIP_CLEANUP,
 	OVERWRITE_EXISTING_PR,
-	SKIP_PR,
-	ORIGINAL_MESSAGE
+	SKIP_PR
 } = __nccwpck_require__(4570)
 
 const run = async () => {
@@ -17636,7 +17479,7 @@ const run = async () => {
 				const isDirectory = await pathIsDirectory(file.source)
 				const source = isDirectory ? `${ addTrailingSlash(file.source) }` : file.source
 
-				if (isDirectory) core.info(`Source is directory`)
+				if (isDirectory) core.warning(`Source is directory`)
 
 				const deleteOrphaned = isDirectory && file.deleteOrphaned
 
@@ -17655,15 +17498,14 @@ const run = async () => {
 					// Use different commit/pr message based on if the source is a directory or file
 					const directory = isDirectory ? 'directory' : ''
 					const otherFiles = isDirectory ? 'and copied all sub files/folders' : ''
-					const useOriginalCommitMessage = ORIGINAL_MESSAGE && git.isOneCommitPush() && arrayEquals(await git.getChangesFromLastCommit(file.source), await git.changes(file.dest))
 
 					const message = {
 						true: {
-							commit: useOriginalCommitMessage ? git.originalCommitMessage() : `${ COMMIT_PREFIX } Synced local '${ file.dest }' with remote '${ file.source }'`,
+							commit: `${ COMMIT_PREFIX } Synced local '${ file.dest }' with remote '${ file.source }'`,
 							pr: `Synced local ${ directory } <code>${ file.dest }</code> with remote ${ directory } <code>${ file.source }</code>`
 						},
 						false: {
-							commit: useOriginalCommitMessage ? git.originalCommitMessage() : `${ COMMIT_PREFIX } Created local '${ file.dest }' from remote '${ file.source }'`,
+							commit: `${ COMMIT_PREFIX } Created local '${ file.dest }' from remote '${ file.source }'`,
 							pr: `Created local ${ directory } <code>${ file.dest }</code> ${ otherFiles } from remote ${ directory } <code>${ file.source }</code>`
 						}
 					}
@@ -17702,14 +17544,7 @@ const run = async () => {
 			if (hasChanges === true) {
 				core.debug(`Creating commit for remaining files`)
 
-				let useOriginalCommitMessage = ORIGINAL_MESSAGE && git.isOneCommitPush()
-				if (useOriginalCommitMessage) {
-					await forEach(item.files, async (file) => {
-						useOriginalCommitMessage = useOriginalCommitMessage && arrayEquals(await git.getChangesFromLastCommit(file.source), await git.changes(file.dest))
-					})
-				}
-
-				await git.commit(useOriginalCommitMessage ? git.originalCommitMessage() : undefined)
+				await git.commit()
 				modified.push({
 					dest: git.workingDir
 				})
