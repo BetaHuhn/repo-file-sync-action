@@ -1,3 +1,12 @@
+## [v1.12.0] - 2021-09-04
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.12.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.11.1...v1.12.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.12.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.12.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.12.0.tar.gz))
+
+### New features
+
+- [`c03c7b0`](https://github.com/betahuhn/repo-file-sync-action/commit/c03c7b0)  Add option to use original commit message (#96)
+(Issues: [`#96`](https://github.com/betahuhn/repo-file-sync-action/issues/96) [`#13`](https://github.com/betahuhn/repo-file-sync-action/issues/13))
+
 ## [v1.11.1] - 2021-09-04
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.11.1) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.11.0...v1.11.1) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.11.1) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.11.1.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.11.1.tar.gz))
