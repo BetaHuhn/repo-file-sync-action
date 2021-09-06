@@ -37,7 +37,7 @@
     "node-readfiles": "^0.2.0"
   },
   "devDependencies": {
-    "@betahuhn/config": "^1.1.0",
+    "@betahuhn/config": "^1.2.0",
     "@vercel/ncc": "^0.30.0",
     "eslint": "^7.32.0"
   }

@@ -44,6 +44,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          COMMIT_ASSETS: dist
           GIT_AUTHOR_NAME: "BetaHuhn Bot"
           GIT_AUTHOR_EMAIL: "bot@mxis.ch"
           GIT_COMMITTER_NAME: "BetaHuhn Bot"
