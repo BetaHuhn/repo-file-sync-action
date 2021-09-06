@@ -1,3 +1,17 @@
+## [v1.13.0] - 2021-09-06
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.13.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.12.0...v1.13.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.13.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.0.tar.gz))
+
+### New features
+
+- [`0e59a9c`](https://github.com/betahuhn/repo-file-sync-action/commit/0e59a9c) Display notice with PR link (#101)
+(Issues: [`#101`](https://github.com/betahuhn/repo-file-sync-action/issues/101) [`#100`](https://github.com/betahuhn/repo-file-sync-action/issues/100))
+
+### Bug fixes
+
+- [`013b028`](https://github.com/betahuhn/repo-file-sync-action/commit/013b028)  Do not delete excluded files if deleteOrphaned is true (#98)
+(Issues: [`#98`](https://github.com/betahuhn/repo-file-sync-action/issues/98) [`#97`](https://github.com/betahuhn/repo-file-sync-action/issues/97))
+
 ## [v1.12.0] - 2021-09-04
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.12.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.11.1...v1.12.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.12.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.12.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.12.0.tar.gz))
