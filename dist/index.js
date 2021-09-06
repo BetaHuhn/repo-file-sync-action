@@ -17260,6 +17260,7 @@ const fs = __nccwpck_require__(5630)
 const readfiles = __nccwpck_require__(5884)
 const { exec } = __nccwpck_require__(3129)
 const core = __nccwpck_require__(2186)
+const path = __nccwpck_require__(5622)
 
 // From https://github.com/toniov/p-iteration/blob/master/lib/static-methods.js - MIT © Antonio V
 const forEach = async (array, callback) => {
@@ -17343,7 +17344,11 @@ const copy = async (src, dest, deleteOrphaned, exclude) => {
 		for (const file of destFileList) {
 			if (srcFileList.indexOf(file) === -1) {
 				core.debug(`Found a orphaned file in the target repo - ${ dest }${ file }`)
-				await fs.remove(`${ dest }${ file }`)
+				if (exclude.includes(path.join(src, file))) {
+					core.debug(`Excluding file ${ file }`)
+				} else {
+					await fs.remove(`${ dest }${ file }`)
+				}
 			}
 		}
 	}
