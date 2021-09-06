@@ -2,6 +2,7 @@ const fs = require('fs-extra')
 const readfiles = require('node-readfiles')
 const { exec } = require('child_process')
 const core = require('@actions/core')
+const path = require('path')
 
 // From https://github.com/toniov/p-iteration/blob/master/lib/static-methods.js - MIT © Antonio V
 const forEach = async (array, callback) => {
@@ -85,7 +86,11 @@ const copy = async (src, dest, deleteOrphaned, exclude) => {
 		for (const file of destFileList) {
 			if (srcFileList.indexOf(file) === -1) {
 				core.debug(`Found a orphaned file in the target repo - ${ dest }${ file }`)
-				await fs.remove(`${ dest }${ file }`)
+				if (exclude.includes(path.join(src, file))) {
+					core.debug(`Excluding file ${ file }`)
+				} else {
+					await fs.remove(`${ dest }${ file }`)
+				}
 			}
 		}
 	}
