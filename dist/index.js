@@ -17701,7 +17701,7 @@ const run = async () => {
 
 				const pullRequest = await git.createOrUpdatePr(COMMIT_EACH_FILE ? changedFiles : '')
 
-				core.info(`Pull Request #${ pullRequest.number } created/updated: ${ pullRequest.html_url }`)
+				core.notice(`Pull Request #${ pullRequest.number } created/updated: ${ pullRequest.html_url }`)
 
 				core.setOutput('pull_request_number', pullRequest.number)
 				core.setOutput('pull_request_url', pullRequest.html_url)
