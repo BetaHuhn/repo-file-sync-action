@@ -1,3 +1,12 @@
+## [v1.13.2] - 2021-09-07
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.13.2) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.13.1...v1.13.2) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.13.2) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.2.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.2.tar.gz))
+
+### Dependency updates
+
+- [`c4319ab`](https://github.com/betahuhn/repo-file-sync-action/commit/c4319ab)  Bump action-input-parser from 1.2.15 to 1.2.16
+- [`3007ff6`](https://github.com/betahuhn/repo-file-sync-action/commit/3007ff6)  Bump @octokit/plugin-throttling from 3.5.1 to 3.5.2
+
 ## [v1.13.1] - 2021-09-06
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.13.1) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.13.0...v1.13.1) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.13.1) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.1.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.1.tar.gz))
