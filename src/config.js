@@ -194,7 +194,7 @@ const parseConfig = async () => {
 			const groups = Array.isArray(rawObject) ? rawObject : [ rawObject ]
 
 			groups.forEach((group) => {
-				const repos = typeof group.repos === 'string' ? group.repos.split('\n').filter((n) => n) : group.repos
+				const repos = typeof group.repos === 'string' ? group.repos.split('\n').map((n) => n.trim()).filter((n) => n) : group.repos
 
 				repos.forEach((name) => {
 					const files = parseFiles(group.files)
