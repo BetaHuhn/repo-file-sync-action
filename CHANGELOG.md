@@ -1,3 +1,17 @@
+## [v1.13.4] - 2021-09-17
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.13.4) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.13.3...v1.13.4) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.13.4) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.4.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.4.tar.gz))
+
+### Bug fixes
+
+- [`7f838d5`](https://github.com/betahuhn/repo-file-sync-action/commit/7f838d5)  Trim whitespace on repos list (#111)
+(Issues: [`#111`](https://github.com/betahuhn/repo-file-sync-action/issues/111))
+
+### Dependency updates
+
+- [`d19a71d`](https://github.com/betahuhn/repo-file-sync-action/commit/d19a71d)  Bump action-input-parser from 1.2.16 to 1.2.17
+- [`ea75b37`](https://github.com/betahuhn/repo-file-sync-action/commit/ea75b37)  Bump @vercel/ncc from 0.31.0 to 0.31.1
+
 ## [v1.13.3] - 2021-09-13
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.13.3) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.13.2...v1.13.3) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.13.3) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.3.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.3.tar.gz))
