@@ -1,3 +1,16 @@
+## [v1.13.5] - 2021-09-23
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.13.5) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.13.4...v1.13.5) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.13.5) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.5.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.5.tar.gz))
+
+### Bug fixes
+
+- [`0abefcc`](https://github.com/betahuhn/repo-file-sync-action/commit/0abefcc)  Check if exclude exists before using it (#114)
+(Issues: [`#114`](https://github.com/betahuhn/repo-file-sync-action/issues/114))
+
+### Dependency updates
+
+- [`25c6114`](https://github.com/betahuhn/repo-file-sync-action/commit/25c6114)  Bump action-input-parser from 1.2.17 to 1.2.18
+
 ## [v1.13.4] - 2021-09-17
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.13.4) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.13.3...v1.13.4) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.13.4) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.4.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.4.tar.gz))
