@@ -67,7 +67,7 @@ const copy = async (src, dest, deleteOrphaned, exclude) => {
 
 	const filterFunc = (file) => {
 
-		if (exclude.includes(file)) {
+		if (exclude !== undefined && exclude.includes(file)) {
 			core.debug(`Excluding file ${ file }`)
 			return false
 		}
@@ -86,7 +86,7 @@ const copy = async (src, dest, deleteOrphaned, exclude) => {
 		for (const file of destFileList) {
 			if (srcFileList.indexOf(file) === -1) {
 				core.debug(`Found a orphaned file in the target repo - ${ dest }${ file }`)
-				if (exclude.includes(path.join(src, file))) {
+				if (exclude !== undefined && exclude.includes(path.join(src, file))) {
 					core.debug(`Excluding file ${ file }`)
 				} else {
 					await fs.remove(`${ dest }${ file }`)
