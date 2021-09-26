@@ -15,7 +15,8 @@ const {
 	SKIP_CLEANUP,
 	OVERWRITE_EXISTING_PR,
 	SKIP_PR,
-	ORIGINAL_MESSAGE
+	ORIGINAL_MESSAGE,
+	COMMIT_AS_PR_TITLE
 } = require('./config')
 
 const run = async () => {
@@ -101,7 +102,9 @@ const run = async () => {
 					modified.push({
 						dest: file.dest,
 						source: file.source,
-						message: message[destExists].pr
+						message: message[destExists].pr,
+						useOriginalMessage: useOriginalCommitMessage,
+						commitMessage: message[destExists].commit
 					})
 				}
 			})
@@ -137,9 +140,12 @@ const run = async () => {
 					})
 				}
 
-				await git.commit(useOriginalCommitMessage ? git.originalCommitMessage() : undefined)
+				const commitMessage = useOriginalCommitMessage ? git.originalCommitMessage() : undefined
+				await git.commit(commitMessage)
 				modified.push({
-					dest: git.workingDir
+					dest: git.workingDir,
+					useOriginalMessage: useOriginalCommitMessage,
+					commitMessage: commitMessage
 				})
 			}
 
@@ -157,7 +163,8 @@ const run = async () => {
 					</details>
 				`)
 
-				const pullRequest = await git.createOrUpdatePr(COMMIT_EACH_FILE ? changedFiles : '')
+				const useCommitAsPRTitle = COMMIT_AS_PR_TITLE && modified.length === 1 && modified[0].useOriginalMessage
+				const pullRequest = await git.createOrUpdatePr(COMMIT_EACH_FILE ? changedFiles : '', useCommitAsPRTitle ? modified[0].commitMessage.split('\n', 1)[0].trim() : undefined)
 
 				core.notice(`Pull Request #${ pullRequest.number } created/updated: ${ pullRequest.html_url }`)
 

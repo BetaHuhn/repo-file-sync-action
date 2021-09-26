@@ -249,7 +249,7 @@ class Git {
 		})
 	}
 
-	async createOrUpdatePr(changedFiles) {
+	async createOrUpdatePr(changedFiles, title) {
 		const body = dedent(`
 			Synced local file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
 
@@ -268,6 +268,7 @@ class Git {
 			const { data } = await this.github.pulls.update({
 				owner: this.repo.user,
 				repo: this.repo.name,
+				title: `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }`,
 				pull_number: this.existingPr.number,
 				body: body
 			})
@@ -280,7 +281,7 @@ class Git {
 		const { data } = await this.github.pulls.create({
 			owner: this.repo.user,
 			repo: this.repo.name,
-			title: `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }`,
+			title: title === undefined ? `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }` : title,
 			body: body,
 			head: this.prBranch,
 			base: this.baseBranch
