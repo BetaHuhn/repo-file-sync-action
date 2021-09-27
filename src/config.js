@@ -100,6 +100,11 @@ try {
 			type: 'boolean',
 			default: false
 		}),
+		COMMIT_AS_PR_TITLE: getInput({
+			key: 'COMMIT_AS_PR_TITLE',
+			type: 'boolean',
+			default: false
+		}),
 		BRANCH_PREFIX: getInput({
 			key: 'BRANCH_PREFIX',
 			default: 'repo-sync/SOURCE_REPO_NAME'

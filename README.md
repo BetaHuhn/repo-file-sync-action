@@ -52,7 +52,7 @@ jobs:
 #### Token
 In order for the Action to access your repositories you have to specify a [Personal Access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) as the value for `GH_PAT` (`GITHUB_TOKEN` will **not** work). The PAT needs the full repo scope ([#31](https://github.com/BetaHuhn/repo-file-sync-action/discussions/31#discussioncomment-674804)).
 
-It is recommneded to set the token as a
+It is recommended to set the token as a
 [Repository Secret](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository).
 
 Alternatively, you can provide the token of a GitHub App Installation via the `GH_INSTALLATION_TOKEN` input. You can obtain such token for example via [this](https://github.com/marketplace/actions/github-app-token) action. Tokens from apps have the advantage that they provide more granular access control.
@@ -108,7 +108,8 @@ Here are all the inputs [repo-file-sync-action](https://github.com/BetaHuhn/repo
 | `ASSIGNEES` | People to assign to the pull request | **No** | N/A |
 | `COMMIT_PREFIX` | Prefix for commit message and pull request title | **No** | 🔄 |
 | `COMMIT_BODY` | Commit message body. Will be appended to commit message, separated by two line returns. | **No** | '' |
-| `ORIGINAL_MESSAGE` | Use original commit message instead. Only works if the file(s) where changed and the action was triggered by pushing a single commit. | **No** | false |
+| `ORIGINAL_MESSAGE` | Use original commit message instead. Only works if the file(s) were changed and the action was triggered by pushing a single commit. | **No** | false |
+| `COMMIT_AS_PR_TITLE` | Use first line of the commit message as PR title. Only works if `ORIGINAL_MESSAGE` is `true` and working. | **No** | false |
 | `COMMIT_EACH_FILE` | Commit each file seperately | **No** | true |
 | `GIT_EMAIL` | The e-mail address used to commit the synced files | **Only when using installation token** | the email of the PAT used |
 | `GIT_USERNAME` | The username used to commit the synced files | **Only when using installation token** | the username of the PAT used |
