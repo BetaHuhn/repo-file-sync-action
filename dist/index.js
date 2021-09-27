@@ -16827,6 +16827,11 @@ try {
 			type: 'boolean',
 			default: false
 		}),
+		COMMIT_AS_PR_TITLE: getInput({
+			key: 'COMMIT_AS_PR_TITLE',
+			type: 'boolean',
+			default: false
+		}),
 		BRANCH_PREFIX: getInput({
 			key: 'BRANCH_PREFIX',
 			default: 'repo-sync/SOURCE_REPO_NAME'
@@ -17218,7 +17223,7 @@ class Git {
 		})
 	}
 
-	async createOrUpdatePr(changedFiles) {
+	async createOrUpdatePr(changedFiles, title) {
 		const body = dedent(`
 			Synced local file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
 
@@ -17237,6 +17242,7 @@ class Git {
 			const { data } = await this.github.pulls.update({
 				owner: this.repo.user,
 				repo: this.repo.name,
+				title: `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }`,
 				pull_number: this.existingPr.number,
 				body: body
 			})
@@ -17249,7 +17255,7 @@ class Git {
 		const { data } = await this.github.pulls.create({
 			owner: this.repo.user,
 			repo: this.repo.name,
-			title: `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }`,
+			title: title === undefined ? `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }` : title,
 			body: body,
 			head: this.prBranch,
 			base: this.baseBranch
@@ -17592,7 +17598,8 @@ const {
 	SKIP_CLEANUP,
 	OVERWRITE_EXISTING_PR,
 	SKIP_PR,
-	ORIGINAL_MESSAGE
+	ORIGINAL_MESSAGE,
+	COMMIT_AS_PR_TITLE
 } = __nccwpck_require__(4570)
 
 const run = async () => {
@@ -17678,7 +17685,9 @@ const run = async () => {
 					modified.push({
 						dest: file.dest,
 						source: file.source,
-						message: message[destExists].pr
+						message: message[destExists].pr,
+						useOriginalMessage: useOriginalCommitMessage,
+						commitMessage: message[destExists].commit
 					})
 				}
 			})
@@ -17714,9 +17723,12 @@ const run = async () => {
 					})
 				}
 
-				await git.commit(useOriginalCommitMessage ? git.originalCommitMessage() : undefined)
+				const commitMessage = useOriginalCommitMessage ? git.originalCommitMessage() : undefined
+				await git.commit(commitMessage)
 				modified.push({
-					dest: git.workingDir
+					dest: git.workingDir,
+					useOriginalMessage: useOriginalCommitMessage,
+					commitMessage: commitMessage
 				})
 			}
 
@@ -17734,7 +17746,8 @@ const run = async () => {
 					</details>
 				`)
 
-				const pullRequest = await git.createOrUpdatePr(COMMIT_EACH_FILE ? changedFiles : '')
+				const useCommitAsPRTitle = COMMIT_AS_PR_TITLE && modified.length === 1 && modified[0].useOriginalMessage
+				const pullRequest = await git.createOrUpdatePr(COMMIT_EACH_FILE ? changedFiles : '', useCommitAsPRTitle ? modified[0].commitMessage.split('\n', 1)[0].trim() : undefined)
 
 				core.notice(`Pull Request #${ pullRequest.number } created/updated: ${ pullRequest.html_url }`)
 

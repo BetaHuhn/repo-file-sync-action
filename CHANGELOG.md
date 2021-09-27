@@ -1,3 +1,12 @@
+## [v1.14.0] - 2021-09-27
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.14.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.13.5...v1.14.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.14.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.14.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.14.0.tar.gz))
+
+### New features
+
+- [`8c50c0d`](https://github.com/betahuhn/repo-file-sync-action/commit/8c50c0d)  Add COMMIT_AS_PR_TITLE option (#115)
+(Issues: [`#115`](https://github.com/betahuhn/repo-file-sync-action/issues/115) [`#103`](https://github.com/betahuhn/repo-file-sync-action/issues/103))
+
 ## [v1.13.5] - 2021-09-23
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.13.5) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.13.4...v1.13.5) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.13.5) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.5.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.13.5.tar.gz))
