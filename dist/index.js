@@ -17766,6 +17766,8 @@ const run = async () => {
 
 	const repos = await parseConfig()
 
+	const prUrls = []
+
 	await forEach(repos, async (item) => {
 		core.info(`Repository Info`)
 		core.info(`Slug		: ${ item.repo.name }`)
@@ -17908,9 +17910,7 @@ const run = async () => {
 				const pullRequest = await git.createOrUpdatePr(COMMIT_EACH_FILE ? changedFiles : '', useCommitAsPRTitle ? modified[0].commitMessage.split('\n', 1)[0].trim() : undefined)
 
 				core.notice(`Pull Request #${ pullRequest.number } created/updated: ${ pullRequest.html_url }`)
-
-				core.setOutput('pull_request_number', pullRequest.number)
-				core.setOutput('pull_request_url', pullRequest.html_url)
+				prUrls.push(pullRequest.html_url)
 
 				if (PR_LABELS !== undefined && PR_LABELS.length > 0) {
 					core.info(`Adding label(s) "${ PR_LABELS.join(', ') }" to PR`)
@@ -17929,6 +17929,11 @@ const run = async () => {
 			core.error(err)
 		}
 	})
+
+	// If we created any PRs, set their URLs as the output
+	if (prUrls) {
+		core.setOutput('pull_request_urls', prUrls)
+	}
 
 	if (SKIP_CLEANUP === true) {
 		core.info('Skipping cleanup')

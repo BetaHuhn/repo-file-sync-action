@@ -50,6 +50,7 @@ jobs:
 ```
 
 #### Token
+
 In order for the Action to access your repositories you have to specify a [Personal Access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) as the value for `GH_PAT` (`GITHUB_TOKEN` will **not** work). The PAT needs the full repo scope ([#31](https://github.com/BetaHuhn/repo-file-sync-action/discussions/31#discussioncomment-674804)).
 
 It is recommended to set the token as a
@@ -119,6 +120,10 @@ Here are all the inputs [repo-file-sync-action](https://github.com/BetaHuhn/repo
 | `DRY_RUN` | Run everything except that nothing will be pushed | **No** | false |
 | `SKIP_CLEANUP` | Skips removing the temporary directory. Useful for debugging | **No** | false |
 | `SKIP_PR` | Skips creating a Pull Request and pushes directly to the default branch | **No** | false |
+
+### Outputs
+
+The action sets the `pull_request_urls` output to the URLs of any created Pull Requests. It will be an array of URLs to each PR, e.g. `'["https://github.com/username/repository/pull/number", "..."]'`.
 
 ## 🛠️ Sync Configuration
 

@@ -80,6 +80,10 @@ inputs:
       Specify a different prefix for the new branch in the target repo. Defaults to repo-sync/SOURCE_REPO_NAME
     required: false
 
+outputs:
+  pull_request_urls:
+    description: 'The URLs to the created Pull Requests as an array'
+
 runs:
   using: 'node12'
   main: 'dist/index.js'
