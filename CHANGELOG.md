@@ -1,3 +1,16 @@
+## [v1.15.0] - 2021-10-16
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.15.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.14.2...v1.15.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.15.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.15.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.15.0.tar.gz))
+
+### New features
+
+- [`f9fdef0`](https://github.com/betahuhn/repo-file-sync-action/commit/f9fdef0)  Save the PR URLs in the &#x60;pull_request_urls&#x60; output (#121)
+(Issues: [`#121`](https://github.com/betahuhn/repo-file-sync-action/issues/121))
+
+### Dependency updates
+
+- [`cf1dbf7`](https://github.com/betahuhn/repo-file-sync-action/commit/cf1dbf7)  Bump action-input-parser from 1.2.20 to 1.2.21
+
 ## [v1.14.2] - 2021-10-11
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.14.2) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.14.1...v1.14.2) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.14.2) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.14.2.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.14.2.tar.gz))
