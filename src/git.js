@@ -27,18 +27,12 @@ class Git {
 
 		const options = getOctokitOptions(GITHUB_TOKEN, {
 			throttle: {
-				onRateLimit: (retryAfter, options) => {
-					core.warning(`Request quota exhausted for request ${ options.method } ${ options.url }, retrying after ${ retryAfter }`)
+				onRateLimit: (retryAfter) => {
+					core.warning(`Hit GitHub API rate limit, retrying after ${ retryAfter }s`)
 					return true
-
-					/* if (options.request.retryCount === 0) {
-						// only retries once
-						core.info(`Retrying after ${ retryAfter } seconds!`)
-						return true
-					} */
 				},
-				onAbuseLimit: (retryAfter, options) => {
-					core.warning(`Abuse detected for request ${ options.method } ${ options.url }, retrying after ${ retryAfter }`)
+				onAbuseLimit: (retryAfter) => {
+					core.warning(`Hit secondary GitHub API rate limit, retrying after ${ retryAfter }s`)
 					return true
 				}
 			}
