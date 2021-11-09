@@ -18188,8 +18188,8 @@ const run = async () => {
 
 			core.info('	')
 		} catch (err) {
-			core.error(err.message)
-			core.error(err)
+			core.setFailed(err.message)
+			core.debug(err)
 		}
 	})
 
@@ -18210,8 +18210,8 @@ const run = async () => {
 run()
 	.then(() => {})
 	.catch((err) => {
-		core.error('ERROR', err)
 		core.setFailed(err.message)
+		core.debug(err)
 	})
 })();
 
