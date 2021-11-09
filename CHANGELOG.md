@@ -1,3 +1,17 @@
+## [v1.15.2] - 2021-11-09
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.15.2) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.15.1...v1.15.2) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.15.2) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.15.2.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.15.2.tar.gz))
+
+### Updates
+
+- [`c113c62`](https://github.com/betahuhn/repo-file-sync-action/commit/c113c62)   Mark action as failed if error occurs during sync
+(Issues: [`#95`](https://github.com/betahuhn/repo-file-sync-action/issues/95))
+
+### Bug fixes
+
+- [`53d0397`](https://github.com/betahuhn/repo-file-sync-action/commit/53d0397)  Fix rate limit issue (#132)
+(Issues: [`#132`](https://github.com/betahuhn/repo-file-sync-action/issues/132) [`#126`](https://github.com/betahuhn/repo-file-sync-action/issues/126))
+
 ## [v1.15.1] - 2021-10-25
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.15.1) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.15.0...v1.15.1) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.15.1) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.15.1.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.15.1.tar.gz))
