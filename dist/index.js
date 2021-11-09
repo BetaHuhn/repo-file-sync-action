@@ -17428,11 +17428,11 @@ class Git {
 		const options = getOctokitOptions(GITHUB_TOKEN, {
 			throttle: {
 				onRateLimit: (retryAfter) => {
-					core.warning(`Hit GitHub API rate limit, retrying after ${ retryAfter }s`)
+					core.debug(`Hit GitHub API rate limit, retrying after ${ retryAfter }s`)
 					return true
 				},
 				onAbuseLimit: (retryAfter) => {
-					core.warning(`Hit secondary GitHub API rate limit, retrying after ${ retryAfter }s`)
+					core.debug(`Hit secondary GitHub API rate limit, retrying after ${ retryAfter }s`)
 					return true
 				}
 			}
