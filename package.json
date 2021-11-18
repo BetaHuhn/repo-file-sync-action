@@ -40,6 +40,6 @@
     "@betahuhn/config": "^1.2.0",
     "@octokit/core": "^3.5.1",
     "@vercel/ncc": "^0.32.0",
-    "eslint": "^7.32.0"
+    "eslint": "^8.2.0"
   }
 }
