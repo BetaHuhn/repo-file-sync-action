@@ -16,7 +16,8 @@ const {
 	GITHUB_REPOSITORY,
 	OVERWRITE_EXISTING_PR,
 	PR_BODY,
-	BRANCH_PREFIX
+	BRANCH_PREFIX,
+	FORK
 } = require('./config')
 
 const { dedent, execCmd } = require('./helpers')
@@ -58,6 +59,19 @@ class Git {
 		await this.clone()
 		await this.setIdentity()
 		await this.getBaseBranch()
+
+		if (FORK) {
+			const forkUrl = `https://${ GITHUB_TOKEN }@github.com/${ FORK }/${ this.repo.name }.git`
+			this.createRemote(forkUrl)
+
+		}
+	}
+
+	async createRemote(forkUrl) {
+		return execCmd(
+			`git remote add fork ${ forkUrl }`,
+			this.workingDir
+		)
 	}
 
 	async clone() {
@@ -203,6 +217,12 @@ class Git {
 	}
 
 	async push() {
+		if (FORK) {
+			return execCmd(
+				`git push -u fork ${ this.prBranch } --force`,
+				this.workingDir
+			)
+		}
 		return execCmd(
 			`git push ${ this.gitUrl } --force`,
 			this.workingDir
@@ -214,7 +234,7 @@ class Git {
 			owner: this.repo.user,
 			repo: this.repo.name,
 			state: 'open',
-			head: `${ this.repo.user }:${ this.prBranch }`
+			head: `${ FORK ? FORK : this.repo.user }:${ this.prBranch }`
 		})
 
 		this.existingPr = data[0]
@@ -278,7 +298,7 @@ class Git {
 			repo: this.repo.name,
 			title: title === undefined ? `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }` : title,
 			body: body,
-			head: this.prBranch,
+			head: `${ FORK ? FORK : this.repo.user }:${ this.prBranch }`,
 			base: this.baseBranch
 		})
 

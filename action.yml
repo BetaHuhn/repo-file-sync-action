@@ -79,6 +79,11 @@ inputs:
     description: |
       Specify a different prefix for the new branch in the target repo. Defaults to repo-sync/SOURCE_REPO_NAME
     required: false
+  FORK:
+    description: |
+      Specify the user account that will be used in a fork and pull-request workflow. Defaults
+      false.
+    required: false
 
 outputs:
   pull_request_urls:

@@ -17261,6 +17261,9 @@ try {
 		BRANCH_PREFIX: getInput({
 			key: 'BRANCH_PREFIX',
 			default: 'repo-sync/SOURCE_REPO_NAME'
+		}),
+		FORK: getInput({
+			key: 'FORK'
 		})
 	}
 
@@ -17416,7 +17419,8 @@ const {
 	GITHUB_REPOSITORY,
 	OVERWRITE_EXISTING_PR,
 	PR_BODY,
-	BRANCH_PREFIX
+	BRANCH_PREFIX,
+	FORK
 } = __nccwpck_require__(4570)
 
 const { dedent, execCmd } = __nccwpck_require__(8505)
@@ -17458,6 +17462,19 @@ class Git {
 		await this.clone()
 		await this.setIdentity()
 		await this.getBaseBranch()
+
+		if (FORK) {
+			let forkURL = `https://${ GITHUB_TOKEN }@github.com/${ FORK }/${ this.repo.name }.git`
+			this.createRemote(forkURL)
+
+		}
+	}
+
+	async createRemote(forkURL) {
+		return execCmd(
+			`git remote add fork ${ forkURL }`,
+			this.workingDir
+		)
 	}
 
 	async clone() {
@@ -17603,6 +17620,12 @@ class Git {
 	}
 
 	async push() {
+		if (FORK) {
+			return execCmd(
+				`git push -u fork ${ this.prBranch } --force`,
+				this.workingDir
+			)
+		}
 		return execCmd(
 			`git push ${ this.gitUrl } --force`,
 			this.workingDir
@@ -17614,7 +17637,7 @@ class Git {
 			owner: this.repo.user,
 			repo: this.repo.name,
 			state: 'open',
-			head: `${ this.repo.user }:${ this.prBranch }`
+			head: `${ FORK ? FORK : this.repo.user }:${ this.prBranch }`
 		})
 
 		this.existingPr = data[0]
@@ -17678,7 +17701,7 @@ class Git {
 			repo: this.repo.name,
 			title: title === undefined ? `${ COMMIT_PREFIX } Synced file(s) with ${ GITHUB_REPOSITORY }` : title,
 			body: body,
-			head: this.prBranch,
+			head: `${ FORK ? FORK : this.repo.user }:${ this.prBranch }`,
 			base: this.baseBranch
 		})
 
@@ -18020,7 +18043,8 @@ const {
 	OVERWRITE_EXISTING_PR,
 	SKIP_PR,
 	ORIGINAL_MESSAGE,
-	COMMIT_AS_PR_TITLE
+	COMMIT_AS_PR_TITLE,
+	FORK
 } = __nccwpck_require__(4570)
 
 const run = async () => {
@@ -18175,12 +18199,12 @@ const run = async () => {
 				core.notice(`Pull Request #${ pullRequest.number } created/updated: ${ pullRequest.html_url }`)
 				prUrls.push(pullRequest.html_url)
 
-				if (PR_LABELS !== undefined && PR_LABELS.length > 0) {
+				if (PR_LABELS !== undefined && PR_LABELS.length > 0 && FORK === undefined) {
 					core.info(`Adding label(s) "${ PR_LABELS.join(', ') }" to PR`)
 					await git.addPrLabels(PR_LABELS)
 				}
 
-				if (ASSIGNEES !== undefined && ASSIGNEES.length > 0) {
+				if (ASSIGNEES !== undefined && ASSIGNEES.length > 0 && FORK === undefined) {
 					core.info(`Adding assignee(s) "${ ASSIGNEES.join(', ') }" to PR`)
 					await git.addPrAssignees(ASSIGNEES)
 				}

@@ -16,7 +16,8 @@ const {
 	OVERWRITE_EXISTING_PR,
 	SKIP_PR,
 	ORIGINAL_MESSAGE,
-	COMMIT_AS_PR_TITLE
+	COMMIT_AS_PR_TITLE,
+	FORK
 } = require('./config')
 
 const run = async () => {
@@ -171,12 +172,12 @@ const run = async () => {
 				core.notice(`Pull Request #${ pullRequest.number } created/updated: ${ pullRequest.html_url }`)
 				prUrls.push(pullRequest.html_url)
 
-				if (PR_LABELS !== undefined && PR_LABELS.length > 0) {
+				if (PR_LABELS !== undefined && PR_LABELS.length > 0 && FORK === undefined) {
 					core.info(`Adding label(s) "${ PR_LABELS.join(', ') }" to PR`)
 					await git.addPrLabels(PR_LABELS)
 				}
 
-				if (ASSIGNEES !== undefined && ASSIGNEES.length > 0) {
+				if (ASSIGNEES !== undefined && ASSIGNEES.length > 0 && FORK === undefined) {
 					core.info(`Adding assignee(s) "${ ASSIGNEES.join(', ') }" to PR`)
 					await git.addPrAssignees(ASSIGNEES)
 				}
