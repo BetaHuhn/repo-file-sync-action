@@ -62,9 +62,18 @@ class Git {
 
 		if (FORK) {
 			const forkUrl = `https://${ GITHUB_TOKEN }@github.com/${ FORK }/${ this.repo.name }.git`
-			this.createRemote(forkUrl)
+			await this.createFork()
+			await this.createRemote(forkUrl)
 
 		}
+	}
+
+	async createFork() {
+		core.debug(`Creating fork with OWNER: ${ this.repo.user } and REPO: ${ this.repo.name }`)
+		await this.github.repos.createFork({
+			owner: this.repo.user,
+			repo: this.repo.name
+		})
 	}
 
 	async createRemote(forkUrl) {
