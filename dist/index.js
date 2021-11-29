@@ -4636,7 +4636,7 @@ var DEFAULT_OPTIONS = {
     disableable: false
 };
 var getEnvVar = function (key) {
-    var parsed = process.env["INPUT_" + key.replace(/ /g, '_').toUpperCase()];
+    var parsed = process.env["INPUT_".concat(key.replace(/ /g, '_').toUpperCase())];
     var raw = process.env[key];
     return parsed || raw || undefined;
 };
@@ -4694,7 +4694,7 @@ var getInput = function (key, opts) {
     var parsed = val !== undefined ? parseValue(val, options.type) : undefined;
     if (parsed === undefined) {
         if (options.required)
-            throw new Error("Input `" + options.key + "` is required but was not provided.");
+            throw new Error("Input `".concat(options.key, "` is required but was not provided."));
         if (options.default !== undefined)
             return options.default;
         return undefined;
