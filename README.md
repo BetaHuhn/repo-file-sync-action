@@ -120,6 +120,7 @@ Here are all the inputs [repo-file-sync-action](https://github.com/BetaHuhn/repo
 | `DRY_RUN` | Run everything except that nothing will be pushed | **No** | false |
 | `SKIP_CLEANUP` | Skips removing the temporary directory. Useful for debugging | **No** | false |
 | `SKIP_PR` | Skips creating a Pull Request and pushes directly to the default branch | **No** | false |
+| `FORK` | A Github account username. Changes will be pushed to a fork of target repos on this account. | **No** | false |
 
 ### Outputs
 
@@ -387,6 +388,21 @@ The above example would result in a commit message that looks something like thi
 🔄 Synced local '<filename>' with remote '<filename>'
 
 Change-type: patch
+```
+
+### Fork and pull request workflow
+
+If you do not wish to grant this action write access to target repositories, you can specify a bot/user Github acccount that you do have access to with the `FORK` parameter. 
+
+A fork of each target repository will be created on this account, and all changes will be pushed to a branch on the fork, instead of upstream. Pull requests will be opened from the forks to target repositories.
+
+Note: while you can open pull requests to target repositories without write access, some features, like applying labels, are not possible.
+
+```yml
+uses: BetaHuhn/repo-file-sync-action@v1
+with:
+    GH_PAT: ${{ secrets.GH_PAT }}
+    FORK: file-sync-bot
 ```
 
 ### Advanced sync config

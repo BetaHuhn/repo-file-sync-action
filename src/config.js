@@ -108,6 +108,11 @@ try {
 		BRANCH_PREFIX: getInput({
 			key: 'BRANCH_PREFIX',
 			default: 'repo-sync/SOURCE_REPO_NAME'
+		}),
+		FORK: getInput({
+			key: 'FORK',
+			default: false,
+			disableable: true
 		})
 	}
 
