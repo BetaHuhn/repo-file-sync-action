@@ -17263,7 +17263,9 @@ try {
 			default: 'repo-sync/SOURCE_REPO_NAME'
 		}),
 		FORK: getInput({
-			key: 'FORK'
+			key: 'FORK',
+			default: false,
+			disableable: true
 		})
 	}
 

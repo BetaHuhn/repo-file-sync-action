@@ -1,3 +1,12 @@
+## [v1.16.0] - 2021-12-11
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.16.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.15.5...v1.16.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.16.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.16.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.16.0.tar.gz))
+
+### New features
+
+- [`80e77fd`](https://github.com/betahuhn/repo-file-sync-action/commit/80e77fd)  Add fork workflow functionality (#135)
+(Issues: [`#135`](https://github.com/betahuhn/repo-file-sync-action/issues/135) [`#133`](https://github.com/betahuhn/repo-file-sync-action/issues/133))
+
 ## [v1.15.5] - 2021-12-06
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.15.5) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.15.4...v1.15.5) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.15.5) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.15.5.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.15.5.tar.gz))
