@@ -1,3 +1,16 @@
+## [v1.16.1] - 2021-12-19
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.16.1) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.16.0...v1.16.1) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.16.1) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.16.1.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.16.1.tar.gz))
+
+### Bug fixes
+
+- [`3b3aefb`](https://github.com/betahuhn/repo-file-sync-action/commit/3b3aefb)  Fix assigning labels and assignees, broken by FORK #146
+(Issues: [`#146`](https://github.com/betahuhn/repo-file-sync-action/issues/146))
+
+### Dependency updates
+
+- [`55662fb`](https://github.com/betahuhn/repo-file-sync-action/commit/55662fb)  Bump action-input-parser from 1.2.23 to 1.2.24
+
 ## [v1.16.0] - 2021-12-11
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.16.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.15.5...v1.16.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.16.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.16.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.16.0.tar.gz))
