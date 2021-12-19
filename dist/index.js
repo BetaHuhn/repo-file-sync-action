@@ -27,7 +27,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.issue = exports.issueCommand = void 0;
-const os = __importStar(__nccwpck_require__(2037));
+const os = __importStar(__nccwpck_require__(2087));
 const utils_1 = __nccwpck_require__(5278);
 /**
  * Commands
@@ -138,8 +138,8 @@ exports.getIDToken = exports.getState = exports.saveState = exports.group = expo
 const command_1 = __nccwpck_require__(7351);
 const file_command_1 = __nccwpck_require__(717);
 const utils_1 = __nccwpck_require__(5278);
-const os = __importStar(__nccwpck_require__(2037));
-const path = __importStar(__nccwpck_require__(1017));
+const os = __importStar(__nccwpck_require__(2087));
+const path = __importStar(__nccwpck_require__(5622));
 const oidc_utils_1 = __nccwpck_require__(8041);
 /**
  * The code to exit an action
@@ -448,8 +448,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.issueCommand = void 0;
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const fs = __importStar(__nccwpck_require__(7147));
-const os = __importStar(__nccwpck_require__(2037));
+const fs = __importStar(__nccwpck_require__(5747));
+const os = __importStar(__nccwpck_require__(2087));
 const utils_1 = __nccwpck_require__(5278);
 function issueCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
@@ -606,8 +606,8 @@ exports.toCommandProperties = toCommandProperties;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Context = void 0;
-const fs_1 = __nccwpck_require__(7147);
-const os_1 = __nccwpck_require__(2037);
+const fs_1 = __nccwpck_require__(5747);
+const os_1 = __nccwpck_require__(2087);
 class Context {
     /**
      * Hydrate the context from the environment
@@ -886,8 +886,8 @@ exports.PersonalAccessTokenCredentialHandler = PersonalAccessTokenCredentialHand
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const http = __nccwpck_require__(3685);
-const https = __nccwpck_require__(5687);
+const http = __nccwpck_require__(8605);
+const https = __nccwpck_require__(7211);
 const pm = __nccwpck_require__(6443);
 let tunnel;
 var HttpCodes;
@@ -1556,8 +1556,8 @@ exports.createTokenAuth = createTokenAuth;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 var universalUserAgent = __nccwpck_require__(5030);
-var beforeAfterHook = __nccwpck_require__(3682);
-var request = __nccwpck_require__(6039);
+var beforeAfterHook = __nccwpck_require__(6319);
+var request = __nccwpck_require__(6234);
 var graphql = __nccwpck_require__(8467);
 var authToken = __nccwpck_require__(334);
 
@@ -1597,9 +1597,8 @@ function _objectWithoutProperties(source, excluded) {
   return target;
 }
 
-const VERSION = "3.5.1";
+const VERSION = "3.4.0";
 
-const _excluded = ["authStrategy"];
 class Octokit {
   constructor(options = {}) {
     const hook = new beforeAfterHook.Collection();
@@ -1661,7 +1660,7 @@ class Octokit {
       const {
         authStrategy
       } = options,
-            otherOptions = _objectWithoutProperties(options, _excluded);
+            otherOptions = _objectWithoutProperties(options, ["authStrategy"]);
 
       const auth = authStrategy(Object.assign({
         request: this.request,
@@ -1731,269 +1730,179 @@ exports.Octokit = Octokit;
 
 /***/ }),
 
-/***/ 9910:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ 6319:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-"use strict";
+var register = __nccwpck_require__(7694)
+var addHook = __nccwpck_require__(1191)
+var removeHook = __nccwpck_require__(6618)
 
+// bind with array of arguments: https://stackoverflow.com/a/21792913
+var bind = Function.bind
+var bindable = bind.bind(bind)
 
-Object.defineProperty(exports, "__esModule", ({ value: true }));
+function bindApi (hook, state, name) {
+  var removeHookRef = bindable(removeHook, null).apply(null, name ? [state, name] : [state])
+  hook.api = { remove: removeHookRef }
+  hook.remove = removeHookRef
 
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
-var deprecation = __nccwpck_require__(8932);
-var once = _interopDefault(__nccwpck_require__(1223));
-
-const logOnceCode = once(deprecation => console.warn(deprecation));
-const logOnceHeaders = once(deprecation => console.warn(deprecation));
-/**
- * Error with extra properties to help with debugging
- */
-
-class RequestError extends Error {
-  constructor(message, statusCode, options) {
-    super(message); // Maintains proper stack trace (only available on V8)
-
-    /* istanbul ignore next */
-
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
-
-    this.name = "HttpError";
-    this.status = statusCode;
-    let headers;
-
-    if ("headers" in options && typeof options.headers !== "undefined") {
-      headers = options.headers;
-    }
-
-    if ("response" in options) {
-      this.response = options.response;
-      headers = options.response.headers;
-    } // redact request credentials without mutating original request options
-
-
-    const requestCopy = Object.assign({}, options.request);
-
-    if (options.request.headers.authorization) {
-      requestCopy.headers = Object.assign({}, options.request.headers, {
-        authorization: options.request.headers.authorization.replace(/ .*$/, " [REDACTED]")
-      });
-    }
-
-    requestCopy.url = requestCopy.url // client_id & client_secret can be passed as URL query parameters to increase rate limit
-    // see https://developer.github.com/v3/#increasing-the-unauthenticated-rate-limit-for-oauth-applications
-    .replace(/\bclient_secret=\w+/g, "client_secret=[REDACTED]") // OAuth tokens can be passed as URL query parameters, although it is not recommended
-    // see https://developer.github.com/v3/#oauth2-token-sent-in-a-header
-    .replace(/\baccess_token=\w+/g, "access_token=[REDACTED]");
-    this.request = requestCopy; // deprecations
-
-    Object.defineProperty(this, "code", {
-      get() {
-        logOnceCode(new deprecation.Deprecation("[@octokit/request-error] `error.code` is deprecated, use `error.status`."));
-        return statusCode;
-      }
-
-    });
-    Object.defineProperty(this, "headers", {
-      get() {
-        logOnceHeaders(new deprecation.Deprecation("[@octokit/request-error] `error.headers` is deprecated, use `error.response.headers`."));
-        return headers || {};
-      }
-
-    });
-  }
-
+  ;['before', 'error', 'after', 'wrap'].forEach(function (kind) {
+    var args = name ? [state, kind, name] : [state, kind]
+    hook[kind] = hook.api[kind] = bindable(addHook, null).apply(null, args)
+  })
 }
 
-exports.RequestError = RequestError;
-//# sourceMappingURL=index.js.map
+function HookSingular () {
+  var singularHookName = 'h'
+  var singularHookState = {
+    registry: {}
+  }
+  var singularHook = register.bind(null, singularHookState, singularHookName)
+  bindApi(singularHook, singularHookState, singularHookName)
+  return singularHook
+}
+
+function HookCollection () {
+  var state = {
+    registry: {}
+  }
+
+  var hook = register.bind(null, state)
+  bindApi(hook, state)
+
+  return hook
+}
+
+var collectionHookDeprecationMessageDisplayed = false
+function Hook () {
+  if (!collectionHookDeprecationMessageDisplayed) {
+    console.warn('[before-after-hook]: "Hook()" repurposing warning, use "Hook.Collection()". Read more: https://git.io/upgrade-before-after-hook-to-1.4')
+    collectionHookDeprecationMessageDisplayed = true
+  }
+  return HookCollection()
+}
+
+Hook.Singular = HookSingular.bind()
+Hook.Collection = HookCollection.bind()
+
+module.exports = Hook
+// expose constructors as a named property for TypeScript
+module.exports.Hook = Hook
+module.exports.Singular = Hook.Singular
+module.exports.Collection = Hook.Collection
 
 
 /***/ }),
 
-/***/ 6039:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ 1191:
+/***/ ((module) => {
 
-"use strict";
+module.exports = addHook;
 
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
-var endpoint = __nccwpck_require__(9440);
-var universalUserAgent = __nccwpck_require__(5030);
-var isPlainObject = __nccwpck_require__(3287);
-var nodeFetch = _interopDefault(__nccwpck_require__(467));
-var requestError = __nccwpck_require__(9910);
-
-const VERSION = "5.6.2";
-
-function getBufferResponse(response) {
-  return response.arrayBuffer();
-}
-
-function fetchWrapper(requestOptions) {
-  const log = requestOptions.request && requestOptions.request.log ? requestOptions.request.log : console;
-
-  if (isPlainObject.isPlainObject(requestOptions.body) || Array.isArray(requestOptions.body)) {
-    requestOptions.body = JSON.stringify(requestOptions.body);
+function addHook(state, kind, name, hook) {
+  var orig = hook;
+  if (!state.registry[name]) {
+    state.registry[name] = [];
   }
 
-  let headers = {};
-  let status;
-  let url;
-  const fetch = requestOptions.request && requestOptions.request.fetch || nodeFetch;
-  return fetch(requestOptions.url, Object.assign({
-    method: requestOptions.method,
-    body: requestOptions.body,
-    headers: requestOptions.headers,
-    redirect: requestOptions.redirect
-  }, // `requestOptions.request.agent` type is incompatible
-  // see https://github.com/octokit/types.ts/pull/264
-  requestOptions.request)).then(async response => {
-    url = response.url;
-    status = response.status;
-
-    for (const keyAndValue of response.headers) {
-      headers[keyAndValue[0]] = keyAndValue[1];
-    }
-
-    if ("deprecation" in headers) {
-      const matches = headers.link && headers.link.match(/<([^>]+)>; rel="deprecation"/);
-      const deprecationLink = matches && matches.pop();
-      log.warn(`[@octokit/request] "${requestOptions.method} ${requestOptions.url}" is deprecated. It is scheduled to be removed on ${headers.sunset}${deprecationLink ? `. See ${deprecationLink}` : ""}`);
-    }
-
-    if (status === 204 || status === 205) {
-      return;
-    } // GitHub API returns 200 for HEAD requests
-
-
-    if (requestOptions.method === "HEAD") {
-      if (status < 400) {
-        return;
-      }
-
-      throw new requestError.RequestError(response.statusText, status, {
-        response: {
-          url,
-          status,
-          headers,
-          data: undefined
-        },
-        request: requestOptions
-      });
-    }
-
-    if (status === 304) {
-      throw new requestError.RequestError("Not modified", status, {
-        response: {
-          url,
-          status,
-          headers,
-          data: await getResponseData(response)
-        },
-        request: requestOptions
-      });
-    }
-
-    if (status >= 400) {
-      const data = await getResponseData(response);
-      const error = new requestError.RequestError(toErrorMessage(data), status, {
-        response: {
-          url,
-          status,
-          headers,
-          data
-        },
-        request: requestOptions
-      });
-      throw error;
-    }
-
-    return getResponseData(response);
-  }).then(data => {
-    return {
-      status,
-      url,
-      headers,
-      data
+  if (kind === "before") {
+    hook = function (method, options) {
+      return Promise.resolve()
+        .then(orig.bind(null, options))
+        .then(method.bind(null, options));
     };
-  }).catch(error => {
-    if (error instanceof requestError.RequestError) throw error;
-    throw new requestError.RequestError(error.message, 500, {
-      request: requestOptions
-    });
+  }
+
+  if (kind === "after") {
+    hook = function (method, options) {
+      var result;
+      return Promise.resolve()
+        .then(method.bind(null, options))
+        .then(function (result_) {
+          result = result_;
+          return orig(result, options);
+        })
+        .then(function () {
+          return result;
+        });
+    };
+  }
+
+  if (kind === "error") {
+    hook = function (method, options) {
+      return Promise.resolve()
+        .then(method.bind(null, options))
+        .catch(function (error) {
+          return orig(error, options);
+        });
+    };
+  }
+
+  state.registry[name].push({
+    hook: hook,
+    orig: orig,
   });
 }
 
-async function getResponseData(response) {
-  const contentType = response.headers.get("content-type");
 
-  if (/application\/json/.test(contentType)) {
-    return response.json();
+/***/ }),
+
+/***/ 7694:
+/***/ ((module) => {
+
+module.exports = register;
+
+function register(state, name, method, options) {
+  if (typeof method !== "function") {
+    throw new Error("method for before hook must be a function");
   }
 
-  if (!contentType || /^text\/|charset=utf-8$/.test(contentType)) {
-    return response.text();
+  if (!options) {
+    options = {};
   }
 
-  return getBufferResponse(response);
-}
+  if (Array.isArray(name)) {
+    return name.reverse().reduce(function (callback, name) {
+      return register.bind(null, state, name, callback, options);
+    }, method)();
+  }
 
-function toErrorMessage(data) {
-  if (typeof data === "string") return data; // istanbul ignore else - just in case
-
-  if ("message" in data) {
-    if (Array.isArray(data.errors)) {
-      return `${data.message}: ${data.errors.map(JSON.stringify).join(", ")}`;
+  return Promise.resolve().then(function () {
+    if (!state.registry[name]) {
+      return method(options);
     }
 
-    return data.message;
-  } // istanbul ignore next - just in case
-
-
-  return `Unknown error: ${JSON.stringify(data)}`;
-}
-
-function withDefaults(oldEndpoint, newDefaults) {
-  const endpoint = oldEndpoint.defaults(newDefaults);
-
-  const newApi = function (route, parameters) {
-    const endpointOptions = endpoint.merge(route, parameters);
-
-    if (!endpointOptions.request || !endpointOptions.request.hook) {
-      return fetchWrapper(endpoint.parse(endpointOptions));
-    }
-
-    const request = (route, parameters) => {
-      return fetchWrapper(endpoint.parse(endpoint.merge(route, parameters)));
-    };
-
-    Object.assign(request, {
-      endpoint,
-      defaults: withDefaults.bind(null, endpoint)
-    });
-    return endpointOptions.request.hook(request, endpointOptions);
-  };
-
-  return Object.assign(newApi, {
-    endpoint,
-    defaults: withDefaults.bind(null, endpoint)
+    return state.registry[name].reduce(function (method, registered) {
+      return registered.hook.bind(null, method, options);
+    }, method)();
   });
 }
 
-const request = withDefaults(endpoint.endpoint, {
-  headers: {
-    "user-agent": `octokit-request.js/${VERSION} ${universalUserAgent.getUserAgent()}`
-  }
-});
 
-exports.request = request;
-//# sourceMappingURL=index.js.map
+/***/ }),
+
+/***/ 6618:
+/***/ ((module) => {
+
+module.exports = removeHook;
+
+function removeHook(state, name, method) {
+  if (!state.registry[name]) {
+    return;
+  }
+
+  var index = state.registry[name]
+    .map(function (registered) {
+      return registered.orig;
+    })
+    .indexOf(method);
+
+  if (index === -1) {
+    return;
+  }
+
+  state.registry[name].splice(index, 1);
+}
 
 
 /***/ }),
@@ -4464,7 +4373,7 @@ exports.request = request;
 "use strict";
 
 
-const {spawnSync} = __nccwpck_require__(2081);
+const {spawnSync} = __nccwpck_require__(3129);
 
 const isString = (a) => typeof a === 'string';
 
@@ -4636,7 +4545,7 @@ var DEFAULT_OPTIONS = {
     disableable: false
 };
 var getEnvVar = function (key) {
-    var parsed = process.env["INPUT_".concat(key.replace(/ /g, '_').toUpperCase())];
+    var parsed = process.env["INPUT_" + key.replace(/ /g, '_').toUpperCase()];
     var raw = process.env[key];
     return parsed || raw || undefined;
 };
@@ -4694,7 +4603,7 @@ var getInput = function (key, opts) {
     var parsed = val !== undefined ? parseValue(val, options.type) : undefined;
     if (parsed === undefined) {
         if (options.required)
-            throw new Error("Input `".concat(options.key, "` is required but was not provided."));
+            throw new Error("Input `" + options.key + "` is required but was not provided.");
         if (options.default !== undefined)
             return options.default;
         return undefined;
@@ -4705,183 +4614,6 @@ var getInput = function (key, opts) {
 };
 exports.getInput = getInput;
 module.exports.getInput = exports.getInput;
-
-
-/***/ }),
-
-/***/ 3682:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-var register = __nccwpck_require__(4670)
-var addHook = __nccwpck_require__(5549)
-var removeHook = __nccwpck_require__(6819)
-
-// bind with array of arguments: https://stackoverflow.com/a/21792913
-var bind = Function.bind
-var bindable = bind.bind(bind)
-
-function bindApi (hook, state, name) {
-  var removeHookRef = bindable(removeHook, null).apply(null, name ? [state, name] : [state])
-  hook.api = { remove: removeHookRef }
-  hook.remove = removeHookRef
-
-  ;['before', 'error', 'after', 'wrap'].forEach(function (kind) {
-    var args = name ? [state, kind, name] : [state, kind]
-    hook[kind] = hook.api[kind] = bindable(addHook, null).apply(null, args)
-  })
-}
-
-function HookSingular () {
-  var singularHookName = 'h'
-  var singularHookState = {
-    registry: {}
-  }
-  var singularHook = register.bind(null, singularHookState, singularHookName)
-  bindApi(singularHook, singularHookState, singularHookName)
-  return singularHook
-}
-
-function HookCollection () {
-  var state = {
-    registry: {}
-  }
-
-  var hook = register.bind(null, state)
-  bindApi(hook, state)
-
-  return hook
-}
-
-var collectionHookDeprecationMessageDisplayed = false
-function Hook () {
-  if (!collectionHookDeprecationMessageDisplayed) {
-    console.warn('[before-after-hook]: "Hook()" repurposing warning, use "Hook.Collection()". Read more: https://git.io/upgrade-before-after-hook-to-1.4')
-    collectionHookDeprecationMessageDisplayed = true
-  }
-  return HookCollection()
-}
-
-Hook.Singular = HookSingular.bind()
-Hook.Collection = HookCollection.bind()
-
-module.exports = Hook
-// expose constructors as a named property for TypeScript
-module.exports.Hook = Hook
-module.exports.Singular = Hook.Singular
-module.exports.Collection = Hook.Collection
-
-
-/***/ }),
-
-/***/ 5549:
-/***/ ((module) => {
-
-module.exports = addHook;
-
-function addHook(state, kind, name, hook) {
-  var orig = hook;
-  if (!state.registry[name]) {
-    state.registry[name] = [];
-  }
-
-  if (kind === "before") {
-    hook = function (method, options) {
-      return Promise.resolve()
-        .then(orig.bind(null, options))
-        .then(method.bind(null, options));
-    };
-  }
-
-  if (kind === "after") {
-    hook = function (method, options) {
-      var result;
-      return Promise.resolve()
-        .then(method.bind(null, options))
-        .then(function (result_) {
-          result = result_;
-          return orig(result, options);
-        })
-        .then(function () {
-          return result;
-        });
-    };
-  }
-
-  if (kind === "error") {
-    hook = function (method, options) {
-      return Promise.resolve()
-        .then(method.bind(null, options))
-        .catch(function (error) {
-          return orig(error, options);
-        });
-    };
-  }
-
-  state.registry[name].push({
-    hook: hook,
-    orig: orig,
-  });
-}
-
-
-/***/ }),
-
-/***/ 4670:
-/***/ ((module) => {
-
-module.exports = register;
-
-function register(state, name, method, options) {
-  if (typeof method !== "function") {
-    throw new Error("method for before hook must be a function");
-  }
-
-  if (!options) {
-    options = {};
-  }
-
-  if (Array.isArray(name)) {
-    return name.reverse().reduce(function (callback, name) {
-      return register.bind(null, state, name, callback, options);
-    }, method)();
-  }
-
-  return Promise.resolve().then(function () {
-    if (!state.registry[name]) {
-      return method(options);
-    }
-
-    return state.registry[name].reduce(function (method, registered) {
-      return registered.hook.bind(null, method, options);
-    }, method)();
-  });
-}
-
-
-/***/ }),
-
-/***/ 6819:
-/***/ ((module) => {
-
-module.exports = removeHook;
-
-function removeHook(state, name, method) {
-  if (!state.registry[name]) {
-    return;
-  }
-
-  var index = state.registry[name]
-    .map(function (registered) {
-      return registered.orig;
-    })
-    .indexOf(method);
-
-  if (index === -1) {
-    return;
-  }
-
-  state.registry[name].splice(index, 1);
-}
 
 
 /***/ }),
@@ -6470,8 +6202,8 @@ type DotenvConfigOutput = {
 
 */
 
-const fs = __nccwpck_require__(7147)
-const path = __nccwpck_require__(1017)
+const fs = __nccwpck_require__(5747)
+const path = __nccwpck_require__(5622)
 
 function log (message /*: string */) {
   console.log(`[dotenv][DEBUG] ${message}`)
@@ -7730,9 +7462,9 @@ return Promise;
 
 
 const fs = __nccwpck_require__(7758)
-const path = __nccwpck_require__(1017)
-const mkdirsSync = (__nccwpck_require__(8605).mkdirsSync)
-const utimesMillisSync = (__nccwpck_require__(2548).utimesMillisSync)
+const path = __nccwpck_require__(5622)
+const mkdirsSync = __nccwpck_require__(2915).mkdirsSync
+const utimesMillisSync = __nccwpck_require__(2548).utimesMillisSync
 const stat = __nccwpck_require__(3901)
 
 function copySync (src, dest, opts) {
@@ -7917,10 +7649,10 @@ module.exports = {
 
 
 const fs = __nccwpck_require__(7758)
-const path = __nccwpck_require__(1017)
-const mkdirs = (__nccwpck_require__(8605).mkdirs)
-const pathExists = (__nccwpck_require__(3835).pathExists)
-const utimesMillis = (__nccwpck_require__(2548).utimesMillis)
+const path = __nccwpck_require__(5622)
+const mkdirs = __nccwpck_require__(2915).mkdirs
+const pathExists = __nccwpck_require__(3835).pathExists
+const utimesMillis = __nccwpck_require__(2548).utimesMillis
 const stat = __nccwpck_require__(3901)
 
 function copy (src, dest, opts, cb) {
@@ -8156,7 +7888,7 @@ module.exports = copy
 "use strict";
 
 
-const u = (__nccwpck_require__(1463).fromCallback)
+const u = __nccwpck_require__(1463).fromCallback
 module.exports = {
   copy: u(__nccwpck_require__(8834))
 }
@@ -8170,10 +7902,10 @@ module.exports = {
 "use strict";
 
 
-const u = (__nccwpck_require__(1463).fromPromise)
+const u = __nccwpck_require__(1463).fromPromise
 const fs = __nccwpck_require__(1176)
-const path = __nccwpck_require__(1017)
-const mkdir = __nccwpck_require__(8605)
+const path = __nccwpck_require__(5622)
+const mkdir = __nccwpck_require__(2915)
 const remove = __nccwpck_require__(7357)
 
 const emptyDir = u(async function emptyDir (dir) {
@@ -8217,10 +7949,10 @@ module.exports = {
 "use strict";
 
 
-const u = (__nccwpck_require__(1463).fromCallback)
-const path = __nccwpck_require__(1017)
+const u = __nccwpck_require__(1463).fromCallback
+const path = __nccwpck_require__(5622)
 const fs = __nccwpck_require__(7758)
-const mkdir = __nccwpck_require__(8605)
+const mkdir = __nccwpck_require__(2915)
 
 function createFile (file, callback) {
   function makeFile () {
@@ -8325,11 +8057,11 @@ module.exports = {
 "use strict";
 
 
-const u = (__nccwpck_require__(1463).fromCallback)
-const path = __nccwpck_require__(1017)
+const u = __nccwpck_require__(1463).fromCallback
+const path = __nccwpck_require__(5622)
 const fs = __nccwpck_require__(7758)
-const mkdir = __nccwpck_require__(8605)
-const pathExists = (__nccwpck_require__(3835).pathExists)
+const mkdir = __nccwpck_require__(2915)
+const pathExists = __nccwpck_require__(3835).pathExists
 const { areIdentical } = __nccwpck_require__(3901)
 
 function createLink (srcpath, dstpath, callback) {
@@ -8397,9 +8129,9 @@ module.exports = {
 "use strict";
 
 
-const path = __nccwpck_require__(1017)
+const path = __nccwpck_require__(5622)
 const fs = __nccwpck_require__(7758)
-const pathExists = (__nccwpck_require__(3835).pathExists)
+const pathExists = __nccwpck_require__(3835).pathExists
 
 /**
  * Function that returns two types of paths, one relative to symlink, and one
@@ -8543,10 +8275,10 @@ module.exports = {
 "use strict";
 
 
-const u = (__nccwpck_require__(1463).fromCallback)
-const path = __nccwpck_require__(1017)
+const u = __nccwpck_require__(1463).fromCallback
+const path = __nccwpck_require__(5622)
 const fs = __nccwpck_require__(1176)
-const _mkdirs = __nccwpck_require__(8605)
+const _mkdirs = __nccwpck_require__(2915)
 const mkdirs = _mkdirs.mkdirs
 const mkdirsSync = _mkdirs.mkdirsSync
 
@@ -8558,7 +8290,7 @@ const _symlinkType = __nccwpck_require__(8254)
 const symlinkType = _symlinkType.symlinkType
 const symlinkTypeSync = _symlinkType.symlinkTypeSync
 
-const pathExists = (__nccwpck_require__(3835).pathExists)
+const pathExists = __nccwpck_require__(3835).pathExists
 
 const { areIdentical } = __nccwpck_require__(3901)
 
@@ -8634,7 +8366,7 @@ module.exports = {
 
 // This is adapted from https://github.com/normalize/mz
 // Copyright (c) 2014-2016 Jonathan Ong me@jongleberry.com and Contributors
-const u = (__nccwpck_require__(1463).fromCallback)
+const u = __nccwpck_require__(1463).fromCallback
 const fs = __nccwpck_require__(7758)
 
 const api = [
@@ -8769,7 +8501,7 @@ module.exports = {
   ...__nccwpck_require__(6970),
   ...__nccwpck_require__(55),
   ...__nccwpck_require__(213),
-  ...__nccwpck_require__(8605),
+  ...__nccwpck_require__(2915),
   ...__nccwpck_require__(9665),
   ...__nccwpck_require__(1497),
   ...__nccwpck_require__(6570),
@@ -8786,7 +8518,7 @@ module.exports = {
 "use strict";
 
 
-const u = (__nccwpck_require__(1463).fromPromise)
+const u = __nccwpck_require__(1463).fromPromise
 const jsonFile = __nccwpck_require__(8970)
 
 jsonFile.outputJson = u(__nccwpck_require__(531))
@@ -8863,12 +8595,12 @@ module.exports = outputJson
 
 /***/ }),
 
-/***/ 8605:
+/***/ 2915:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
-const u = (__nccwpck_require__(1463).fromPromise)
+const u = __nccwpck_require__(1463).fromPromise
 const { makeDir: _makeDir, makeDirSync } = __nccwpck_require__(2751)
 const makeDir = u(_makeDir)
 
@@ -8930,7 +8662,7 @@ module.exports.makeDirSync = (dir, options) => {
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const path = __nccwpck_require__(1017)
+const path = __nccwpck_require__(5622)
 
 // https://github.com/nodejs/node/issues/8987
 // https://github.com/libuv/libuv/pull/1088
@@ -8969,10 +8701,10 @@ module.exports = {
 
 
 const fs = __nccwpck_require__(7758)
-const path = __nccwpck_require__(1017)
-const copySync = (__nccwpck_require__(1135).copySync)
-const removeSync = (__nccwpck_require__(7357).removeSync)
-const mkdirpSync = (__nccwpck_require__(8605).mkdirpSync)
+const path = __nccwpck_require__(5622)
+const copySync = __nccwpck_require__(1135).copySync
+const removeSync = __nccwpck_require__(7357).removeSync
+const mkdirpSync = __nccwpck_require__(2915).mkdirpSync
 const stat = __nccwpck_require__(3901)
 
 function moveSync (src, dest, opts) {
@@ -9030,7 +8762,7 @@ module.exports = moveSync
 "use strict";
 
 
-const u = (__nccwpck_require__(1463).fromCallback)
+const u = __nccwpck_require__(1463).fromCallback
 module.exports = {
   move: u(__nccwpck_require__(2231))
 }
@@ -9045,11 +8777,11 @@ module.exports = {
 
 
 const fs = __nccwpck_require__(7758)
-const path = __nccwpck_require__(1017)
-const copy = (__nccwpck_require__(1335).copy)
-const remove = (__nccwpck_require__(7357).remove)
-const mkdirp = (__nccwpck_require__(8605).mkdirp)
-const pathExists = (__nccwpck_require__(3835).pathExists)
+const path = __nccwpck_require__(5622)
+const copy = __nccwpck_require__(1335).copy
+const remove = __nccwpck_require__(7357).remove
+const mkdirp = __nccwpck_require__(2915).mkdirp
+const pathExists = __nccwpck_require__(3835).pathExists
 const stat = __nccwpck_require__(3901)
 
 function move (src, dest, opts, cb) {
@@ -9125,11 +8857,11 @@ module.exports = move
 "use strict";
 
 
-const u = (__nccwpck_require__(1463).fromCallback)
+const u = __nccwpck_require__(1463).fromCallback
 const fs = __nccwpck_require__(7758)
-const path = __nccwpck_require__(1017)
-const mkdir = __nccwpck_require__(8605)
-const pathExists = (__nccwpck_require__(3835).pathExists)
+const path = __nccwpck_require__(5622)
+const mkdir = __nccwpck_require__(2915)
+const pathExists = __nccwpck_require__(3835).pathExists
 
 function outputFile (file, data, encoding, callback) {
   if (typeof encoding === 'function') {
@@ -9172,7 +8904,7 @@ module.exports = {
 
 "use strict";
 
-const u = (__nccwpck_require__(1463).fromPromise)
+const u = __nccwpck_require__(1463).fromPromise
 const fs = __nccwpck_require__(1176)
 
 function pathExists (path) {
@@ -9194,8 +8926,8 @@ module.exports = {
 
 
 const fs = __nccwpck_require__(7758)
-const u = (__nccwpck_require__(1463).fromCallback)
-const rimraf = __nccwpck_require__(8761)
+const u = __nccwpck_require__(1463).fromCallback
+const rimraf = __nccwpck_require__(7247)
 
 function remove (path, callback) {
   // Node 14.14.0+
@@ -9217,15 +8949,15 @@ module.exports = {
 
 /***/ }),
 
-/***/ 8761:
+/***/ 7247:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 const fs = __nccwpck_require__(7758)
-const path = __nccwpck_require__(1017)
-const assert = __nccwpck_require__(9491)
+const path = __nccwpck_require__(5622)
+const assert = __nccwpck_require__(2357)
 
 const isWindows = (process.platform === 'win32')
 
@@ -9534,8 +9266,8 @@ rimraf.sync = rimrafSync
 
 
 const fs = __nccwpck_require__(1176)
-const path = __nccwpck_require__(1017)
-const util = __nccwpck_require__(3837)
+const path = __nccwpck_require__(5622)
+const util = __nccwpck_require__(1669)
 
 function getStats (src, dest, opts) {
   const statFunc = opts.dereference
@@ -9757,12 +9489,12 @@ function clone (obj) {
 /***/ 7758:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var fs = __nccwpck_require__(7147)
+var fs = __nccwpck_require__(5747)
 var polyfills = __nccwpck_require__(263)
 var legacy = __nccwpck_require__(3086)
 var clone = __nccwpck_require__(7356)
 
-var util = __nccwpck_require__(3837)
+var util = __nccwpck_require__(1669)
 
 /* istanbul ignore next - node 0.x polyfill */
 var gracefulQueue
@@ -9843,7 +9575,7 @@ if (!fs[gracefulQueue]) {
   if (/\bgfs4\b/i.test(process.env.NODE_DEBUG || '')) {
     process.on('exit', function() {
       debug(fs[gracefulQueue])
-      __nccwpck_require__(9491).equal(fs[gracefulQueue].length, 0)
+      __nccwpck_require__(2357).equal(fs[gracefulQueue].length, 0)
     })
   }
 }
@@ -10137,7 +9869,7 @@ function retry () {
 /***/ 3086:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var Stream = (__nccwpck_require__(2781).Stream)
+var Stream = __nccwpck_require__(2413).Stream
 
 module.exports = legacy
 
@@ -10262,7 +9994,7 @@ function legacy (fs) {
 /***/ 263:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var constants = __nccwpck_require__(2057)
+var constants = __nccwpck_require__(7619)
 
 var origCwd = process.cwd
 var cwd = null
@@ -13713,7 +13445,7 @@ module.exports = __nccwpck_require__(1035);
 
 
 
-module.exports = (__nccwpck_require__(2011).extend)({
+module.exports = __nccwpck_require__(2011).extend({
   implicit: [
     __nccwpck_require__(9212),
     __nccwpck_require__(6104)
@@ -13769,7 +13501,7 @@ module.exports = new Schema({
 
 
 
-module.exports = (__nccwpck_require__(8562).extend)({
+module.exports = __nccwpck_require__(8562).extend({
   implicit: [
     __nccwpck_require__(721),
     __nccwpck_require__(4993),
@@ -14773,7 +14505,7 @@ let _fs
 try {
   _fs = __nccwpck_require__(7758)
 } catch (_) {
-  _fs = __nccwpck_require__(7147)
+  _fs = __nccwpck_require__(5747)
 }
 const universalify = __nccwpck_require__(1463)
 const { stringify, stripBom } = __nccwpck_require__(5902)
@@ -14892,11 +14624,11 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var Stream = _interopDefault(__nccwpck_require__(2781));
-var http = _interopDefault(__nccwpck_require__(3685));
-var Url = _interopDefault(__nccwpck_require__(7310));
-var https = _interopDefault(__nccwpck_require__(5687));
-var zlib = _interopDefault(__nccwpck_require__(9796));
+var Stream = _interopDefault(__nccwpck_require__(2413));
+var http = _interopDefault(__nccwpck_require__(8605));
+var Url = _interopDefault(__nccwpck_require__(8835));
+var https = _interopDefault(__nccwpck_require__(7211));
+var zlib = _interopDefault(__nccwpck_require__(8761));
 
 // Based on https://github.com/tmpvar/jsdom/blob/aa85b2abf07766ff7bf5c1f6daafb3726f2f2db5/lib/jsdom/living/blob.js
 
@@ -15047,7 +14779,7 @@ FetchError.prototype.name = 'FetchError';
 
 let convert;
 try {
-	convert = (__nccwpck_require__(2877).convert);
+	convert = __nccwpck_require__(2877).convert;
 } catch (e) {}
 
 const INTERNALS = Symbol('Body internals');
@@ -16530,7 +16262,7 @@ fetch.Promise = global.Promise;
 
 module.exports = exports = fetch;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports["default"] = exports;
+exports.default = exports;
 exports.Headers = Headers;
 exports.Request = Request;
 exports.Response = Response;
@@ -16551,9 +16283,9 @@ module.exports = readfiles;
 /***/ 4719:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var fs = __nccwpck_require__(7147);
-var path = __nccwpck_require__(1017);
-var Promise = (__nccwpck_require__(8878).Promise);
+var fs = __nccwpck_require__(5747);
+var path = __nccwpck_require__(5622);
+var Promise = __nccwpck_require__(8878).Promise;
 
 function buildFilter(filters) {
   var filters = (filters instanceof Array) ? filters.slice() : [filters];
@@ -16784,13 +16516,13 @@ module.exports = __nccwpck_require__(4219);
 "use strict";
 
 
-var net = __nccwpck_require__(1808);
-var tls = __nccwpck_require__(4404);
-var http = __nccwpck_require__(3685);
-var https = __nccwpck_require__(5687);
-var events = __nccwpck_require__(2361);
-var assert = __nccwpck_require__(9491);
-var util = __nccwpck_require__(3837);
+var net = __nccwpck_require__(1631);
+var tls = __nccwpck_require__(4016);
+var http = __nccwpck_require__(8605);
+var https = __nccwpck_require__(7211);
+var events = __nccwpck_require__(8614);
+var assert = __nccwpck_require__(2357);
+var util = __nccwpck_require__(1669);
 
 
 exports.httpOverHttp = httpOverHttp;
@@ -17154,7 +16886,7 @@ function wrappy (fn, cb) {
 const core = __nccwpck_require__(2186)
 const yaml = __nccwpck_require__(1917)
 const fs = __nccwpck_require__(5630)
-const path = __nccwpck_require__(1017)
+const path = __nccwpck_require__(5622)
 const { getInput } = __nccwpck_require__(4623)
 
 const REPLACE_DEFAULT = true
@@ -17408,7 +17140,7 @@ const core = __nccwpck_require__(2186)
 const github = __nccwpck_require__(5438)
 const { GitHub, getOctokitOptions } = __nccwpck_require__(3030)
 const { throttling } = __nccwpck_require__(9968)
-const path = __nccwpck_require__(1017)
+const path = __nccwpck_require__(5622)
 
 const {
 	GITHUB_TOKEN,
@@ -17749,9 +17481,9 @@ module.exports = Git
 
 const fs = __nccwpck_require__(5630)
 const readfiles = __nccwpck_require__(5884)
-const { exec } = __nccwpck_require__(2081)
+const { exec } = __nccwpck_require__(3129)
 const core = __nccwpck_require__(2186)
-const path = __nccwpck_require__(1017)
+const path = __nccwpck_require__(5622)
 
 // From https://github.com/toniov/p-iteration/blob/master/lib/static-methods.js - MIT © Antonio V
 const forEach = async (array, callback) => {
@@ -17875,7 +17607,7 @@ module.exports = eval("require")("encoding");
 
 /***/ }),
 
-/***/ 9491:
+/***/ 2357:
 /***/ ((module) => {
 
 "use strict";
@@ -17883,7 +17615,7 @@ module.exports = require("assert");
 
 /***/ }),
 
-/***/ 2081:
+/***/ 3129:
 /***/ ((module) => {
 
 "use strict";
@@ -17891,7 +17623,7 @@ module.exports = require("child_process");
 
 /***/ }),
 
-/***/ 2057:
+/***/ 7619:
 /***/ ((module) => {
 
 "use strict";
@@ -17899,7 +17631,7 @@ module.exports = require("constants");
 
 /***/ }),
 
-/***/ 2361:
+/***/ 8614:
 /***/ ((module) => {
 
 "use strict";
@@ -17907,7 +17639,7 @@ module.exports = require("events");
 
 /***/ }),
 
-/***/ 7147:
+/***/ 5747:
 /***/ ((module) => {
 
 "use strict";
@@ -17915,7 +17647,7 @@ module.exports = require("fs");
 
 /***/ }),
 
-/***/ 3685:
+/***/ 8605:
 /***/ ((module) => {
 
 "use strict";
@@ -17923,7 +17655,7 @@ module.exports = require("http");
 
 /***/ }),
 
-/***/ 5687:
+/***/ 7211:
 /***/ ((module) => {
 
 "use strict";
@@ -17931,7 +17663,7 @@ module.exports = require("https");
 
 /***/ }),
 
-/***/ 1808:
+/***/ 1631:
 /***/ ((module) => {
 
 "use strict";
@@ -17939,7 +17671,7 @@ module.exports = require("net");
 
 /***/ }),
 
-/***/ 2037:
+/***/ 2087:
 /***/ ((module) => {
 
 "use strict";
@@ -17947,7 +17679,7 @@ module.exports = require("os");
 
 /***/ }),
 
-/***/ 1017:
+/***/ 5622:
 /***/ ((module) => {
 
 "use strict";
@@ -17955,7 +17687,7 @@ module.exports = require("path");
 
 /***/ }),
 
-/***/ 2781:
+/***/ 2413:
 /***/ ((module) => {
 
 "use strict";
@@ -17963,7 +17695,7 @@ module.exports = require("stream");
 
 /***/ }),
 
-/***/ 4404:
+/***/ 4016:
 /***/ ((module) => {
 
 "use strict";
@@ -17971,7 +17703,7 @@ module.exports = require("tls");
 
 /***/ }),
 
-/***/ 7310:
+/***/ 8835:
 /***/ ((module) => {
 
 "use strict";
@@ -17979,7 +17711,7 @@ module.exports = require("url");
 
 /***/ }),
 
-/***/ 3837:
+/***/ 1669:
 /***/ ((module) => {
 
 "use strict";
@@ -17987,7 +17719,7 @@ module.exports = require("util");
 
 /***/ }),
 
-/***/ 9796:
+/***/ 8761:
 /***/ ((module) => {
 
 "use strict";
@@ -18037,7 +17769,7 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const core = __nccwpck_require__(2186)
-const fs = __nccwpck_require__(7147)
+const fs = __nccwpck_require__(5747)
 
 const Git = __nccwpck_require__(109)
 const { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove, arrayEquals } = __nccwpck_require__(8505)
@@ -18210,12 +17942,12 @@ const run = async () => {
 				core.notice(`Pull Request #${ pullRequest.number } created/updated: ${ pullRequest.html_url }`)
 				prUrls.push(pullRequest.html_url)
 
-				if (PR_LABELS !== undefined && PR_LABELS.length > 0 && FORK === undefined) {
+				if (PR_LABELS !== undefined && PR_LABELS.length > 0 && !FORK) {
 					core.info(`Adding label(s) "${ PR_LABELS.join(', ') }" to PR`)
 					await git.addPrLabels(PR_LABELS)
 				}
 
-				if (ASSIGNEES !== undefined && ASSIGNEES.length > 0 && FORK === undefined) {
+				if (ASSIGNEES !== undefined && ASSIGNEES.length > 0 && !FORK) {
 					core.info(`Adding assignee(s) "${ ASSIGNEES.join(', ') }" to PR`)
 					await git.addPrAssignees(ASSIGNEES)
 				}
