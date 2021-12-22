@@ -67,14 +67,15 @@ const run = async () => {
 
 				const isDirectory = await pathIsDirectory(file.source)
 				const source = isDirectory ? `${ addTrailingSlash(file.source) }` : file.source
+				const dest = isDirectory ? `${ addTrailingSlash(file.dest) }` : file.dest
 
 				if (isDirectory) core.info(`Source is directory`)
 
 				const deleteOrphaned = isDirectory && file.deleteOrphaned
 
-				await copy(source, localDestination, deleteOrphaned, file.exclude)
+				await copy(source, dest, deleteOrphaned, file.exclude)
 
-				await git.add(file.dest)
+				await git.add(dest)
 
 				// Commit each file separately, if option is set to false commit all files at once later
 				if (COMMIT_EACH_FILE === true) {

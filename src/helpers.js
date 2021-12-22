@@ -85,11 +85,14 @@ const copy = async (src, dest, deleteOrphaned, exclude) => {
 
 		for (const file of destFileList) {
 			if (srcFileList.indexOf(file) === -1) {
-				core.debug(`Found a orphaned file in the target repo - ${ dest }${ file }`)
+				const filePath = path.join(dest, file)
+				core.debug(`Found a orphaned file in the target repo - ${ filePath }`)
+
 				if (exclude !== undefined && exclude.includes(path.join(src, file))) {
 					core.debug(`Excluding file ${ file }`)
 				} else {
-					await fs.remove(`${ dest }${ file }`)
+					core.debug(`Removing file ${ file }`)
+					await fs.remove(filePath)
 				}
 			}
 		}
