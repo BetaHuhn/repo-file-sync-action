@@ -31,7 +31,7 @@
     "@actions/github": "^5.0.0",
     "@octokit/plugin-throttling": "^3.5.2",
     "@putout/git-status-porcelain": "^1.1.0",
-    "action-input-parser": "^1.2.25",
+    "action-input-parser": "^1.2.26",
     "fs-extra": "^10.0.0",
     "js-yaml": "^4.1.0",
     "node-readfiles": "^0.2.0"
