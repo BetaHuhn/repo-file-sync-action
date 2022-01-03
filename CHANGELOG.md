@@ -1,3 +1,11 @@
+## [v1.16.4] - 2022-01-03
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.16.4) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.16.3...v1.16.4) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.16.4) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.16.4.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.16.4.tar.gz))
+
+### Dependency updates
+
+- [`a02872f`](https://github.com/betahuhn/repo-file-sync-action/commit/a02872f)  Bump action-input-parser from 1.2.25 to 1.2.26
+
 ## [v1.16.3] - 2021-12-22
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.16.3) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.16.2...v1.16.3) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.16.3) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.16.3.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.16.3.tar.gz))
