@@ -39,7 +39,7 @@ const dedent = function(templateStrings, ...values) {
 	return string
 }
 
-const execCmd = (command, workingDir) => {
+const execCmd = (command, workingDir, trimResult = true) => {
 	core.debug(`EXEC: "${ command }" IN ${ workingDir }`)
 	return new Promise((resolve, reject) => {
 		exec(
@@ -48,7 +48,9 @@ const execCmd = (command, workingDir) => {
 				cwd: workingDir
 			},
 			function(error, stdout) {
-				error ? reject(error) : resolve(stdout.trim())
+				error ? reject(error) : resolve(
+					trimResult ? stdout.trim() : stdout
+				)
 			}
 		)
 	})

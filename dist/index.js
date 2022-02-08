@@ -17464,6 +17464,7 @@ class Git {
 		await this.clone()
 		await this.setIdentity()
 		await this.getBaseBranch()
+		await this.getLastCommitSha()
 
 		if (FORK) {
 			const forkUrl = `https://${ GITHUB_TOKEN }@github.com/${ FORK }/${ this.repo.name }.git`
@@ -17501,13 +17502,11 @@ class Git {
 		let email = GIT_EMAIL
 
 		if (email === undefined) {
-			if (IS_INSTALLATION_TOKEN) {
-				core.setFailed('When using an installation token you must provide GIT_EMAIL and GIT_USERNAME')
-				process.exit(1)
+			if (!IS_INSTALLATION_TOKEN) {
+				const { data } = await this.github.users.getAuthenticated()
+				email = data.email
+				username = data.login
 			}
-			const { data } = await this.github.users.getAuthenticated()
-			email = data.email
-			username = data.login
 		}
 
 		core.debug(`Setting git user to email: ${ email }, username: ${ username }`)
@@ -17528,7 +17527,7 @@ class Git {
 	async createPrBranch() {
 		const prefix = BRANCH_PREFIX.replace('SOURCE_REPO_NAME', GITHUB_REPOSITORY.split('/')[1])
 
-		let newBranch = path.join(prefix, this.repo.branch)
+		let newBranch = path.join(prefix, this.repo.branch).replace(/\\/g, '/')
 
 		if (OVERWRITE_EXISTING_PR === false) {
 			newBranch += `-${ Math.round((new Date()).getTime() / 1000) }`
@@ -17546,7 +17545,7 @@ class Git {
 
 	async add(file) {
 		return execCmd(
-			`git add -f ${ file }`,
+			`git add -f "${ file }"`,
 			this.workingDir
 		)
 	}
@@ -17595,6 +17594,21 @@ class Git {
 		}
 	}
 
+	async getBlobContent(objectSha) {
+		return await execCmd(
+			`git show ${ objectSha }`,
+			this.workingDir,
+			false // Do not trim the result
+		)
+	}
+
+	async getLastCommitSha() {
+		this.lastCommitSha = await execCmd(
+			`git rev-parse HEAD`,
+			this.workingDir
+		)
+	}
+
 	async changes(destination) { // gets array of git diffs for the destination, which either can be a file or a dict
 		const output = await execCmd(
 			`git diff HEAD ${ destination }`,
@@ -17623,6 +17637,96 @@ class Git {
 		)
 	}
 
+	// Creates a tree object with all the blobs of each commit
+	async getTree(commitSha) {
+		const output = await execCmd(
+			`git ls-tree -r --full-tree ${ commitSha }`,
+			this.workingDir
+		)
+
+		const tree = []
+		for (const treeObject of output.split('\n')) {
+			const [ mode, type, sha ] = treeObject.split(/\s/)
+			const treeObjectPath = treeObject.split('\t')[1]
+
+			const treeEntry = {
+				mode,
+				type,
+				content: await this.getBlobContent(sha),
+				path: treeObjectPath
+			}
+			tree.push(treeEntry)
+		}
+		return tree
+	}
+
+	// Gets the commit list in chronological order
+	async getCommitsToPush() {
+		const output = await execCmd(
+			`git log --format=%H --reverse ${ this.baseBranch }..HEAD`,
+			this.workingDir
+		)
+
+		const commits = output.split('\n')
+		return commits
+	}
+
+	async getCommitMessage(commitSha) {
+		return await execCmd(
+			`git log -1 --format=%B ${ commitSha }`,
+			this.workingDir
+		)
+	}
+
+	// Returns an array of objects with the git tree and the commit, one entry for each pending commit to push
+	async getCommitsDataToPush() {
+		const commitsToPush = await this.getCommitsToPush()
+
+		const commitsData = []
+		for (const commitSha of commitsToPush) {
+			const commitData = {
+				commitMessage: await this.getCommitMessage(commitSha),
+				tree: await this.getTree(commitSha)
+			}
+			commitsData.push(commitData)
+		}
+		return commitsData
+	}
+
+	// A wrapper for running all the flow to generate all the pending commits using the GitHub API
+	async createGithubVerifiedCommits() {
+		const commitsData = await this.getCommitsDataToPush()
+
+		// Creates the PR branch if doesn't exists
+		try {
+			await this.github.git.createRef({
+				owner: this.repo.user,
+				repo: this.repo.name,
+				sha: this.lastCommitSha,
+				ref: 'refs/heads/' + this.prBranch
+			})
+
+			core.debug(`Created new branch ${ this.prBranch }`)
+		} catch (error) {
+			// If the branch exists ignores the error
+			if (error.message !== 'Reference already exists') throw error
+		}
+
+		for (const commitData of commitsData) {
+			await this.createGithubTreeAndCommit(commitData.tree, commitData.commitMessage)
+		}
+
+		core.debug(`Updating branch ${ this.prBranch } ref`)
+		await this.github.git.updateRef({
+			owner: this.repo.user,
+			repo: this.repo.name,
+			ref: `heads/${ this.prBranch }`,
+			sha: this.lastCommitSha,
+			force: true
+		})
+		core.debug(`Commit using GitHub API completed`)
+	}
+
 	async status() {
 		return execCmd(
 			`git status`,
@@ -17636,6 +17740,9 @@ class Git {
 				`git push -u fork ${ this.prBranch } --force`,
 				this.workingDir
 			)
+		}
+		if (IS_INSTALLATION_TOKEN) {
+			return await this.createGithubVerifiedCommits()
 		}
 		return execCmd(
 			`git push ${ this.gitUrl } --force`,
@@ -17738,6 +17845,32 @@ class Git {
 			assignees: assignees
 		})
 	}
+
+	async createGithubTreeAndCommit(tree, commitMessage) {
+		core.debug(`Creating a GitHub tree`)
+		let treeSha
+		try {
+			const request = await this.github.git.createTree({
+				owner: this.repo.user,
+				repo: this.repo.name,
+				tree
+			})
+			treeSha = request.data.sha
+		} catch (error) {
+			error.message = `Cannot create a new GitHub Tree: ${ error.message }`
+			throw error
+		}
+
+		core.debug(`Creating a commit for the GitHub tree`)
+		const request = await this.github.git.createCommit({
+			owner: this.repo.user,
+			repo: this.repo.name,
+			message: commitMessage,
+			parents: [ this.lastCommitSha ],
+			tree: treeSha
+		})
+		this.lastCommitSha = request.data.sha
+	}
 }
 
 module.exports = Git
@@ -17788,7 +17921,7 @@ const dedent = function(templateStrings, ...values) {
 	return string
 }
 
-const execCmd = (command, workingDir) => {
+const execCmd = (command, workingDir, trimResult = true) => {
 	core.debug(`EXEC: "${ command }" IN ${ workingDir }`)
 	return new Promise((resolve, reject) => {
 		exec(
@@ -17797,7 +17930,9 @@ const execCmd = (command, workingDir) => {
 				cwd: workingDir
 			},
 			function(error, stdout) {
-				error ? reject(error) : resolve(stdout.trim())
+				error ? reject(error) : resolve(
+					trimResult ? stdout.trim() : stdout
+				)
 			}
 		)
 	})
