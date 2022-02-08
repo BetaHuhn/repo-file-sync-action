@@ -67,6 +67,14 @@ try {
 			key: 'ASSIGNEES',
 			type: 'array'
 		}),
+		REVIEWERS: getInput({
+			key: 'REVIEWERS',
+			type: 'array'
+		}),
+		TEAM_REVIEWERS: getInput({
+			key: 'TEAM_REVIEWERS',
+			type: 'array'
+		}),
 		TMP_DIR: getInput({
 			key: 'TMP_DIR',
 			default: `tmp-${ Date.now().toString() }`

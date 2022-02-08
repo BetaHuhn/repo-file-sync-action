@@ -441,6 +441,24 @@ class Git {
 		})
 	}
 
+	async addPrReviewers(reviewers) {
+		await this.github.pulls.requestReviewers({
+			owner: this.repo.user,
+			repo: this.repo.name,
+			pull_number: this.existingPr.number,
+			reviewers: reviewers
+		})
+	}
+
+	async addPrTeamReviewers(reviewers) {
+		await this.github.pulls.requestReviewers({
+			owner: this.repo.user,
+			repo: this.repo.name,
+			pull_number: this.existingPr.number,
+			team_reviewers: reviewers
+		})
+	}
+
 	async createGithubTreeAndCommit(tree, commitMessage) {
 		core.debug(`Creating a GitHub tree`)
 		let treeSha

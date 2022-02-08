@@ -17220,6 +17220,14 @@ try {
 			key: 'ASSIGNEES',
 			type: 'array'
 		}),
+		REVIEWERS: getInput({
+			key: 'REVIEWERS',
+			type: 'array'
+		}),
+		TEAM_REVIEWERS: getInput({
+			key: 'TEAM_REVIEWERS',
+			type: 'array'
+		}),
 		TMP_DIR: getInput({
 			key: 'TMP_DIR',
 			default: `tmp-${ Date.now().toString() }`
@@ -17846,6 +17854,24 @@ class Git {
 		})
 	}
 
+	async addPrReviewers(reviewers) {
+		await this.github.pulls.requestReviewers({
+			owner: this.repo.user,
+			repo: this.repo.name,
+			pull_number: this.existingPr.number,
+			reviewers: reviewers
+		})
+	}
+
+	async addPrTeamReviewers(reviewers) {
+		await this.github.pulls.requestReviewers({
+			owner: this.repo.user,
+			repo: this.repo.name,
+			pull_number: this.existingPr.number,
+			team_reviewers: reviewers
+		})
+	}
+
 	async createGithubTreeAndCommit(tree, commitMessage) {
 		core.debug(`Creating a GitHub tree`)
 		let treeSha
@@ -18193,7 +18219,9 @@ const {
 	SKIP_PR,
 	ORIGINAL_MESSAGE,
 	COMMIT_AS_PR_TITLE,
-	FORK
+	FORK,
+	REVIEWERS,
+	TEAM_REVIEWERS
 } = __nccwpck_require__(4570)
 
 const run = async () => {
@@ -18357,6 +18385,16 @@ const run = async () => {
 				if (ASSIGNEES !== undefined && ASSIGNEES.length > 0 && !FORK) {
 					core.info(`Adding assignee(s) "${ ASSIGNEES.join(', ') }" to PR`)
 					await git.addPrAssignees(ASSIGNEES)
+				}
+
+				if (REVIEWERS !== undefined && REVIEWERS.length > 0 && !FORK) {
+					core.info(`Adding reviewer(s) "${ REVIEWERS.join(', ') }" to PR`)
+					await git.addPrReviewers(REVIEWERS)
+				}
+
+				if (TEAM_REVIEWERS !== undefined && TEAM_REVIEWERS.length > 0 && !FORK) {
+					core.info(`Adding team reviewer(s) "${ TEAM_REVIEWERS.join(', ') }" to PR`)
+					await git.addPrTeamReviewers(TEAM_REVIEWERS)
 				}
 			}
 

@@ -17,7 +17,9 @@ const {
 	SKIP_PR,
 	ORIGINAL_MESSAGE,
 	COMMIT_AS_PR_TITLE,
-	FORK
+	FORK,
+	REVIEWERS,
+	TEAM_REVIEWERS
 } = require('./config')
 
 const run = async () => {
@@ -181,6 +183,16 @@ const run = async () => {
 				if (ASSIGNEES !== undefined && ASSIGNEES.length > 0 && !FORK) {
 					core.info(`Adding assignee(s) "${ ASSIGNEES.join(', ') }" to PR`)
 					await git.addPrAssignees(ASSIGNEES)
+				}
+
+				if (REVIEWERS !== undefined && REVIEWERS.length > 0 && !FORK) {
+					core.info(`Adding reviewer(s) "${ REVIEWERS.join(', ') }" to PR`)
+					await git.addPrReviewers(REVIEWERS)
+				}
+
+				if (TEAM_REVIEWERS !== undefined && TEAM_REVIEWERS.length > 0 && !FORK) {
+					core.info(`Adding team reviewer(s) "${ TEAM_REVIEWERS.join(', ') }" to PR`)
+					await git.addPrTeamReviewers(TEAM_REVIEWERS)
 				}
 			}
 

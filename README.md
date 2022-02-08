@@ -106,7 +106,9 @@ Here are all the inputs [repo-file-sync-action](https://github.com/BetaHuhn/repo
 | `GH_INSTALLATION_TOKEN` | Token from a GitHub App installation | **`GH_PAT` or `GH_INSTALLATION_TOKEN` required** | N/A |
 | `CONFIG_PATH` | Path to the sync configuration file | **No** | .github/sync.yml |
 | `PR_LABELS` | Labels which will be added to the pull request. Set to false to turn off | **No** | sync |
-| `ASSIGNEES` | People to assign to the pull request | **No** | N/A |
+| `ASSIGNEES` | Users to assign to the pull request | **No** | N/A |
+| `REVIEWERS` | Users to request a review of the pull request from | **No** | N/A |
+| `TEAM_REVIEWERS` | Teams to request a review of the pull request from | **No** | N/A |
 | `COMMIT_PREFIX` | Prefix for commit message and pull request title | **No** | 🔄 |
 | `COMMIT_BODY` | Commit message body. Will be appended to commit message, separated by two line returns. | **No** | '' |
 | `ORIGINAL_MESSAGE` | Use original commit message instead. Only works if the file(s) were changed and the action was triggered by pushing a single commit. | **No** | false |
@@ -326,6 +328,23 @@ You can tell [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-
   with:
     GH_PAT: ${{ secrets.GH_PAT }}
     ASSIGNEES: BetaHuhn
+```
+
+### Request a PR review
+
+You can tell [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) to request a review of the PR from users with `REVIEWERS` and from teams with `TEAM_REVIEWERS`:
+
+**.github/workflows/sync.yml**
+
+```yml
+- name: Run GitHub File Sync
+  uses: BetaHuhn/repo-file-sync-action@v1
+  with:
+    GH_PAT: ${{ secrets.GH_PAT }}
+    REVIEWERS: |
+      BetaHuhn
+      BetaHuhnBot
+    TEAM_REVIEWERS: engineering
 ```
 
 ### Custom GitHub Enterprise Host

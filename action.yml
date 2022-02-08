@@ -25,7 +25,15 @@ inputs:
     required: false
   ASSIGNEES:
     description: |
-      People to assign to the pull request. Defaults to none
+      Users to assign to the pull request. Defaults to none
+    required: false
+  REVIEWERS:
+    description: |
+      Users to request a review of the pull request from. Defaults to none
+    required: false
+  TEAM_REVIEWERS:
+    description: |
+      Teams to request a review of the pull request from. Defaults to none
     required: false
   COMMIT_PREFIX:
     description: |
