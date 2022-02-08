@@ -80,8 +80,8 @@ const copy = async (src, dest, deleteOrphaned, exclude) => {
 	// If it is a directory and deleteOrphaned is enabled - check if there are any files that were removed from source dir and remove them in destination dir
 	if (deleteOrphaned) {
 
-		const srcFileList = await readfiles(src, { readContents: false })
-		const destFileList = await readfiles(dest, { readContents: false })
+		const srcFileList = await readfiles(src, { readContents: false, hidden: true })
+		const destFileList = await readfiles(dest, { readContents: false, hidden: true })
 
 		for (const file of destFileList) {
 			if (srcFileList.indexOf(file) === -1) {
