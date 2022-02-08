@@ -4,6 +4,7 @@ const github = require('@actions/github')
 const { GitHub, getOctokitOptions } = require('@actions/github/lib/utils')
 const { throttling } = require('@octokit/plugin-throttling')
 const path = require('path')
+const fs = require('fs')
 
 const {
 	GITHUB_TOKEN,
@@ -189,12 +190,11 @@ class Git {
 		}
 	}
 
-	async getBlobContent(objectSha) {
-		return await execCmd(
-			`git show ${ objectSha }`,
-			this.workingDir,
-			false // Do not trim the result
-		)
+	async getBlobContent(file) {
+		const fileRelativePath = path.join(this.workingDir, file)
+		const fileContent = await fs.promises.readFile(fileRelativePath)
+
+		return fileContent.toString()
 	}
 
 	async getLastCommitSha() {
@@ -242,13 +242,13 @@ class Git {
 		const tree = []
 		for (const treeObject of output.split('\n')) {
 			const [ mode, type, sha ] = treeObject.split(/\s/)
-			const treeObjectPath = treeObject.split('\t')[1]
+			const file = treeObject.split('\t')[1]
 
 			const treeEntry = {
 				mode,
 				type,
-				content: await this.getBlobContent(sha),
-				path: treeObjectPath
+				content: await this.getBlobContent(file),
+				path: file
 			}
 			tree.push(treeEntry)
 		}
