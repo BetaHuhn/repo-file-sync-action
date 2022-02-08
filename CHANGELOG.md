@@ -1,3 +1,18 @@
+## [v1.17.0] - 2022-02-08
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.16.5...v1.17.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.0.tar.gz))
+
+### New features
+
+- [`a547f3c`](https://github.com/betahuhn/repo-file-sync-action/commit/a547f3c)  Verified commits when using GH_INSTALLATION_TOKEN as authentication (#153)
+(Issues: [`#153`](https://github.com/betahuhn/repo-file-sync-action/issues/153))- [`65a0234`](https://github.com/betahuhn/repo-file-sync-action/commit/65a0234)  Request PR review from users and teams (#162)
+(Issues: [`#162`](https://github.com/betahuhn/repo-file-sync-action/issues/162))
+
+### Bug fixes
+
+- [`ea27671`](https://github.com/betahuhn/repo-file-sync-action/commit/ea27671)  Include hidden files in check for orphaned files (#160)
+(Issues: [`#160`](https://github.com/betahuhn/repo-file-sync-action/issues/160))
+
 ## [v1.16.5] - 2022-01-31
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.16.5) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.16.4...v1.16.5) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.16.5) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.16.5.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.16.5.tar.gz))
