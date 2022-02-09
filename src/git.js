@@ -232,7 +232,7 @@ class Git {
 		)
 	}
 
-	// Creates a tree object with all the blobs of each commit
+	// Returns a git tree parsed for the specified commit sha
 	async getTree(commitSha) {
 		const output = await execCmd(
 			`git ls-tree -r --full-tree ${ commitSha }`,
@@ -240,13 +240,9 @@ class Git {
 		)
 
 		const tree = []
-		const promisesGithubCreateBlobs = []
-
 		for (const treeObject of output.split('\n')) {
 			const [ mode, type, sha ] = treeObject.split(/\s/)
 			const file = treeObject.split('\t')[1]
-
-			const base64Content = await this.getBlobBase64Content(file)
 
 			const treeEntry = {
 				mode,
@@ -256,6 +252,18 @@ class Git {
 			}
 
 			tree.push(treeEntry)
+		}
+
+		return tree
+	}
+
+	// Creates a tree object with all the blobs of each commit
+	async createGithubTree(commitSha) {
+		const tree = await this.getTree(commitSha)
+		const promisesGithubCreateBlobs = []
+
+		for (const treeEntry of tree) {
+			const base64Content = await this.getBlobBase64Content(treeEntry.path)
 
 			// Creates the blob. We don't need to store the response because the local sha is the same and we can use it to reference the blob
 			const githubCreateBlobRequest = this.github.git.createBlob({
@@ -268,14 +276,7 @@ class Git {
 		}
 
 		// Wait for all the file uploads to be completed
-		const blobUploads = await Promise.all(promisesGithubCreateBlobs)
-
-		// TODO: Revisar los sha, no se está subiendo bien
-		// for (const index in tree) {
-		// 	const treeEntry = tree[index]
-		// 	tree[index].githubSha = blobUploads[index].data.sha
-		// }
-
+		await Promise.all(promisesGithubCreateBlobs)
 		return tree
 	}
 
@@ -305,7 +306,7 @@ class Git {
 		for (const commitSha of commitsToPush) {
 			const commitData = {
 				commitMessage: await this.getCommitMessage(commitSha),
-				tree: await this.getTree(commitSha)
+				tree: await this.createGithubTree(commitSha)
 			}
 			commitsData.push(commitData)
 		}
