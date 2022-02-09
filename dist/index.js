@@ -17640,7 +17640,7 @@ class Git {
 			message += `\n\n${ COMMIT_BODY }`
 		}
 		return execCmd(
-			`git commit -m "${ message.replace(/"/g, '\\"') }"`,
+			`git commit -m '${ message.replace(/'/g, '\'\\\'\'') }'`,
 			this.workingDir
 		)
 	}
