@@ -257,8 +257,9 @@ class Git {
 		return tree
 	}
 
-	// Creates a tree object with all the blobs of each commit
-	async createGithubTree(commitSha) {
+	// Creates the blob objects in GitHub for the files that are not in the previous commit only
+	async createGithubBlobs(commitSha) {
+		core.debug('Creating missing blobs on GitHub')
 		const [ previousTree, tree ] = await Promise.all([ this.getTree(`${ commitSha }~1`), this.getTree(commitSha) ])
 		const promisesGithubCreateBlobs = []
 
@@ -282,7 +283,6 @@ class Git {
 
 		// Wait for all the file uploads to be completed
 		await Promise.all(promisesGithubCreateBlobs)
-		return tree
 	}
 
 	// Gets the commit list in chronological order
@@ -309,9 +309,10 @@ class Git {
 
 		const commitsData = []
 		for (const commitSha of commitsToPush) {
+			const [ commitMessage, tree ] = await Promise.all([ this.getCommitMessage(commitSha), this.getTree(commitSha), this.createGithubBlobs(commitSha) ])
 			const commitData = {
-				commitMessage: await this.getCommitMessage(commitSha),
-				tree: await this.createGithubTree(commitSha)
+				commitMessage,
+				tree
 			}
 			commitsData.push(commitData)
 		}
