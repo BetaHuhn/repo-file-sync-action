@@ -259,10 +259,15 @@ class Git {
 
 	// Creates a tree object with all the blobs of each commit
 	async createGithubTree(commitSha) {
-		const tree = await this.getTree(commitSha)
+		const [ previousTree, tree ] = await Promise.all([ this.getTree(`${ commitSha }~1`), this.getTree(commitSha) ])
 		const promisesGithubCreateBlobs = []
 
 		for (const treeEntry of tree) {
+			// If the current treeEntry are in the previous tree, that means that the blob is uploaded and it doesn't need to be uploaded to GitHub again.
+			if (previousTree.findIndex((entry) => entry.sha === treeEntry.sha) !== -1) {
+				continue
+			}
+
 			const base64Content = await this.getBlobBase64Content(treeEntry.path)
 
 			// Creates the blob. We don't need to store the response because the local sha is the same and we can use it to reference the blob
