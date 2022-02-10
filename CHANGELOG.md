@@ -1,3 +1,12 @@
+## [v1.17.1] - 2022-02-10
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.1) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.0...v1.17.1) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.1) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.1.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.1.tar.gz))
+
+### Bug fixes
+
+- [`8f9e9fd`](https://github.com/betahuhn/repo-file-sync-action/commit/8f9e9fd)  Fix commit message escaping (#164)
+(Issues: [`#164`](https://github.com/betahuhn/repo-file-sync-action/issues/164))
+
 ## [v1.17.0] - 2022-02-08
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.16.5...v1.17.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.0.tar.gz))
