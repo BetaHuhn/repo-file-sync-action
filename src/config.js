@@ -188,8 +188,8 @@ const parseFiles = (files) => {
 			return {
 				source: item.source,
 				dest: item.dest || item.source,
-				replace: item.replace || REPLACE_DEFAULT,
-				deleteOrphaned: item.deleteOrphaned || DELETE_ORPHANED_DEFAULT,
+				replace: item.replace ?? REPLACE_DEFAULT,
+				deleteOrphaned: item.deleteOrphaned ?? DELETE_ORPHANED_DEFAULT,
 				exclude: parseExclude(item.exclude, item.source)
 			}
 		}
