@@ -1,3 +1,12 @@
+## [v1.17.3] - 2022-02-14
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.3) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.2...v1.17.3) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.3) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.3.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.3.tar.gz))
+
+### Bug fixes
+
+- [`899abc4`](https://github.com/betahuhn/repo-file-sync-action/commit/899abc4)  Fix replace and deleteOrphaned options (#166)
+(Issues: [`#166`](https://github.com/betahuhn/repo-file-sync-action/issues/166))
+
 ## [v1.17.2] - 2022-02-14
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.2) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.1...v1.17.2) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.2) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.2.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.2.tar.gz))
