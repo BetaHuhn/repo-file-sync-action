@@ -111,6 +111,7 @@ Here are all the inputs [repo-file-sync-action](https://github.com/BetaHuhn/repo
 | `TEAM_REVIEWERS` | Teams to request a review of the pull request from | **No** | N/A |
 | `COMMIT_PREFIX` | Prefix for commit message and pull request title | **No** | 🔄 |
 | `COMMIT_BODY` | Commit message body. Will be appended to commit message, separated by two line returns. | **No** | '' |
+| `PR_BODY` | Additional content to add in the PR description. | **No** | '' |
 | `ORIGINAL_MESSAGE` | Use original commit message instead. Only works if the file(s) were changed and the action was triggered by pushing a single commit. | **No** | false |
 | `COMMIT_AS_PR_TITLE` | Use first line of the commit message as PR title. Only works if `ORIGINAL_MESSAGE` is `true` and working. | **No** | false |
 | `COMMIT_EACH_FILE` | Commit each file seperately | **No** | true |
@@ -407,6 +408,34 @@ The above example would result in a commit message that looks something like thi
 🔄 Synced local '<filename>' with remote '<filename>'
 
 Change-type: patch
+```
+
+### Add content to the PR body
+
+You can add more content to the PR body with the `PR_BODY` option. For example:
+
+**.github/workflows/sync.yml**
+
+```yml
+- name: Run GitHub File Sync
+  uses: BetaHuhn/repo-file-sync-action@v1
+  with:
+    GH_PAT: ${{ secrets.GH_PAT }}
+    PR_BODY: This is your custom PR Body
+```
+
+It will be added below the first line of the body and above the list of changed files. The above example would result in a PR body that looks something like this:
+
+```
+Synced local file(s) with GITHUB_REPOSITORY.
+
+This is your custom PR Body
+
+▶ Changed files
+
+---
+
+This PR was created automatically by the repo-file-sync-action workflow run xxx.
 ```
 
 ### Fork and pull request workflow
