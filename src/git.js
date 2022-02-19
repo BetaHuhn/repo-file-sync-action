@@ -4,6 +4,7 @@ const github = require('@actions/github')
 const { GitHub, getOctokitOptions } = require('@actions/github/lib/utils')
 const { throttling } = require('@octokit/plugin-throttling')
 const path = require('path')
+const fs = require('fs')
 
 const {
 	GITHUB_TOKEN,
@@ -189,12 +190,11 @@ class Git {
 		}
 	}
 
-	async getBlobContent(objectSha) {
-		return await execCmd(
-			`git show ${ objectSha }`,
-			this.workingDir,
-			false // Do not trim the result
-		)
+	async getBlobBase64Content(file) {
+		const fileRelativePath = path.join(this.workingDir, file)
+		const fileContent = await fs.promises.readFile(fileRelativePath)
+
+		return fileContent.toString('base64')
 	}
 
 	async getLastCommitSha() {
@@ -232,7 +232,7 @@ class Git {
 		)
 	}
 
-	// Creates a tree object with all the blobs of each commit
+	// Returns a git tree parsed for the specified commit sha
 	async getTree(commitSha) {
 		const output = await execCmd(
 			`git ls-tree -r --full-tree ${ commitSha }`,
@@ -242,17 +242,47 @@ class Git {
 		const tree = []
 		for (const treeObject of output.split('\n')) {
 			const [ mode, type, sha ] = treeObject.split(/\s/)
-			const treeObjectPath = treeObject.split('\t')[1]
+			const file = treeObject.split('\t')[1]
 
 			const treeEntry = {
 				mode,
 				type,
-				content: await this.getBlobContent(sha),
-				path: treeObjectPath
+				sha,
+				path: file
 			}
+
 			tree.push(treeEntry)
 		}
+
 		return tree
+	}
+
+	// Creates the blob objects in GitHub for the files that are not in the previous commit only
+	async createGithubBlobs(commitSha) {
+		core.debug('Creating missing blobs on GitHub')
+		const [ previousTree, tree ] = await Promise.all([ this.getTree(`${ commitSha }~1`), this.getTree(commitSha) ])
+		const promisesGithubCreateBlobs = []
+
+		for (const treeEntry of tree) {
+			// If the current treeEntry are in the previous tree, that means that the blob is uploaded and it doesn't need to be uploaded to GitHub again.
+			if (previousTree.findIndex((entry) => entry.sha === treeEntry.sha) !== -1) {
+				continue
+			}
+
+			const base64Content = await this.getBlobBase64Content(treeEntry.path)
+
+			// Creates the blob. We don't need to store the response because the local sha is the same and we can use it to reference the blob
+			const githubCreateBlobRequest = this.github.git.createBlob({
+				owner: this.repo.user,
+				repo: this.repo.name,
+				content: base64Content,
+				encoding: 'base64'
+			})
+			promisesGithubCreateBlobs.push(githubCreateBlobRequest)
+		}
+
+		// Wait for all the file uploads to be completed
+		await Promise.all(promisesGithubCreateBlobs)
 	}
 
 	// Gets the commit list in chronological order
@@ -279,9 +309,10 @@ class Git {
 
 		const commitsData = []
 		for (const commitSha of commitsToPush) {
+			const [ commitMessage, tree ] = await Promise.all([ this.getCommitMessage(commitSha), this.getTree(commitSha), this.createGithubBlobs(commitSha) ])
 			const commitData = {
-				commitMessage: await this.getCommitMessage(commitSha),
-				tree: await this.getTree(commitSha)
+				commitMessage,
+				tree
 			}
 			commitsData.push(commitData)
 		}
