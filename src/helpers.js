@@ -3,6 +3,7 @@ const readfiles = require('node-readfiles')
 const { exec } = require('child_process')
 const core = require('@actions/core')
 const path = require('path')
+const Mustache = require('mustache');
 
 // From https://github.com/toniov/p-iteration/blob/master/lib/static-methods.js - MIT © Antonio V
 const forEach = async (array, callback) => {
@@ -63,7 +64,7 @@ const pathIsDirectory = async (path) => {
 	return stat.isDirectory()
 }
 
-const copy = async (src, dest, deleteOrphaned, exclude) => {
+const copy = async (src, dest, repoName, deleteOrphaned, exclude) => {
 
 	core.debug(`CP: ${ src } TO ${ dest }`)
 
@@ -76,8 +77,19 @@ const copy = async (src, dest, deleteOrphaned, exclude) => {
 
 		return true
 	}
-
-	await fs.copy(src, dest, exclude !== undefined && { filter: filterFunc })
+	let content = await fs.readFile(src)
+	const isVariableFileExists = false
+	try {
+		await fs.stat(src + "." + repoName + ".js")
+		isVariableFileExists = true
+	} catch (err) {
+	}
+	if (isVariableFileExists) {
+		const contentVariable = (await import(src + "." + repoName + ".js")).default
+		content = Mustache.render(content, contentVariable)
+	}
+	await fs.writeFile(dest, content)
+	// await fs.copy(src, dest, exclude !== undefined && { filter: filterFunc })
 
 	// If it is a directory and deleteOrphaned is enabled - check if there are any files that were removed from source dir and remove them in destination dir
 	if (deleteOrphaned) {
