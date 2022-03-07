@@ -1,3 +1,11 @@
+## [v1.17.6] - 2022-03-07
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.6) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.5...v1.17.6) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.6) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.6.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.6.tar.gz))
+
+### Dependency updates
+
+- [`36cbece`](https://github.com/betahuhn/repo-file-sync-action/commit/36cbece)  Bump @octokit/plugin-throttling from 3.5.2 to 3.6.1
+
 ## [v1.17.5] - 2022-02-28
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.5) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.4...v1.17.5) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.5) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.5.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.5.tar.gz))
