@@ -33,7 +33,7 @@ class Git {
 					core.debug(`Hit GitHub API rate limit, retrying after ${ retryAfter }s`)
 					return true
 				},
-				onAbuseLimit: (retryAfter) => {
+				onSecondaryRateLimit: (retryAfter) => {
 					core.debug(`Hit secondary GitHub API rate limit, retrying after ${ retryAfter }s`)
 					return true
 				}

@@ -3994,7 +3994,7 @@ function _defineProperty(obj, key, value) {
   return obj;
 }
 
-const VERSION = "3.6.1";
+const VERSION = "3.5.2";
 
 const noop = () => Promise.resolve(); // @ts-ignore
 
@@ -4145,21 +4145,21 @@ function throttling(octokit, octokitOptions = {}) {
   const state = Object.assign(_objectSpread2({
     clustering: connection != null,
     triggersNotification,
-    minimumSecondaryRateRetryAfter: 5,
+    minimumAbuseRetryAfter: 5,
     retryAfterBaseValue: 1000,
     retryLimiter: new Bottleneck(),
     id
   }, groups), // @ts-ignore
   octokitOptions.throttle);
 
-  if (typeof state.onSecondaryRateLimit !== "function" && typeof state.onAbuseLimit !== "function" || typeof state.onRateLimit !== "function") {
+  if (typeof state.onAbuseLimit !== "function" || typeof state.onRateLimit !== "function") {
     throw new Error(`octokit/plugin-throttling error:
-        You must pass the onSecondaryRateLimit and onRateLimit error handlers.
+        You must pass the onAbuseLimit and onRateLimit error handlers.
         See https://github.com/octokit/rest.js#throttling
 
         const octokit = new Octokit({
           throttle: {
-            onSecondaryRateLimit: (retryAfter, options) => {/* ... */},
+            onAbuseLimit: (retryAfter, options) => {/* ... */},
             onRateLimit: (retryAfter, options) => {/* ... */}
           }
         })
@@ -4169,14 +4169,11 @@ function throttling(octokit, octokitOptions = {}) {
   const events = {};
   const emitter = new Bottleneck.Events(events); // @ts-ignore
 
-  events.on("secondary-limit", state.onSecondaryRateLimit || function (...args) {
-    octokit.log.warn("[@octokit/plugin-throttling] `onAbuseLimit()` is deprecated and will be removed in a future release of `@octokit/plugin-throttling`, please use the `onSecondaryRateLimit` handler instead");
-    return state.onAbuseLimit(...args);
-  }); // @ts-ignore
+  events.on("abuse-limit", state.onAbuseLimit); // @ts-ignore
 
   events.on("rate-limit", state.onRateLimit); // @ts-ignore
 
-  events.on("error", e => octokit.log.warn("Error in throttling-plugin limit handler", e)); // @ts-ignore
+  events.on("error", e => console.warn("Error in throttling-plugin limit handler", e)); // @ts-ignore
 
   state.retryLimiter.on("failed", async function (error, info) {
     const options = info.args[info.args.length - 1];
@@ -4196,12 +4193,12 @@ function throttling(octokit, octokitOptions = {}) {
       retryAfter
     } = await async function () {
       if (/\bsecondary rate\b/i.test(error.message)) {
-        // The user has hit the secondary rate limit. (REST and GraphQL)
-        // https://docs.github.com/en/rest/overview/resources-in-the-rest-api#secondary-rate-limits
-        // The Retry-After header can sometimes be blank when hitting a secondary rate limit,
+        // The user has hit the abuse rate limit. (REST and GraphQL)
+        // https://docs.github.com/en/rest/overview/resources-in-the-rest-api#abuse-rate-limits
+        // The Retry-After header can sometimes be blank when hitting an abuse limit,
         // but is always present after 2-3s, so make sure to set `retryAfter` to at least 5s by default.
-        const retryAfter = Math.max(~~error.response.headers["retry-after"], state.minimumSecondaryRateRetryAfter);
-        const wantRetry = await emitter.trigger("secondary-limit", retryAfter, options, octokit);
+        const retryAfter = Math.max(~~error.response.headers["retry-after"], state.minimumAbuseRetryAfter);
+        const wantRetry = await emitter.trigger("abuse-limit", retryAfter, options, octokit);
         return {
           wantRetry,
           retryAfter
@@ -7726,7 +7723,7 @@ return Promise;
 
 /***/ }),
 
-/***/ 9618:
+/***/ 3338:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -7896,6 +7893,19 @@ function copyLink (resolvedSrc, dest) {
 }
 
 module.exports = copySync
+
+
+/***/ }),
+
+/***/ 1135:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+module.exports = {
+  copySync: __nccwpck_require__(3338)
+}
 
 
 /***/ }),
@@ -8148,8 +8158,7 @@ module.exports = copy
 
 const u = (__nccwpck_require__(1463).fromCallback)
 module.exports = {
-  copy: u(__nccwpck_require__(8834)),
-  copySync: __nccwpck_require__(9618)
+  copy: u(__nccwpck_require__(8834))
 }
 
 
@@ -8285,26 +8294,26 @@ module.exports = {
 "use strict";
 
 
-const { createFile, createFileSync } = __nccwpck_require__(2164)
-const { createLink, createLinkSync } = __nccwpck_require__(3797)
-const { createSymlink, createSymlinkSync } = __nccwpck_require__(2549)
+const file = __nccwpck_require__(2164)
+const link = __nccwpck_require__(3797)
+const symlink = __nccwpck_require__(2549)
 
 module.exports = {
   // file
-  createFile,
-  createFileSync,
-  ensureFile: createFile,
-  ensureFileSync: createFileSync,
+  createFile: file.createFile,
+  createFileSync: file.createFileSync,
+  ensureFile: file.createFile,
+  ensureFileSync: file.createFileSync,
   // link
-  createLink,
-  createLinkSync,
-  ensureLink: createLink,
-  ensureLinkSync: createLinkSync,
+  createLink: link.createLink,
+  createLinkSync: link.createLinkSync,
+  ensureLink: link.createLink,
+  ensureLinkSync: link.createLinkSync,
   // symlink
-  createSymlink,
-  createSymlinkSync,
-  ensureSymlink: createSymlink,
-  ensureSymlinkSync: createSymlinkSync
+  createSymlink: symlink.createSymlink,
+  createSymlinkSync: symlink.createSymlinkSync,
+  ensureSymlink: symlink.createSymlink,
+  ensureSymlinkSync: symlink.createSymlinkSync
 }
 
 
@@ -8755,13 +8764,15 @@ module.exports = {
   // Export promiseified graceful-fs:
   ...__nccwpck_require__(1176),
   // Export extra methods:
+  ...__nccwpck_require__(1135),
   ...__nccwpck_require__(1335),
   ...__nccwpck_require__(6970),
   ...__nccwpck_require__(55),
   ...__nccwpck_require__(213),
   ...__nccwpck_require__(8605),
+  ...__nccwpck_require__(9665),
   ...__nccwpck_require__(1497),
-  ...__nccwpck_require__(1832),
+  ...__nccwpck_require__(6570),
   ...__nccwpck_require__(3835),
   ...__nccwpck_require__(7357)
 }
@@ -8819,7 +8830,7 @@ module.exports = {
 
 
 const { stringify } = __nccwpck_require__(5902)
-const { outputFileSync } = __nccwpck_require__(1832)
+const { outputFileSync } = __nccwpck_require__(6570)
 
 function outputJsonSync (file, data, options) {
   const str = stringify(data, options)
@@ -8839,7 +8850,7 @@ module.exports = outputJsonSync
 
 
 const { stringify } = __nccwpck_require__(5902)
-const { outputFile } = __nccwpck_require__(1832)
+const { outputFile } = __nccwpck_require__(6570)
 
 async function outputJson (file, data, options = {}) {
   const str = stringify(data, options)
@@ -8938,22 +8949,20 @@ module.exports.checkPath = function checkPath (pth) {
 
 /***/ }),
 
-/***/ 1497:
+/***/ 9665:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const u = (__nccwpck_require__(1463).fromCallback)
 module.exports = {
-  move: u(__nccwpck_require__(2231)),
-  moveSync: __nccwpck_require__(2047)
+  moveSync: __nccwpck_require__(6445)
 }
 
 
 /***/ }),
 
-/***/ 2047:
+/***/ 6445:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -8961,7 +8970,7 @@ module.exports = {
 
 const fs = __nccwpck_require__(7758)
 const path = __nccwpck_require__(1017)
-const copySync = (__nccwpck_require__(1335).copySync)
+const copySync = (__nccwpck_require__(1135).copySync)
 const removeSync = (__nccwpck_require__(7357).removeSync)
 const mkdirpSync = (__nccwpck_require__(8605).mkdirpSync)
 const stat = __nccwpck_require__(3901)
@@ -9011,6 +9020,20 @@ function moveAcrossDevice (src, dest, overwrite) {
 }
 
 module.exports = moveSync
+
+
+/***/ }),
+
+/***/ 1497:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+const u = (__nccwpck_require__(1463).fromCallback)
+module.exports = {
+  move: u(__nccwpck_require__(2231))
+}
 
 
 /***/ }),
@@ -9096,7 +9119,7 @@ module.exports = move
 
 /***/ }),
 
-/***/ 1832:
+/***/ 6570:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -17423,7 +17446,7 @@ class Git {
 					core.debug(`Hit GitHub API rate limit, retrying after ${ retryAfter }s`)
 					return true
 				},
-				onAbuseLimit: (retryAfter) => {
+				onSecondaryRateLimit: (retryAfter) => {
 					core.debug(`Hit secondary GitHub API rate limit, retrying after ${ retryAfter }s`)
 					return true
 				}
