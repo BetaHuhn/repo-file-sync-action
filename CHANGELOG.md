@@ -1,3 +1,11 @@
+## [v1.17.11] - 2022-04-18
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.11) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.10...v1.17.11) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.11) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.11.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.11.tar.gz))
+
+### Dependency updates
+
+- [`0425b26`](https://github.com/betahuhn/repo-file-sync-action/commit/0425b26)  Bump @vercel/ncc from 0.33.3 to 0.33.4
+
 ## [v1.17.10] - 2022-04-04
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.10) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.9...v1.17.10) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.10) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.10.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.10.tar.gz))
