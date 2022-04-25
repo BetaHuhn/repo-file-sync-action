@@ -1,3 +1,11 @@
+## [v1.17.12] - 2022-04-25
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.12) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.11...v1.17.12) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.12) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.12.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.12.tar.gz))
+
+### Dependency updates
+
+- [`d999148`](https://github.com/betahuhn/repo-file-sync-action/commit/d999148)  Bump fs-extra from 10.0.1 to 10.1.0
+
 ## [v1.17.11] - 2022-04-18
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.11) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.10...v1.17.11) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.11) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.11.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.11.tar.gz))
