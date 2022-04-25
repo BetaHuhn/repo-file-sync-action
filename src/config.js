@@ -121,6 +121,11 @@ try {
 			key: 'FORK',
 			default: false,
 			disableable: true
+		}),
+		ENABLE_TEMPLATING: getInput({
+			key: 'ENABLE_TEMPLATING',
+			type: 'boolean',
+			default: false
 		})
 	}
 

@@ -3,6 +3,7 @@ const fs = require('fs')
 
 const Git = require('./git')
 const { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove, arrayEquals } = require('./helpers')
+const { generateTemplatesAndUpdateFiles } = require('./templating')
 
 const {
 	parseConfig,
@@ -19,7 +20,8 @@ const {
 	COMMIT_AS_PR_TITLE,
 	FORK,
 	REVIEWERS,
-	TEAM_REVIEWERS
+	TEAM_REVIEWERS,
+	ENABLE_TEMPLATING
 } = require('./config')
 
 const run = async () => {
@@ -57,6 +59,10 @@ const run = async () => {
 			core.info(`Locally syncing file(s) between source and target repository`)
 			const modified = []
 
+			if (ENABLE_TEMPLATING) {
+				await generateTemplatesAndUpdateFiles(item.files, item.repo.name)
+			}
+
 			// Loop through all selected files of the source repo
 			await forEach(item.files, async (file) => {
 				const fileExists = fs.existsSync(file.source)
@@ -75,7 +81,7 @@ const run = async () => {
 
 				const deleteOrphaned = isDirectory && file.deleteOrphaned
 
-				await copy(source, dest, deleteOrphaned, file.exclude)
+				await copy(source, dest, deleteOrphaned, file.exclude, ENABLE_TEMPLATING, item.repo.name)
 
 				await git.add(file.dest)
 

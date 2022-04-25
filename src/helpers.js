@@ -63,21 +63,29 @@ const pathIsDirectory = async (path) => {
 	return stat.isDirectory()
 }
 
-const copy = async (src, dest, deleteOrphaned, exclude) => {
+const isTemplateValuesFile = (file) => file.endsWith('.values.yml')
+
+const isNonMatchingTemplateGeneratedFile = (file, repoName) => file.includes('generated') && !file.includes(repoName)
+
+const copy = async (src, dest, deleteOrphaned, exclude, templatingEnabled, repoName) => {
 
 	core.debug(`CP: ${ src } TO ${ dest }`)
 
 	const filterFunc = (file) => {
-
 		if (exclude !== undefined && exclude.includes(file)) {
 			core.debug(`Excluding file ${ file }`)
+			return false
+		}
+
+		// don't copy template values files, or templated generated files that don't match the target repo name
+		if (templatingEnabled && (isTemplateValuesFile(file) || isNonMatchingTemplateGeneratedFile(file, repoName))) {
 			return false
 		}
 
 		return true
 	}
 
-	await fs.copy(src, dest, exclude !== undefined && { filter: filterFunc })
+	await fs.copy(src, dest, { filter: filterFunc })
 
 	// If it is a directory and deleteOrphaned is enabled - check if there are any files that were removed from source dir and remove them in destination dir
 	if (deleteOrphaned) {

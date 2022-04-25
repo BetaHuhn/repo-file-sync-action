@@ -124,6 +124,7 @@ Here are all the inputs [repo-file-sync-action](https://github.com/BetaHuhn/repo
 | `SKIP_CLEANUP` | Skips removing the temporary directory. Useful for debugging | **No** | false |
 | `SKIP_PR` | Skips creating a Pull Request and pushes directly to the default branch | **No** | false |
 | `FORK` | A Github account username. Changes will be pushed to a fork of target repos on this account. | **No** | false |
+| `ENABLE_TEMPLATING` | Enables templating support. Allows generating multiple files from a single file, based on a set of values. | **No** | false |
 
 ### Outputs
 
@@ -452,6 +453,71 @@ with:
     GH_PAT: ${{ secrets.GH_PAT }}
     FORK: file-sync-bot
 ```
+
+### Templating
+
+With templating enabled, once can generate multiple files from a single template file.
+For example
+
+**.github/sync.yml**
+
+```yml
+group:
+  repos: |
+    user/repo1
+    user/repo2
+  files:
+    - source: .github/workflows/
+      dest: .github/workflows/
+```
+
+Inside `.github/workflows/`
+
+```bash
+.github/workflows/test.yml
+.github/workflows/test.yml.repo1.values.yml
+.github/workflows/test.yml.repo2.values.yml
+```
+
+This file will be detected as a template file
+
+**.github/workflows/test.yml**
+
+```yml
+{{=<% %>=}}
+name: test
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.16
+      - name: Test for <%> name %>
+        run: go test ./...
+```
+
+File name much must `<template-name>.<repo>.values.yml`
+
+**.github/workflows/test.yml.repo1.values.yml**
+
+```yml
+name: "repo-1"
+```
+
+**.github/workflows/test.yml.repo2.values.yml**
+
+```yml
+name: "repo-2"
+```
+
+The sync operation will result in `test.yml` being copied to `repo1` with `name` replaced with `repo-1` and **also** copied to `repo2` with `name` replaced with `repo-2`.
 
 ### Advanced sync config
 

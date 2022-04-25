@@ -92,6 +92,10 @@ inputs:
       Specify the user account that will be used in a fork and pull-request workflow. Defaults
       false.
     required: false
+  ENABLE_TEMPLATING:
+    description: |
+      Enables templating support (see docs for information)
+    required: false
 
 outputs:
   pull_request_urls:
