@@ -30,10 +30,11 @@ const generateTemplate = async (src, repoName) => {
 			content = mustache.render(content, {}, {})
 		}
 		const [ dir, name, etx ] = [ path.dirname(src), path.basename(src), path.extname(src) ]
-		await fs.writeFile(`${ dir }/${ name }.generated-${ repoName }.${ etx }`, content, 'utf-8')
-		return isTemplateFile
+		const destination = `${ dir }/${ name }.generated-${ repoName }.${ etx }`
+		await fs.writeFile(destination, content, 'utf-8')
+		return { isTemplateFile, destination }
 	}
-	return isTemplateFile
+	return { isTemplateFile }
 }
 
 const addToExclude = (file, toExclude) => Array.isArray(file.exclude) ? [ ...file.exclude, toExclude ] : [ toExclude ]
@@ -48,16 +49,16 @@ const generateTemplatesAndUpdateFiles = async (files, repoName) => {
 			await Promise.all(
 				srcFileList.map(async (srcFile) => {
 					const srcFilePath = `${ file.source }/${ srcFile }`
-					const isTemplateFile = await generateTemplate(srcFilePath, repoName)
+					const { isTemplateFile } = await generateTemplate(srcFilePath, repoName)
 					if (isTemplateFile) {
 						file.exclude = addToExclude(file, srcFilePath)
 					}
 				})
 			)
 		} else {
-			const isTemplateFile = await generateTemplate(source, repoName)
+			const { isTemplateFile, destination } = await generateTemplate(source, repoName)
 			if (isTemplateFile) {
-				file.exclude = addToExclude(file, file.source)
+				file.source = destination
 			}
 		}
 	}
