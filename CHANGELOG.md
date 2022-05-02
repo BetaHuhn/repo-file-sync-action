@@ -1,3 +1,11 @@
+## [v1.17.13] - 2022-05-02
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.13) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.12...v1.17.13) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.13) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.13.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.13.tar.gz))
+
+### Dependency updates
+
+- [`0bf4dea`](https://github.com/betahuhn/repo-file-sync-action/commit/0bf4dea)  Bump @actions/core from 1.6.0 to 1.7.0
+
 ## [v1.17.12] - 2022-04-25
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.12) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.11...v1.17.12) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.12) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.12.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.12.tar.gz))
