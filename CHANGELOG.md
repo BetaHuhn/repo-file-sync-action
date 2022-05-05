@@ -1,3 +1,16 @@
+## [v1.17.14] - 2022-05-05
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.14) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.13...v1.17.14) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.14) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.14.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.14.tar.gz))
+
+### Bug fixes
+
+- [`64a0312`](https://github.com/betahuhn/repo-file-sync-action/commit/64a0312)  Sanitize &#x60;/.&#x60; from branch name (#200)
+(Issues: [`#200`](https://github.com/betahuhn/repo-file-sync-action/issues/200))
+
+### Dependency updates
+
+- [`1ec3cb1`](https://github.com/betahuhn/repo-file-sync-action/commit/1ec3cb1)  Bump action-input-parser from 1.2.31 to 1.2.32
+
 ## [v1.17.13] - 2022-05-02
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.13) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.12...v1.17.13) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.13) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.13.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.13.tar.gz))
