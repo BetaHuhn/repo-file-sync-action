@@ -1,3 +1,14 @@
+## [v1.17.16] - 2022-05-16
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.16) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.15...v1.17.16) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.16) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.16.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.16.tar.gz))
+
+### Dependency updates
+
+- [`70ceb48`](https://github.com/betahuhn/repo-file-sync-action/commit/70ceb48)  Bump @actions/core from 1.8.0 to 1.8.1
+- [`944a918`](https://github.com/betahuhn/repo-file-sync-action/commit/944a918)  Bump @actions/github from 5.0.1 to 5.0.2
+- [`26b80ac`](https://github.com/betahuhn/repo-file-sync-action/commit/26b80ac)  Bump @actions/github from 5.0.2 to 5.0.3
+- [`e40c856`](https://github.com/betahuhn/repo-file-sync-action/commit/e40c856)  Bump @actions/core from 1.8.1 to 1.8.2
+
 ## [v1.17.15] - 2022-05-09
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.15) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.14...v1.17.15) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.15) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.15.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.15.tar.gz))
