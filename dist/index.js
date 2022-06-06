@@ -8495,1165 +8495,6 @@ module.exports.parse = parse
 
 /***/ }),
 
-/***/ 8878:
-/***/ (function(module) {
-
-/*!
- * @overview es6-promise - a tiny implementation of Promises/A+.
- * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
- * @license   Licensed under MIT license
- *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
- * @version   3.3.1
- */
-
-(function (global, factory) {
-     true ? module.exports = factory() :
-    0;
-}(this, (function () { 'use strict';
-
-function objectOrFunction(x) {
-  return typeof x === 'function' || typeof x === 'object' && x !== null;
-}
-
-function isFunction(x) {
-  return typeof x === 'function';
-}
-
-var _isArray = undefined;
-if (!Array.isArray) {
-  _isArray = function (x) {
-    return Object.prototype.toString.call(x) === '[object Array]';
-  };
-} else {
-  _isArray = Array.isArray;
-}
-
-var isArray = _isArray;
-
-var len = 0;
-var vertxNext = undefined;
-var customSchedulerFn = undefined;
-
-var asap = function asap(callback, arg) {
-  queue[len] = callback;
-  queue[len + 1] = arg;
-  len += 2;
-  if (len === 2) {
-    // If len is 2, that means that we need to schedule an async flush.
-    // If additional callbacks are queued before the queue is flushed, they
-    // will be processed by this flush that we are scheduling.
-    if (customSchedulerFn) {
-      customSchedulerFn(flush);
-    } else {
-      scheduleFlush();
-    }
-  }
-};
-
-function setScheduler(scheduleFn) {
-  customSchedulerFn = scheduleFn;
-}
-
-function setAsap(asapFn) {
-  asap = asapFn;
-}
-
-var browserWindow = typeof window !== 'undefined' ? window : undefined;
-var browserGlobal = browserWindow || {};
-var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
-var isNode = typeof self === 'undefined' && typeof process !== 'undefined' && ({}).toString.call(process) === '[object process]';
-
-// test for web worker but not in IE10
-var isWorker = typeof Uint8ClampedArray !== 'undefined' && typeof importScripts !== 'undefined' && typeof MessageChannel !== 'undefined';
-
-// node
-function useNextTick() {
-  // node version 0.10.x displays a deprecation warning when nextTick is used recursively
-  // see https://github.com/cujojs/when/issues/410 for details
-  return function () {
-    return process.nextTick(flush);
-  };
-}
-
-// vertx
-function useVertxTimer() {
-  return function () {
-    vertxNext(flush);
-  };
-}
-
-function useMutationObserver() {
-  var iterations = 0;
-  var observer = new BrowserMutationObserver(flush);
-  var node = document.createTextNode('');
-  observer.observe(node, { characterData: true });
-
-  return function () {
-    node.data = iterations = ++iterations % 2;
-  };
-}
-
-// web worker
-function useMessageChannel() {
-  var channel = new MessageChannel();
-  channel.port1.onmessage = flush;
-  return function () {
-    return channel.port2.postMessage(0);
-  };
-}
-
-function useSetTimeout() {
-  // Store setTimeout reference so es6-promise will be unaffected by
-  // other code modifying setTimeout (like sinon.useFakeTimers())
-  var globalSetTimeout = setTimeout;
-  return function () {
-    return globalSetTimeout(flush, 1);
-  };
-}
-
-var queue = new Array(1000);
-function flush() {
-  for (var i = 0; i < len; i += 2) {
-    var callback = queue[i];
-    var arg = queue[i + 1];
-
-    callback(arg);
-
-    queue[i] = undefined;
-    queue[i + 1] = undefined;
-  }
-
-  len = 0;
-}
-
-function attemptVertx() {
-  try {
-    var r = require;
-    var vertx = r('vertx');
-    vertxNext = vertx.runOnLoop || vertx.runOnContext;
-    return useVertxTimer();
-  } catch (e) {
-    return useSetTimeout();
-  }
-}
-
-var scheduleFlush = undefined;
-// Decide what async method to use to triggering processing of queued callbacks:
-if (isNode) {
-  scheduleFlush = useNextTick();
-} else if (BrowserMutationObserver) {
-  scheduleFlush = useMutationObserver();
-} else if (isWorker) {
-  scheduleFlush = useMessageChannel();
-} else if (browserWindow === undefined && "function" === 'function') {
-  scheduleFlush = attemptVertx();
-} else {
-  scheduleFlush = useSetTimeout();
-}
-
-function then(onFulfillment, onRejection) {
-  var _arguments = arguments;
-
-  var parent = this;
-
-  var child = new this.constructor(noop);
-
-  if (child[PROMISE_ID] === undefined) {
-    makePromise(child);
-  }
-
-  var _state = parent._state;
-
-  if (_state) {
-    (function () {
-      var callback = _arguments[_state - 1];
-      asap(function () {
-        return invokeCallback(_state, child, callback, parent._result);
-      });
-    })();
-  } else {
-    subscribe(parent, child, onFulfillment, onRejection);
-  }
-
-  return child;
-}
-
-/**
-  `Promise.resolve` returns a promise that will become resolved with the
-  passed `value`. It is shorthand for the following:
-
-  ```javascript
-  let promise = new Promise(function(resolve, reject){
-    resolve(1);
-  });
-
-  promise.then(function(value){
-    // value === 1
-  });
-  ```
-
-  Instead of writing the above, your code now simply becomes the following:
-
-  ```javascript
-  let promise = Promise.resolve(1);
-
-  promise.then(function(value){
-    // value === 1
-  });
-  ```
-
-  @method resolve
-  @static
-  @param {Any} value value that the returned promise will be resolved with
-  Useful for tooling.
-  @return {Promise} a promise that will become fulfilled with the given
-  `value`
-*/
-function resolve(object) {
-  /*jshint validthis:true */
-  var Constructor = this;
-
-  if (object && typeof object === 'object' && object.constructor === Constructor) {
-    return object;
-  }
-
-  var promise = new Constructor(noop);
-  _resolve(promise, object);
-  return promise;
-}
-
-var PROMISE_ID = Math.random().toString(36).substring(16);
-
-function noop() {}
-
-var PENDING = void 0;
-var FULFILLED = 1;
-var REJECTED = 2;
-
-var GET_THEN_ERROR = new ErrorObject();
-
-function selfFulfillment() {
-  return new TypeError("You cannot resolve a promise with itself");
-}
-
-function cannotReturnOwn() {
-  return new TypeError('A promises callback cannot return that same promise.');
-}
-
-function getThen(promise) {
-  try {
-    return promise.then;
-  } catch (error) {
-    GET_THEN_ERROR.error = error;
-    return GET_THEN_ERROR;
-  }
-}
-
-function tryThen(then, value, fulfillmentHandler, rejectionHandler) {
-  try {
-    then.call(value, fulfillmentHandler, rejectionHandler);
-  } catch (e) {
-    return e;
-  }
-}
-
-function handleForeignThenable(promise, thenable, then) {
-  asap(function (promise) {
-    var sealed = false;
-    var error = tryThen(then, thenable, function (value) {
-      if (sealed) {
-        return;
-      }
-      sealed = true;
-      if (thenable !== value) {
-        _resolve(promise, value);
-      } else {
-        fulfill(promise, value);
-      }
-    }, function (reason) {
-      if (sealed) {
-        return;
-      }
-      sealed = true;
-
-      _reject(promise, reason);
-    }, 'Settle: ' + (promise._label || ' unknown promise'));
-
-    if (!sealed && error) {
-      sealed = true;
-      _reject(promise, error);
-    }
-  }, promise);
-}
-
-function handleOwnThenable(promise, thenable) {
-  if (thenable._state === FULFILLED) {
-    fulfill(promise, thenable._result);
-  } else if (thenable._state === REJECTED) {
-    _reject(promise, thenable._result);
-  } else {
-    subscribe(thenable, undefined, function (value) {
-      return _resolve(promise, value);
-    }, function (reason) {
-      return _reject(promise, reason);
-    });
-  }
-}
-
-function handleMaybeThenable(promise, maybeThenable, then$$) {
-  if (maybeThenable.constructor === promise.constructor && then$$ === then && maybeThenable.constructor.resolve === resolve) {
-    handleOwnThenable(promise, maybeThenable);
-  } else {
-    if (then$$ === GET_THEN_ERROR) {
-      _reject(promise, GET_THEN_ERROR.error);
-    } else if (then$$ === undefined) {
-      fulfill(promise, maybeThenable);
-    } else if (isFunction(then$$)) {
-      handleForeignThenable(promise, maybeThenable, then$$);
-    } else {
-      fulfill(promise, maybeThenable);
-    }
-  }
-}
-
-function _resolve(promise, value) {
-  if (promise === value) {
-    _reject(promise, selfFulfillment());
-  } else if (objectOrFunction(value)) {
-    handleMaybeThenable(promise, value, getThen(value));
-  } else {
-    fulfill(promise, value);
-  }
-}
-
-function publishRejection(promise) {
-  if (promise._onerror) {
-    promise._onerror(promise._result);
-  }
-
-  publish(promise);
-}
-
-function fulfill(promise, value) {
-  if (promise._state !== PENDING) {
-    return;
-  }
-
-  promise._result = value;
-  promise._state = FULFILLED;
-
-  if (promise._subscribers.length !== 0) {
-    asap(publish, promise);
-  }
-}
-
-function _reject(promise, reason) {
-  if (promise._state !== PENDING) {
-    return;
-  }
-  promise._state = REJECTED;
-  promise._result = reason;
-
-  asap(publishRejection, promise);
-}
-
-function subscribe(parent, child, onFulfillment, onRejection) {
-  var _subscribers = parent._subscribers;
-  var length = _subscribers.length;
-
-  parent._onerror = null;
-
-  _subscribers[length] = child;
-  _subscribers[length + FULFILLED] = onFulfillment;
-  _subscribers[length + REJECTED] = onRejection;
-
-  if (length === 0 && parent._state) {
-    asap(publish, parent);
-  }
-}
-
-function publish(promise) {
-  var subscribers = promise._subscribers;
-  var settled = promise._state;
-
-  if (subscribers.length === 0) {
-    return;
-  }
-
-  var child = undefined,
-      callback = undefined,
-      detail = promise._result;
-
-  for (var i = 0; i < subscribers.length; i += 3) {
-    child = subscribers[i];
-    callback = subscribers[i + settled];
-
-    if (child) {
-      invokeCallback(settled, child, callback, detail);
-    } else {
-      callback(detail);
-    }
-  }
-
-  promise._subscribers.length = 0;
-}
-
-function ErrorObject() {
-  this.error = null;
-}
-
-var TRY_CATCH_ERROR = new ErrorObject();
-
-function tryCatch(callback, detail) {
-  try {
-    return callback(detail);
-  } catch (e) {
-    TRY_CATCH_ERROR.error = e;
-    return TRY_CATCH_ERROR;
-  }
-}
-
-function invokeCallback(settled, promise, callback, detail) {
-  var hasCallback = isFunction(callback),
-      value = undefined,
-      error = undefined,
-      succeeded = undefined,
-      failed = undefined;
-
-  if (hasCallback) {
-    value = tryCatch(callback, detail);
-
-    if (value === TRY_CATCH_ERROR) {
-      failed = true;
-      error = value.error;
-      value = null;
-    } else {
-      succeeded = true;
-    }
-
-    if (promise === value) {
-      _reject(promise, cannotReturnOwn());
-      return;
-    }
-  } else {
-    value = detail;
-    succeeded = true;
-  }
-
-  if (promise._state !== PENDING) {
-    // noop
-  } else if (hasCallback && succeeded) {
-      _resolve(promise, value);
-    } else if (failed) {
-      _reject(promise, error);
-    } else if (settled === FULFILLED) {
-      fulfill(promise, value);
-    } else if (settled === REJECTED) {
-      _reject(promise, value);
-    }
-}
-
-function initializePromise(promise, resolver) {
-  try {
-    resolver(function resolvePromise(value) {
-      _resolve(promise, value);
-    }, function rejectPromise(reason) {
-      _reject(promise, reason);
-    });
-  } catch (e) {
-    _reject(promise, e);
-  }
-}
-
-var id = 0;
-function nextId() {
-  return id++;
-}
-
-function makePromise(promise) {
-  promise[PROMISE_ID] = id++;
-  promise._state = undefined;
-  promise._result = undefined;
-  promise._subscribers = [];
-}
-
-function Enumerator(Constructor, input) {
-  this._instanceConstructor = Constructor;
-  this.promise = new Constructor(noop);
-
-  if (!this.promise[PROMISE_ID]) {
-    makePromise(this.promise);
-  }
-
-  if (isArray(input)) {
-    this._input = input;
-    this.length = input.length;
-    this._remaining = input.length;
-
-    this._result = new Array(this.length);
-
-    if (this.length === 0) {
-      fulfill(this.promise, this._result);
-    } else {
-      this.length = this.length || 0;
-      this._enumerate();
-      if (this._remaining === 0) {
-        fulfill(this.promise, this._result);
-      }
-    }
-  } else {
-    _reject(this.promise, validationError());
-  }
-}
-
-function validationError() {
-  return new Error('Array Methods must be provided an Array');
-};
-
-Enumerator.prototype._enumerate = function () {
-  var length = this.length;
-  var _input = this._input;
-
-  for (var i = 0; this._state === PENDING && i < length; i++) {
-    this._eachEntry(_input[i], i);
-  }
-};
-
-Enumerator.prototype._eachEntry = function (entry, i) {
-  var c = this._instanceConstructor;
-  var resolve$$ = c.resolve;
-
-  if (resolve$$ === resolve) {
-    var _then = getThen(entry);
-
-    if (_then === then && entry._state !== PENDING) {
-      this._settledAt(entry._state, i, entry._result);
-    } else if (typeof _then !== 'function') {
-      this._remaining--;
-      this._result[i] = entry;
-    } else if (c === Promise) {
-      var promise = new c(noop);
-      handleMaybeThenable(promise, entry, _then);
-      this._willSettleAt(promise, i);
-    } else {
-      this._willSettleAt(new c(function (resolve$$) {
-        return resolve$$(entry);
-      }), i);
-    }
-  } else {
-    this._willSettleAt(resolve$$(entry), i);
-  }
-};
-
-Enumerator.prototype._settledAt = function (state, i, value) {
-  var promise = this.promise;
-
-  if (promise._state === PENDING) {
-    this._remaining--;
-
-    if (state === REJECTED) {
-      _reject(promise, value);
-    } else {
-      this._result[i] = value;
-    }
-  }
-
-  if (this._remaining === 0) {
-    fulfill(promise, this._result);
-  }
-};
-
-Enumerator.prototype._willSettleAt = function (promise, i) {
-  var enumerator = this;
-
-  subscribe(promise, undefined, function (value) {
-    return enumerator._settledAt(FULFILLED, i, value);
-  }, function (reason) {
-    return enumerator._settledAt(REJECTED, i, reason);
-  });
-};
-
-/**
-  `Promise.all` accepts an array of promises, and returns a new promise which
-  is fulfilled with an array of fulfillment values for the passed promises, or
-  rejected with the reason of the first passed promise to be rejected. It casts all
-  elements of the passed iterable to promises as it runs this algorithm.
-
-  Example:
-
-  ```javascript
-  let promise1 = resolve(1);
-  let promise2 = resolve(2);
-  let promise3 = resolve(3);
-  let promises = [ promise1, promise2, promise3 ];
-
-  Promise.all(promises).then(function(array){
-    // The array here would be [ 1, 2, 3 ];
-  });
-  ```
-
-  If any of the `promises` given to `all` are rejected, the first promise
-  that is rejected will be given as an argument to the returned promises's
-  rejection handler. For example:
-
-  Example:
-
-  ```javascript
-  let promise1 = resolve(1);
-  let promise2 = reject(new Error("2"));
-  let promise3 = reject(new Error("3"));
-  let promises = [ promise1, promise2, promise3 ];
-
-  Promise.all(promises).then(function(array){
-    // Code here never runs because there are rejected promises!
-  }, function(error) {
-    // error.message === "2"
-  });
-  ```
-
-  @method all
-  @static
-  @param {Array} entries array of promises
-  @param {String} label optional string for labeling the promise.
-  Useful for tooling.
-  @return {Promise} promise that is fulfilled when all `promises` have been
-  fulfilled, or rejected if any of them become rejected.
-  @static
-*/
-function all(entries) {
-  return new Enumerator(this, entries).promise;
-}
-
-/**
-  `Promise.race` returns a new promise which is settled in the same way as the
-  first passed promise to settle.
-
-  Example:
-
-  ```javascript
-  let promise1 = new Promise(function(resolve, reject){
-    setTimeout(function(){
-      resolve('promise 1');
-    }, 200);
-  });
-
-  let promise2 = new Promise(function(resolve, reject){
-    setTimeout(function(){
-      resolve('promise 2');
-    }, 100);
-  });
-
-  Promise.race([promise1, promise2]).then(function(result){
-    // result === 'promise 2' because it was resolved before promise1
-    // was resolved.
-  });
-  ```
-
-  `Promise.race` is deterministic in that only the state of the first
-  settled promise matters. For example, even if other promises given to the
-  `promises` array argument are resolved, but the first settled promise has
-  become rejected before the other promises became fulfilled, the returned
-  promise will become rejected:
-
-  ```javascript
-  let promise1 = new Promise(function(resolve, reject){
-    setTimeout(function(){
-      resolve('promise 1');
-    }, 200);
-  });
-
-  let promise2 = new Promise(function(resolve, reject){
-    setTimeout(function(){
-      reject(new Error('promise 2'));
-    }, 100);
-  });
-
-  Promise.race([promise1, promise2]).then(function(result){
-    // Code here never runs
-  }, function(reason){
-    // reason.message === 'promise 2' because promise 2 became rejected before
-    // promise 1 became fulfilled
-  });
-  ```
-
-  An example real-world use case is implementing timeouts:
-
-  ```javascript
-  Promise.race([ajax('foo.json'), timeout(5000)])
-  ```
-
-  @method race
-  @static
-  @param {Array} promises array of promises to observe
-  Useful for tooling.
-  @return {Promise} a promise which settles in the same way as the first passed
-  promise to settle.
-*/
-function race(entries) {
-  /*jshint validthis:true */
-  var Constructor = this;
-
-  if (!isArray(entries)) {
-    return new Constructor(function (_, reject) {
-      return reject(new TypeError('You must pass an array to race.'));
-    });
-  } else {
-    return new Constructor(function (resolve, reject) {
-      var length = entries.length;
-      for (var i = 0; i < length; i++) {
-        Constructor.resolve(entries[i]).then(resolve, reject);
-      }
-    });
-  }
-}
-
-/**
-  `Promise.reject` returns a promise rejected with the passed `reason`.
-  It is shorthand for the following:
-
-  ```javascript
-  let promise = new Promise(function(resolve, reject){
-    reject(new Error('WHOOPS'));
-  });
-
-  promise.then(function(value){
-    // Code here doesn't run because the promise is rejected!
-  }, function(reason){
-    // reason.message === 'WHOOPS'
-  });
-  ```
-
-  Instead of writing the above, your code now simply becomes the following:
-
-  ```javascript
-  let promise = Promise.reject(new Error('WHOOPS'));
-
-  promise.then(function(value){
-    // Code here doesn't run because the promise is rejected!
-  }, function(reason){
-    // reason.message === 'WHOOPS'
-  });
-  ```
-
-  @method reject
-  @static
-  @param {Any} reason value that the returned promise will be rejected with.
-  Useful for tooling.
-  @return {Promise} a promise rejected with the given `reason`.
-*/
-function reject(reason) {
-  /*jshint validthis:true */
-  var Constructor = this;
-  var promise = new Constructor(noop);
-  _reject(promise, reason);
-  return promise;
-}
-
-function needsResolver() {
-  throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
-}
-
-function needsNew() {
-  throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
-}
-
-/**
-  Promise objects represent the eventual result of an asynchronous operation. The
-  primary way of interacting with a promise is through its `then` method, which
-  registers callbacks to receive either a promise's eventual value or the reason
-  why the promise cannot be fulfilled.
-
-  Terminology
-  -----------
-
-  - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
-  - `thenable` is an object or function that defines a `then` method.
-  - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
-  - `exception` is a value that is thrown using the throw statement.
-  - `reason` is a value that indicates why a promise was rejected.
-  - `settled` the final resting state of a promise, fulfilled or rejected.
-
-  A promise can be in one of three states: pending, fulfilled, or rejected.
-
-  Promises that are fulfilled have a fulfillment value and are in the fulfilled
-  state.  Promises that are rejected have a rejection reason and are in the
-  rejected state.  A fulfillment value is never a thenable.
-
-  Promises can also be said to *resolve* a value.  If this value is also a
-  promise, then the original promise's settled state will match the value's
-  settled state.  So a promise that *resolves* a promise that rejects will
-  itself reject, and a promise that *resolves* a promise that fulfills will
-  itself fulfill.
-
-
-  Basic Usage:
-  ------------
-
-  ```js
-  let promise = new Promise(function(resolve, reject) {
-    // on success
-    resolve(value);
-
-    // on failure
-    reject(reason);
-  });
-
-  promise.then(function(value) {
-    // on fulfillment
-  }, function(reason) {
-    // on rejection
-  });
-  ```
-
-  Advanced Usage:
-  ---------------
-
-  Promises shine when abstracting away asynchronous interactions such as
-  `XMLHttpRequest`s.
-
-  ```js
-  function getJSON(url) {
-    return new Promise(function(resolve, reject){
-      let xhr = new XMLHttpRequest();
-
-      xhr.open('GET', url);
-      xhr.onreadystatechange = handler;
-      xhr.responseType = 'json';
-      xhr.setRequestHeader('Accept', 'application/json');
-      xhr.send();
-
-      function handler() {
-        if (this.readyState === this.DONE) {
-          if (this.status === 200) {
-            resolve(this.response);
-          } else {
-            reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
-          }
-        }
-      };
-    });
-  }
-
-  getJSON('/posts.json').then(function(json) {
-    // on fulfillment
-  }, function(reason) {
-    // on rejection
-  });
-  ```
-
-  Unlike callbacks, promises are great composable primitives.
-
-  ```js
-  Promise.all([
-    getJSON('/posts'),
-    getJSON('/comments')
-  ]).then(function(values){
-    values[0] // => postsJSON
-    values[1] // => commentsJSON
-
-    return values;
-  });
-  ```
-
-  @class Promise
-  @param {function} resolver
-  Useful for tooling.
-  @constructor
-*/
-function Promise(resolver) {
-  this[PROMISE_ID] = nextId();
-  this._result = this._state = undefined;
-  this._subscribers = [];
-
-  if (noop !== resolver) {
-    typeof resolver !== 'function' && needsResolver();
-    this instanceof Promise ? initializePromise(this, resolver) : needsNew();
-  }
-}
-
-Promise.all = all;
-Promise.race = race;
-Promise.resolve = resolve;
-Promise.reject = reject;
-Promise._setScheduler = setScheduler;
-Promise._setAsap = setAsap;
-Promise._asap = asap;
-
-Promise.prototype = {
-  constructor: Promise,
-
-  /**
-    The primary way of interacting with a promise is through its `then` method,
-    which registers callbacks to receive either a promise's eventual value or the
-    reason why the promise cannot be fulfilled.
-  
-    ```js
-    findUser().then(function(user){
-      // user is available
-    }, function(reason){
-      // user is unavailable, and you are given the reason why
-    });
-    ```
-  
-    Chaining
-    --------
-  
-    The return value of `then` is itself a promise.  This second, 'downstream'
-    promise is resolved with the return value of the first promise's fulfillment
-    or rejection handler, or rejected if the handler throws an exception.
-  
-    ```js
-    findUser().then(function (user) {
-      return user.name;
-    }, function (reason) {
-      return 'default name';
-    }).then(function (userName) {
-      // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
-      // will be `'default name'`
-    });
-  
-    findUser().then(function (user) {
-      throw new Error('Found user, but still unhappy');
-    }, function (reason) {
-      throw new Error('`findUser` rejected and we're unhappy');
-    }).then(function (value) {
-      // never reached
-    }, function (reason) {
-      // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
-      // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
-    });
-    ```
-    If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
-  
-    ```js
-    findUser().then(function (user) {
-      throw new PedagogicalException('Upstream error');
-    }).then(function (value) {
-      // never reached
-    }).then(function (value) {
-      // never reached
-    }, function (reason) {
-      // The `PedgagocialException` is propagated all the way down to here
-    });
-    ```
-  
-    Assimilation
-    ------------
-  
-    Sometimes the value you want to propagate to a downstream promise can only be
-    retrieved asynchronously. This can be achieved by returning a promise in the
-    fulfillment or rejection handler. The downstream promise will then be pending
-    until the returned promise is settled. This is called *assimilation*.
-  
-    ```js
-    findUser().then(function (user) {
-      return findCommentsByAuthor(user);
-    }).then(function (comments) {
-      // The user's comments are now available
-    });
-    ```
-  
-    If the assimliated promise rejects, then the downstream promise will also reject.
-  
-    ```js
-    findUser().then(function (user) {
-      return findCommentsByAuthor(user);
-    }).then(function (comments) {
-      // If `findCommentsByAuthor` fulfills, we'll have the value here
-    }, function (reason) {
-      // If `findCommentsByAuthor` rejects, we'll have the reason here
-    });
-    ```
-  
-    Simple Example
-    --------------
-  
-    Synchronous Example
-  
-    ```javascript
-    let result;
-  
-    try {
-      result = findResult();
-      // success
-    } catch(reason) {
-      // failure
-    }
-    ```
-  
-    Errback Example
-  
-    ```js
-    findResult(function(result, err){
-      if (err) {
-        // failure
-      } else {
-        // success
-      }
-    });
-    ```
-  
-    Promise Example;
-  
-    ```javascript
-    findResult().then(function(result){
-      // success
-    }, function(reason){
-      // failure
-    });
-    ```
-  
-    Advanced Example
-    --------------
-  
-    Synchronous Example
-  
-    ```javascript
-    let author, books;
-  
-    try {
-      author = findAuthor();
-      books  = findBooksByAuthor(author);
-      // success
-    } catch(reason) {
-      // failure
-    }
-    ```
-  
-    Errback Example
-  
-    ```js
-  
-    function foundBooks(books) {
-  
-    }
-  
-    function failure(reason) {
-  
-    }
-  
-    findAuthor(function(author, err){
-      if (err) {
-        failure(err);
-        // failure
-      } else {
-        try {
-          findBoooksByAuthor(author, function(books, err) {
-            if (err) {
-              failure(err);
-            } else {
-              try {
-                foundBooks(books);
-              } catch(reason) {
-                failure(reason);
-              }
-            }
-          });
-        } catch(error) {
-          failure(err);
-        }
-        // success
-      }
-    });
-    ```
-  
-    Promise Example;
-  
-    ```javascript
-    findAuthor().
-      then(findBooksByAuthor).
-      then(function(books){
-        // found books
-    }).catch(function(reason){
-      // something went wrong
-    });
-    ```
-  
-    @method then
-    @param {Function} onFulfilled
-    @param {Function} onRejected
-    Useful for tooling.
-    @return {Promise}
-  */
-  then: then,
-
-  /**
-    `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
-    as the catch block of a try/catch statement.
-  
-    ```js
-    function findAuthor(){
-      throw new Error('couldn't find that author');
-    }
-  
-    // synchronous
-    try {
-      findAuthor();
-    } catch(reason) {
-      // something went wrong
-    }
-  
-    // async with promises
-    findAuthor().catch(function(reason){
-      // something went wrong
-    });
-    ```
-  
-    @method catch
-    @param {Function} onRejection
-    Useful for tooling.
-    @return {Promise}
-  */
-  'catch': function _catch(onRejection) {
-    return this.then(null, onRejection);
-  }
-};
-
-function polyfill() {
-    var local = undefined;
-
-    if (typeof global !== 'undefined') {
-        local = global;
-    } else if (typeof self !== 'undefined') {
-        local = self;
-    } else {
-        try {
-            local = Function('return this')();
-        } catch (e) {
-            throw new Error('polyfill failed because global object is unavailable in this environment');
-        }
-    }
-
-    var P = local.Promise;
-
-    if (P) {
-        var promiseToString = null;
-        try {
-            promiseToString = Object.prototype.toString.call(P.resolve());
-        } catch (e) {
-            // silently ignored
-        }
-
-        if (promiseToString === '[object Promise]' && !P.cast) {
-            return;
-        }
-    }
-
-    local.Promise = Promise;
-}
-
-polyfill();
-// Strange compat..
-Promise.polyfill = polyfill;
-Promise.Promise = Promise;
-
-return Promise;
-
-})));
-//# sourceMappingURL=es6-promise.map
-
-/***/ }),
-
 /***/ 9618:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -18461,185 +17302,810 @@ exports.FetchError = FetchError;
 
 /***/ }),
 
-/***/ 5884:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-var readfiles = __nccwpck_require__(4719);
-
-module.exports = readfiles;
-
-/***/ }),
-
 /***/ 4719:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+/***/ (function() {
 
-var fs = __nccwpck_require__(7147);
-var path = __nccwpck_require__(1017);
-var Promise = (__nccwpck_require__(8878).Promise);
-
-function buildFilter(filters) {
-  var filters = (filters instanceof Array) ? filters.slice() : [filters];
-  var filterArray = [];
-
-  if (filters.length === 0) return null;
-
-  while(filters.length > 0) {
-    var filter = filters.shift();
-    filterArray.push('\\/?' + filter.replace(/\./g, '\\.')
-       .replace(/(\*?)(\*)(?!\*)/g, function(match, prefix) {
-          if(prefix == '*') {
-             return match;
-          }
-          return '[^\\/]*';
-       })
-       .replace(/\?/g, '[^\\/]?')
-       .replace(/\*\*/g, '\.*')
-       .replace(/([\-\+\|])/g, '\\$1')
-      );
-  }
-  return new RegExp('^' + filterArray.join('|') + '$', 'i');
-}
-
-function readfiles(dir, options, callback) {
-  if (typeof options === 'function' || options === null) {
-    callback = options;
-    options = {};
-  }
-  options = options || {};
-  callback = typeof callback === 'function' ? callback : function () {};
-
-  return new Promise(function (resolve, reject) {
-
-    var files = [];
-    var subdirs = [];
-    var filterRegExp = options.filter && buildFilter(options.filter);
-
-    (function traverseDir(dirpath, done) {
-      fs.readdir(dirpath, function (err, fileList) {
-        if (err) {
-          // if rejectOnError is not false, reject the promise
-          if (options.rejectOnError !== false) {
-            return reject(err);
-          }
-          return done(files);
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+define("src/build-filter", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.buildFilter = void 0;
+    const buildFilter = (filtersParam) => {
+        const filters = filtersParam instanceof Array ? filtersParam.slice() : [filtersParam];
+        const filterArray = [];
+        if (filters.length === 0)
+            return null;
+        while (filters.length > 0) {
+            const filter = filters.shift();
+            filterArray.push('\\/?' +
+                filter
+                    .replace(/\./g, '\\.')
+                    .replace(/(\*?)(\*)(?!\*)/g, function (match, prefix) {
+                    if (prefix == '*') {
+                        return match;
+                    }
+                    return '[^\\/]*';
+                })
+                    .replace(/\?/g, '[^\\/]?')
+                    .replace(/\*\*/g, '.*')
+                    .replace(/([\-\+\|])/g, '\\$1'));
         }
-
-        // reverse the order of the files if the reverse option is true
-        if (options.reverse === true) {
-          fileList = fileList.reverse();
+        return new RegExp('^' + filterArray.join('|') + '$', 'i');
+    };
+    exports.buildFilter = buildFilter;
+});
+define("src/build-filters.spec", ["require", "exports", "src/build-filter"], function (require, exports, build_filter_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    describe('buildFilter', () => {
+        it('creates a filter RegExp given a wildcard filter string', () => {
+            const result = (0, build_filter_1.buildFilter)('*');
+            expect(result).toEqual(/^\/?[^\/]*$/i);
+        });
+        it('creates a filter RegExp given a wildcard filter string', () => {
+            const result = (0, build_filter_1.buildFilter)('**');
+            expect(result).toEqual(/^\/?.*$/i);
+        });
+        it('creates a filter RegExp given an array of filters', () => {
+            const result = (0, build_filter_1.buildFilter)(['**/*123*', '**/abc.*']);
+            expect(result).toEqual(/^\/?.*\/[^\/]*123[^\/]*|\/?.*\/abc\.[^\/]*$/i);
+        });
+    });
+});
+define("src/consts", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.FilenameFormat = void 0;
+    var FilenameFormat;
+    (function (FilenameFormat) {
+        FilenameFormat[FilenameFormat["RELATIVE"] = 0] = "RELATIVE";
+        FilenameFormat[FilenameFormat["FULL_PATH"] = 1] = "FULL_PATH";
+        FilenameFormat[FilenameFormat["FILENAME"] = 2] = "FILENAME";
+    })(FilenameFormat = exports.FilenameFormat || (exports.FilenameFormat = {}));
+});
+define("src/readfiles", ["require", "exports", "fs", "path", "src/build-filter", "src/consts"], function (require, exports, fs, path, build_filter_2, consts_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.readfiles = void 0;
+    function readfiles(dir, optionsProp, callbackProp) {
+        let callback = callbackProp;
+        let options = optionsProp;
+        if (typeof optionsProp === 'function') {
+            callback = optionsProp;
+            options = {};
         }
-
-        (function next() {
-
-          // if the file list is empty then call done
-          if (fileList.length === 0) {
-            done(files);
-            return;
-          }
-
-          var filename = fileList.shift();
-          var relFilename = path.join(subdirs.join('/'), filename);
-          var fullpath = path.join(dirpath, filename);
-
-          // skip file if it's a hidden file and the hidden option is not set
-          if (options.hidden !== true && /^\./.test(filename)) {
-            return next();
-          }
-
-          // stat the full path
-          fs.stat(fullpath, function (err, stat) {
-
-            if (err) {
-              // call callback with the error
-              var result = callback(err, relFilename, null, stat);
-
-              // if callback result is a function then call the result with next as a parameter
-              if (typeof result === 'function' && !err) {
-                return result(next);
-              }
-
-              // if rejectOnError is not false, reject the promise
-              if (options.rejectOnError !== false) {
-                return reject(err);
-              }
-
-              return next();
-            }
-
-            if (stat.isDirectory()) {
-
-              // limit the depth of the traversal if depth is defined
-              if (!isNaN(options.depth) && options.depth >= 0 && (subdirs.length + 1) > options.depth) {
-                return next();
-              }
-
-              // traverse the sub-directory
-              subdirs.push(filename);
-              traverseDir(fullpath, function () {
-                subdirs.pop();
-                next();
-              });
-
-            } else if (stat.isFile()) {
-
-              // test filters, if it does not match move to next file
-              if (filterRegExp && !filterRegExp.test('/' + relFilename)) {
-                return next();
-              }
-
-              // set the format of the output filename
-              var outputName = relFilename;
-              if (options.filenameFormat === readfiles.FULL_PATH) {
-                outputName = fullpath;
-              }else if (options.filenameFormat === readfiles.FILENAME) {
-                outputName = filename;
-              }
-              files.push(outputName);
-
-              // promise to handle file reading (if not disabled)
-              new Promise(function (resolve) {
-                if (options.readContents === false) {
-                  return resolve(null);
-                }
-                // read the file
-                fs.readFile(fullpath, options.encoding || 'utf8', function (err, content) {
-                  if (err) throw err;
-                  resolve(content);
+        options = options || {};
+        callback = typeof callback === 'function' ? callback : () => { };
+        return new Promise((resolve, reject) => {
+            const files = [];
+            const subDirs = [];
+            const filterRegExp = options.filter && (0, build_filter_2.buildFilter)(options.filter);
+            const traverseDir = (dirPath, done) => {
+                fs.readdir(dirPath, (err, fileList) => {
+                    if (err) {
+                        if (options.rejectOnError !== false) {
+                            return reject(err);
+                        }
+                        return done(files);
+                    }
+                    if (options.reverse === true) {
+                        fileList = fileList.reverse();
+                    }
+                    const next = () => {
+                        if (fileList.length === 0) {
+                            done(files);
+                            return;
+                        }
+                        const filename = fileList.shift();
+                        const relFilename = path.join(subDirs.join('/'), filename);
+                        const fullPath = path.join(dirPath, filename);
+                        if (options.hidden !== true && /^\./.test(filename)) {
+                            return next();
+                        }
+                        fs.stat(fullPath, (err, stat) => {
+                            if (err) {
+                                const result = callback(err, relFilename, null, stat);
+                                if (typeof result === 'function' && !err) {
+                                    return result(next);
+                                }
+                                if (options.rejectOnError !== false) {
+                                    return reject(err);
+                                }
+                                return next();
+                            }
+                            if (stat.isDirectory()) {
+                                if (!isNaN(options.depth) && options.depth >= 0 && subDirs.length + 1 > options.depth) {
+                                    return next();
+                                }
+                                subDirs.push(filename);
+                                traverseDir(fullPath, () => {
+                                    subDirs.pop();
+                                    next();
+                                });
+                            }
+                            else if (stat.isFile()) {
+                                if (filterRegExp && !filterRegExp.test('/' + relFilename)) {
+                                    return next();
+                                }
+                                let outputName = relFilename;
+                                if (options.filenameFormat === consts_1.FilenameFormat.FULL_PATH) {
+                                    outputName = fullPath;
+                                }
+                                else if (options.filenameFormat === consts_1.FilenameFormat.FILENAME) {
+                                    outputName = filename;
+                                }
+                                files.push(outputName);
+                                new Promise(resolve => {
+                                    var _a;
+                                    if (options.readContents === false) {
+                                        return resolve(null);
+                                    }
+                                    fs.readFile(fullPath, (_a = options === null || options === void 0 ? void 0 : options.encoding) !== null && _a !== void 0 ? _a : 'utf8', (err, content) => {
+                                        if (err)
+                                            throw err;
+                                        resolve(content);
+                                    });
+                                })
+                                    .then(content => {
+                                    const result = callback(err, outputName, content, stat);
+                                    if (typeof result === 'function' && !err) {
+                                        return result(next);
+                                    }
+                                    options.async !== true && next();
+                                })
+                                    .catch(err => {
+                                    if (options.rejectOnError !== false) {
+                                        return reject(err);
+                                    }
+                                    next();
+                                });
+                            }
+                            else {
+                                next();
+                            }
+                        });
+                    };
+                    next();
                 });
-              }).then(function (content) {
-                // call the callback with the content
-                var result = callback(err, outputName, content, stat);
-
-                // if callback result is a function then call the result with next as a parameter
-                if (typeof result === 'function' && !err) {
-                  return result(next);
-                }
-                // call the next if async is not true
-                options.async !== true && next();
-              }).catch(function (err) {
-                if (options.rejectOnError !== false) {
-                  return reject(err);
-                }
-
-                next();
-              });
-
-            } else {
-              next();
+            };
+            traverseDir(dir, resolve);
+        });
+    }
+    exports.readfiles = readfiles;
+});
+define("src/index", ["require", "exports", "src/consts", "src/readfiles", "src/readfiles"], function (require, exports, consts_2, readfiles_1, readfiles_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.default = void 0;
+    __exportStar(consts_2, exports);
+    __exportStar(readfiles_1, exports);
+    Object.defineProperty(exports, "default", { enumerable: true, get: function () { return readfiles_2.readfiles; } });
+});
+define("test/fixtures", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.badDeepPathFixture = exports.deepPathFixture = exports.flatPathFixture = void 0;
+    exports.flatPathFixture = {
+        '/path/to/dir': {
+            'abc.txt': 'ABC',
+            'def.dat': 'DEF',
+            'test123.txt': '123',
+            'test456.dat': '456',
+        },
+    };
+    exports.deepPathFixture = {
+        '/path/to/dir': {
+            '.system': 'SYSTEM',
+            'def.dat': 'DEF',
+            'abc.txt': 'ABC',
+            'abc123.txt': 'ABC123',
+            subdir: {
+                '.dot': 'DOT',
+                'test456.dat': '456',
+                'test789.txt': '789',
+                'test123.txt': '123',
+                'abc123.txt': 'ABC123',
+                subsubdir: {
+                    '.hidden': 'HIDDEN',
+                    'abc123.dat': 'ABC123',
+                    'def456.dat': '456',
+                },
+            },
+            otherdir: {
+                '.other': 'DOT',
+                'test789.txt': '789',
+                'test123.txt': '123',
+                subsubdir: {
+                    '.hidden': 'HIDDEN',
+                    'abc123.txt': 'ABC123',
+                    'def456.txt': '456',
+                },
+            },
+        },
+    };
+    exports.badDeepPathFixture = {
+        '/path/to/dir': {
+            '.system': 'SYSTEM',
+            'def.dat': 'DEF',
+            'abc.txt': 'ABC',
+            'abc123.txt': 'ABC123',
+            subdir: {
+                '.dot': 'DOT',
+                'error-file.dat': false,
+                'test456.dat': '456',
+                'test789.txt': '789',
+                'test123.txt': '123',
+                'abc123.txt': 'ABC123',
+                subsubdir: {
+                    '.hidden': 'HIDDEN',
+                    'abc123.dat': 'ABC123',
+                    'def456.dat': '456',
+                },
+            },
+            otherdir: {
+                '.other': 'DOT',
+                'error-file.dat': false,
+                'test789.txt': '789',
+                'test123.txt': '123',
+                subsubdir: {
+                    '.hidden': 'HIDDEN',
+                    'abc123.txt': 'ABC123',
+                    'def456.txt': '456',
+                },
+            },
+        },
+    };
+});
+define("test/fs-helper", ["require", "exports", "fs"], function (require, exports, fs) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.mockFs = void 0;
+    const fattenFixtures = (fixtureMap, rootPath = '') => {
+        let flatMap = {};
+        if (rootPath) {
+            flatMap[rootPath] = fixtureMap;
+        }
+        for (const path of Object.keys(fixtureMap).sort()) {
+            if (typeof fixtureMap[path] !== 'object') {
+                flatMap[`${rootPath}${path}`] = fixtureMap[path];
             }
-
-          });
-        })();
-      });
-    })(dir, resolve);
-  });
-}
-
-readfiles.RELATIVE = 0;
-readfiles.FULL_PATH = 1;
-readfiles.FILENAME = 2;
-
-module.exports = readfiles;
+            else {
+                flatMap = Object.assign({}, flatMap, fattenFixtures(fixtureMap[path], `${rootPath}${path}/`));
+            }
+        }
+        return flatMap;
+    };
+    const mockFs = (fixture) => {
+        jest.spyOn(fs, 'readdir').mockRestore();
+        jest.spyOn(fs, 'stat').mockRestore();
+        jest.spyOn(fs, 'readFile').mockRestore();
+        const pathsMap = fattenFixtures(fixture);
+        jest.spyOn(fs, 'readdir').mockImplementation((readdirPath, readdirCb) => {
+            if (!pathsMap[`${readdirPath}/`]) {
+                return readdirCb(new Error(`ENOENT, no such file or directory '${readdirPath}'`), null);
+            }
+            jest.spyOn(fs, 'stat').mockImplementation((statPath, statCb) => {
+                if (!pathsMap[statPath] && !pathsMap[`${statPath}/`]) {
+                    return statCb(new Error(`ENOENT, no such file or directory, stat '${statPath}'`), null);
+                }
+                statCb(null, {
+                    isDirectory: () => typeof pathsMap[`${statPath}/`] === 'object',
+                    isFile: () => typeof pathsMap[statPath] === 'string',
+                });
+            });
+            jest.spyOn(fs, 'readFile').mockImplementation(((readFilePath, encoding, readFileCb) => {
+                if (!pathsMap[readFilePath]) {
+                    return readFileCb(new Error(`ENOENT, no such file or directory '${readFilePath}'`), null);
+                }
+                readFileCb(null, pathsMap[readFilePath]);
+            }));
+            readdirCb(null, Object.keys(pathsMap[`${readdirPath}/`]).sort());
+        });
+    };
+    exports.mockFs = mockFs;
+});
+define("src/readfiles.spec", ["require", "exports", "src/index", "test/fixtures", "test/fs-helper", "src/consts"], function (require, exports, index_1, fixtures_1, fs_helper_1, consts_3) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    describe('readfiles', () => {
+        describe('defaults', () => {
+            let clock;
+            beforeEach(() => {
+                jest.useFakeTimers();
+                (0, fs_helper_1.mockFs)(fixtures_1.flatPathFixture);
+            });
+            it('should return the list of files and their contents', done => {
+                const files = ['abc.txt', 'def.dat', 'test123.txt', 'test456.dat'];
+                const contents = ['ABC', 'DEF', '123', '456'];
+                (0, index_1.default)('/path/to/dir', (err, filename, content) => {
+                    expect(filename).toEqual(files.shift());
+                    expect(content).toEqual(contents.shift());
+                    if (files.length === 0)
+                        done();
+                }).catch(err => {
+                    done(err);
+                });
+            });
+            it('should throw an error on a file', done => {
+                (0, fs_helper_1.mockFs)({
+                    '/path/to/dir': {
+                        'badfile.txt': false,
+                    },
+                });
+                (0, index_1.default)('/path/to/dir', (err, filename, content) => {
+                    expect(content).toBeNull();
+                    expect(err.message).toEqual("ENOENT, no such file or directory, stat '/path/to/dir/badfile.txt'");
+                }).catch(err => {
+                    expect(err.message).toEqual("ENOENT, no such file or directory, stat '/path/to/dir/badfile.txt'");
+                    done();
+                });
+            });
+            it('should resolve the promise when finished traversing all files', done => {
+                (0, index_1.default)('/path/to/dir')
+                    .then(files => {
+                    expect(files).toHaveLength(4);
+                    done();
+                })
+                    .catch(function (err) {
+                    done(err);
+                });
+            });
+            it('should call the done callback with an error on a path', function (done) {
+                (0, fs_helper_1.mockFs)({});
+                (0, index_1.default)('/fake/invalid/dir').catch(function (err) {
+                    expect(err.message).toEqual("ENOENT, no such file or directory '/fake/invalid/dir'");
+                    done();
+                });
+            });
+            it('should wait for an asynchronous callback when returning a function', function (done) {
+                let count = 0;
+                const expectFiles = ['abc.txt', 'def.dat', 'test123.txt', 'test456.dat'];
+                (0, index_1.default)('/path/to/dir', function (err, filename) {
+                    return function (next) {
+                        expect(filename).toEqual(expectFiles[count++]);
+                        setTimeout(function () {
+                            next();
+                        }, 1000);
+                        jest.advanceTimersToNextTimer();
+                    };
+                })
+                    .then(function (files) {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(function (err) {
+                    done(err);
+                });
+            });
+        });
+        describe('options', () => {
+            beforeEach(() => {
+                (0, fs_helper_1.mockFs)(fixtures_1.deepPathFixture);
+            });
+            it("callback returns the list of files in reverse order when 'reverse' is true", done => {
+                (0, index_1.default)('/path/to/dir', { reverse: true })
+                    .then(files => {
+                    expect(files).toEqual([
+                        'subdir/test789.txt',
+                        'subdir/test456.dat',
+                        'subdir/test123.txt',
+                        'subdir/subsubdir/def456.dat',
+                        'subdir/subsubdir/abc123.dat',
+                        'subdir/abc123.txt',
+                        'otherdir/test789.txt',
+                        'otherdir/test123.txt',
+                        'otherdir/subsubdir/def456.txt',
+                        'otherdir/subsubdir/abc123.txt',
+                        'def.dat',
+                        'abc123.txt',
+                        'abc.txt',
+                    ]);
+                    done();
+                })
+                    .catch(function (err) {
+                    done(err);
+                });
+            });
+            it("callback returns the full path of the files when 'filenameFormat' is 'readfiles.FULL_PATH'", done => {
+                let count = 0;
+                const expectFiles = [
+                    '/path/to/dir/abc.txt',
+                    '/path/to/dir/abc123.txt',
+                    '/path/to/dir/def.dat',
+                    '/path/to/dir/otherdir/subsubdir/abc123.txt',
+                    '/path/to/dir/otherdir/subsubdir/def456.txt',
+                    '/path/to/dir/otherdir/test123.txt',
+                    '/path/to/dir/otherdir/test789.txt',
+                    '/path/to/dir/subdir/abc123.txt',
+                    '/path/to/dir/subdir/subsubdir/abc123.dat',
+                    '/path/to/dir/subdir/subsubdir/def456.dat',
+                    '/path/to/dir/subdir/test123.txt',
+                    '/path/to/dir/subdir/test456.dat',
+                    '/path/to/dir/subdir/test789.txt',
+                ];
+                (0, index_1.default)('/path/to/dir', { filenameFormat: consts_3.FilenameFormat.FULL_PATH }, (err, filename) => {
+                    expect(filename).toEqual(expectFiles[count++]);
+                })
+                    .then(files => {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(err => {
+                    done(err);
+                });
+            });
+            it("callback returns the relative path of the files when 'filenameFormat' is 'readfiles.RELATIVE'", done => {
+                let count = 0;
+                const expectFiles = [
+                    'abc.txt',
+                    'abc123.txt',
+                    'def.dat',
+                    'otherdir/subsubdir/abc123.txt',
+                    'otherdir/subsubdir/def456.txt',
+                    'otherdir/test123.txt',
+                    'otherdir/test789.txt',
+                    'subdir/abc123.txt',
+                    'subdir/subsubdir/abc123.dat',
+                    'subdir/subsubdir/def456.dat',
+                    'subdir/test123.txt',
+                    'subdir/test456.dat',
+                    'subdir/test789.txt',
+                ];
+                (0, index_1.default)('/path/to/dir', { filenameFormat: consts_3.FilenameFormat.RELATIVE }, (err, filename) => {
+                    expect(expectFiles).toContain(filename);
+                })
+                    .then(files => {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(err => {
+                    done(err);
+                });
+            });
+            it("callback returns only the filename of the file when 'filenameFormat' is 'readfiles.FILENAME'", done => {
+                let count = 0;
+                const expectFiles = [
+                    'abc.txt',
+                    'abc123.txt',
+                    'def.dat',
+                    'abc123.txt',
+                    'def456.txt',
+                    'test123.txt',
+                    'test789.txt',
+                    'abc123.txt',
+                    'abc123.dat',
+                    'def456.dat',
+                    'test123.txt',
+                    'test456.dat',
+                    'test789.txt',
+                ];
+                (0, index_1.default)('/path/to/dir', { filenameFormat: consts_3.FilenameFormat.FILENAME }, (err, filename) => {
+                    expect(expectFiles).toContain(filename);
+                })
+                    .then(files => {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(err => {
+                    done(err);
+                });
+            });
+            it("does not stop reading files when one file throws an error and 'rejectOnError' is false", done => {
+                let fileCount = 0;
+                (0, fs_helper_1.mockFs)(fixtures_1.badDeepPathFixture);
+                (0, index_1.default)('/path/to/dir', { rejectOnError: false }, err => {
+                    fileCount++;
+                })
+                    .then(files => {
+                    expect(fileCount).toEqual(15);
+                    expect(files.length).toEqual(13);
+                    done();
+                })
+                    .catch(err => {
+                    done(err);
+                });
+            });
+            it("callback does not return the file contents when 'readContents' is false", done => {
+                let fileCount = 0;
+                (0, index_1.default)('/path/to/dir', { readContents: false }, (err, filename, contents) => {
+                    expect(contents).toBeNull();
+                    fileCount++;
+                })
+                    .then(files => {
+                    expect(fileCount).toEqual(13);
+                    expect(files.length).toEqual(13);
+                    done();
+                })
+                    .catch(err => {
+                    done(err);
+                });
+            });
+            it("callback returns file contents encoded in the specified 'encoding' type", done => {
+                const expectFiles = {
+                    'abc.txt': 'ABC',
+                    'abc123.txt': 'ABC123',
+                    'def.dat': 'DEF',
+                    'otherdir/subsubdir/abc123.txt': 'ABC123',
+                    'otherdir/subsubdir/def456.txt': '456',
+                    'otherdir/symlink.dat': '123',
+                    'otherdir/test123.txt': '123',
+                    'otherdir/test789.txt': '789',
+                    'subdir/abc123.txt': 'ABC123',
+                    'subdir/subsubdir/abc123.dat': 'ABC123',
+                    'subdir/subsubdir/def456.dat': '456',
+                    'subdir/test123.txt': '123',
+                    'subdir/test456.dat': '456',
+                    'subdir/test789.txt': '789',
+                };
+                (0, index_1.default)('/path/to/dir', { encoding: null }, (err, filename, contents) => {
+                    expect(contents).toEqual(expectFiles[filename]);
+                })
+                    .then(files => {
+                    expect(files.length).toEqual(13);
+                    done();
+                })
+                    .catch(err => {
+                    done(err);
+                });
+            });
+            it("traverses the directory tree limiting to specified 'depth'", done => {
+                let count = 0;
+                const expectFiles = [
+                    'abc.txt',
+                    'abc123.txt',
+                    'def.dat',
+                    'otherdir/test123.txt',
+                    'otherdir/test789.txt',
+                    'subdir/abc123.txt',
+                    'subdir/test123.txt',
+                    'subdir/test456.dat',
+                    'subdir/test789.txt',
+                ];
+                (0, index_1.default)('/path/to/dir', { depth: 1 }, (err, filename) => {
+                    expect(filename).toEqual(expectFiles[count++]);
+                })
+                    .then(files => {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(err => {
+                    done(err);
+                });
+            });
+            it("callback returns all files including hidden files when 'hidden' is true", done => {
+                let count = 0;
+                const expectFiles = [
+                    '.system',
+                    'abc.txt',
+                    'abc123.txt',
+                    'def.dat',
+                    'otherdir/.other',
+                    'otherdir/subsubdir/.hidden',
+                    'otherdir/subsubdir/abc123.txt',
+                    'otherdir/subsubdir/def456.txt',
+                    'otherdir/test123.txt',
+                    'otherdir/test789.txt',
+                    'subdir/.dot',
+                    'subdir/abc123.txt',
+                    'subdir/subsubdir/.hidden',
+                    'subdir/subsubdir/abc123.dat',
+                    'subdir/subsubdir/def456.dat',
+                    'subdir/test123.txt',
+                    'subdir/test456.dat',
+                    'subdir/test789.txt',
+                ];
+                (0, index_1.default)('/path/to/dir', { hidden: true }, (err, filename) => {
+                    expect(filename).toEqual(expectFiles[count++]);
+                })
+                    .then(files => {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(err => {
+                    done(err);
+                });
+            });
+        });
+        describe('filters', function () {
+            it("callback returns all files in the given directory when the 'filter' option is equal  '*'", function (done) {
+                const expectFiles = ['abc.txt', 'abc123.txt', 'def.dat'];
+                (0, index_1.default)('/path/to/dir', {
+                    filter: '*',
+                })
+                    .then(function (files) {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(function (err) {
+                    done(err);
+                });
+            });
+            it("callback returns all files in the given directory recursively when the 'filter' option is equal '**'", function (done) {
+                const expectFiles = [
+                    'abc.txt',
+                    'abc123.txt',
+                    'def.dat',
+                    'otherdir/subsubdir/abc123.txt',
+                    'otherdir/subsubdir/def456.txt',
+                    'otherdir/test123.txt',
+                    'otherdir/test789.txt',
+                    'subdir/abc123.txt',
+                    'subdir/subsubdir/abc123.dat',
+                    'subdir/subsubdir/def456.dat',
+                    'subdir/test123.txt',
+                    'subdir/test456.dat',
+                    'subdir/test789.txt',
+                ];
+                (0, index_1.default)('/path/to/dir', {
+                    filter: '**',
+                })
+                    .then(function (files) {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(function (err) {
+                    done(err);
+                });
+            });
+            it("callback returns all \"txt\" files in the given directory when the 'filter' option is equal '*.txt'", function (done) {
+                const expectFiles = ['abc.txt', 'abc123.txt'];
+                (0, index_1.default)('/path/to/dir', {
+                    filter: '*.txt',
+                })
+                    .then(function (files) {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(function (err) {
+                    done(err);
+                });
+            });
+            it("callback returns all \"txt\" files in the given directory recursively when the 'filter' option is equal '**/*.txt'", function (done) {
+                const expectFiles = [
+                    'abc.txt',
+                    'abc123.txt',
+                    'otherdir/subsubdir/abc123.txt',
+                    'otherdir/subsubdir/def456.txt',
+                    'otherdir/test123.txt',
+                    'otherdir/test789.txt',
+                    'subdir/abc123.txt',
+                    'subdir/test123.txt',
+                    'subdir/test789.txt',
+                ];
+                (0, index_1.default)('/path/to/dir', {
+                    filter: '**/*.txt',
+                })
+                    .then(function (files) {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(function (err) {
+                    done(err);
+                });
+            });
+            it("callback returns all files that match \"abc.txt\" in the given directory recursively when the 'filter' option is equal '**/abc123.txt'", function (done) {
+                const expectFiles = ['abc123.txt', 'otherdir/subsubdir/abc123.txt', 'subdir/abc123.txt'];
+                (0, index_1.default)('/path/to/dir', {
+                    filter: '**/abc123.txt',
+                })
+                    .then(function (files) {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(function (err) {
+                    done(err);
+                });
+            });
+            it("callback returns all files that match \"abc123.txt\" in the given directory when the 'filter' option is equal 'abc123.txt'", function (done) {
+                const expectFiles = ['abc123.txt'];
+                (0, index_1.default)('/path/to/dir', {
+                    filter: 'abc123.txt',
+                })
+                    .then(function (files) {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(function (err) {
+                    done(err);
+                });
+            });
+            it("callback returns all files in all sub-directory of the given directory when the 'filter' option is equal '*/*'", function (done) {
+                const expectFiles = [
+                    'abc.txt',
+                    'abc123.txt',
+                    'def.dat',
+                    'otherdir/test123.txt',
+                    'otherdir/test789.txt',
+                    'subdir/abc123.txt',
+                    'subdir/test123.txt',
+                    'subdir/test456.dat',
+                    'subdir/test789.txt',
+                ];
+                (0, index_1.default)('/path/to/dir', {
+                    filter: '*/*',
+                })
+                    .then(function (files) {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(function (err) {
+                    done(err);
+                });
+            });
+            it("callback returns all files where the extension matches \"t?t\" in the given directory when the 'filter' option is equal '*.??t'", function (done) {
+                const expectFiles = ['abc.txt', 'abc123.txt'];
+                (0, index_1.default)('/path/to/dir', {
+                    filter: '*.t?t',
+                })
+                    .then(function (files) {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(function (err) {
+                    done(err);
+                });
+            });
+            it("callback returns all files where the extension matches \"t?t\" in the given directory recursively when the 'filter' option is equal '**/*.??t'", function (done) {
+                const expectFiles = [
+                    'abc.txt',
+                    'abc123.txt',
+                    'otherdir/subsubdir/abc123.txt',
+                    'otherdir/subsubdir/def456.txt',
+                    'otherdir/test123.txt',
+                    'otherdir/test789.txt',
+                    'subdir/abc123.txt',
+                    'subdir/test123.txt',
+                    'subdir/test789.txt',
+                ];
+                (0, index_1.default)('/path/to/dir', {
+                    filter: '**/*.t??',
+                })
+                    .then(function (files) {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(function (err) {
+                    done(err);
+                });
+            });
+            it("callback returns all files that match the array of filters in the given directory when the 'filter' option is equal ['*123*', 'abc.*'] ", function (done) {
+                const expectFiles = [
+                    'abc.txt',
+                    'abc123.txt',
+                    'otherdir/subsubdir/abc123.txt',
+                    'otherdir/test123.txt',
+                    'subdir/abc123.txt',
+                    'subdir/subsubdir/abc123.dat',
+                    'subdir/test123.txt',
+                ];
+                (0, index_1.default)('/path/to/dir', {
+                    filter: ['**/*123*', '**/abc.*'],
+                })
+                    .then(function (files) {
+                    expect(files).toEqual(expectFiles);
+                    done();
+                })
+                    .catch(function (err) {
+                    done(err);
+                });
+            });
+        });
+    });
+});
+//# sourceMappingURL=readfiles.js.map
 
 /***/ }),
 
@@ -22022,7 +21488,7 @@ module.exports = Git
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const fs = __nccwpck_require__(5630)
-const readfiles = __nccwpck_require__(5884)
+const readfiles = __nccwpck_require__(4719)
 const { exec } = __nccwpck_require__(2081)
 const core = __nccwpck_require__(2186)
 const path = __nccwpck_require__(1017)
