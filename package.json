@@ -34,7 +34,7 @@
     "action-input-parser": "^1.2.33",
     "fs-extra": "^10.1.0",
     "js-yaml": "^4.1.0",
-    "node-readfiles": "^0.3.0"
+    "node-readfiles": "0.2.0"
   },
   "devDependencies": {
     "@betahuhn/config": "^1.2.0",
