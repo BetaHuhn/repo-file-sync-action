@@ -1,3 +1,12 @@
+## [v1.17.20] - 2022-08-13
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.20) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.19...v1.17.20) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.20) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.20.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.20.tar.gz))
+
+### Bug fixes
+
+- [`b598643`](https://github.com/betahuhn/repo-file-sync-action/commit/b598643)  Fix SKIP_PR option for runs with installation token (#232)
+(Issues: [`#232`](https://github.com/betahuhn/repo-file-sync-action/issues/232) [`#153`](https://github.com/betahuhn/repo-file-sync-action/issues/153))
+
 ## [v1.17.19] - 2022-06-07
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.19) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.18...v1.17.19) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.19) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.19.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.19.tar.gz))
