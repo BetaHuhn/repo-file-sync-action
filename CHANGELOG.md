@@ -1,3 +1,12 @@
+## [v1.17.21] - 2022-08-24
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.21) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.20...v1.17.21) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.21) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.21.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.21.tar.gz))
+
+### Bug fixes
+
+- [`ca2043b`](https://github.com/betahuhn/repo-file-sync-action/commit/ca2043b)  Don&#x27;t crash while trying to parse a diff for binary files, fix #128 (#242)
+(Issues: [`#128`](https://github.com/betahuhn/repo-file-sync-action/issues/128) [`#242`](https://github.com/betahuhn/repo-file-sync-action/issues/242))
+
 ## [v1.17.20] - 2022-08-13
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.17.20) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.17.19...v1.17.20) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.17.20) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.20.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.17.20.tar.gz))
