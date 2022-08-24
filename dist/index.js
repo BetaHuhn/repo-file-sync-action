@@ -21657,6 +21657,8 @@ class Git {
 		return `\n${ string }`.split('\ndiff --git').slice(1).reduce((resultDict, fileDiff) => {
 			const lines = fileDiff.split('\n')
 			const lastHeaderLineIndex = lines.findIndex((line) => line.startsWith('+++'))
+			if (lastHeaderLineIndex === -1) return resultDict // ignore binary files
+
 			const plainDiff = lines.slice(lastHeaderLineIndex + 1).join('\n').trim()
 			let filePath = ''
 			if (lines[lastHeaderLineIndex].startsWith('+++ b/')) { // every file except removed files
