@@ -57,8 +57,9 @@ class Git {
 		this.repo = repo
 		this.workingDir = path.join(TMP_DIR, repo.uniqueName)
 		this.gitUrl = `https://${ IS_INSTALLATION_TOKEN ? 'x-access-token:' : '' }${ GITHUB_TOKEN }@${ repo.fullName }.git`
-
+		core.info(`gitUrl		: ${this.gitUrl}`)
 		await this.clone()
+		core.info(`cloned`)
 		await this.setIdentity()
 		await this.getBaseBranch()
 		await this.getLastCommitSha()
@@ -87,11 +88,12 @@ class Git {
 	}
 
 	async clone() {
-		core.debug(`Cloning ${ this.repo.fullName } into ${ this.workingDir }`)
-
+		core.info(`Cloning ${ this.repo.fullName } into ${ this.workingDir }`)
+		core.info(`git clone --depth 1 ${ this.repo.branch !== 'default' ? '--branch "' + this.repo.branch + '"' : '' } ${ this.gitUrl } ${ this.workingDir }`)
 		return execCmd(
 			`git clone --depth 1 ${ this.repo.branch !== 'default' ? '--branch "' + this.repo.branch + '"' : '' } ${ this.gitUrl } ${ this.workingDir }`
 		)
+
 	}
 
 	async setIdentity() {
