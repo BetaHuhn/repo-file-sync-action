@@ -31,13 +31,14 @@ const run = async () => {
 	const prUrls = []
 
 	await forEach(repos, async (item) => {
-		core.info(`Repository Info`)
+		core.info(`Repository Info2`)
 		core.info(`Slug		: ${ item.repo.name }`)
 		core.info(`Owner		: ${ item.repo.user }`)
 		core.info(`Https Url	: https://${ item.repo.fullName }`)
 		core.info(`Branch		: ${ item.repo.branch }`)
 		core.info('	')
 		try {
+			core.info('calling now')
 
 			// Clone and setup the git repository locally
 			await git.initRepo(item.repo)
