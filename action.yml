@@ -98,7 +98,7 @@ outputs:
     description: 'The URLs to the created Pull Requests as an array'
 
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
 
 branding:
