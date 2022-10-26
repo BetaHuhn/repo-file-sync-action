@@ -82,19 +82,19 @@ More info on how to specify what files to sync where [below](#%EF%B8%8F-sync-con
 
 ### Versioning
 
-To always use the latest version of the action add the `latest` tag to the action name like this:
+To always use the latest version of the action add the `master` tag to the action name like this:
 
 ```yml
-uses: BetaHuhn/repo-file-sync-action@latest
+uses: BetaHuhn/repo-file-sync-action@master
 ```
 
-If you want to make sure that your workflow doesn't suddenly break when a new major version is released, use the `v1` tag instead (recommended usage):
+If you want to make sure that your workflow doesn't suddenly break when a new major version is released, use a specific version `v1` tag instead (recommended usage):
 
 ```yml
 uses: BetaHuhn/repo-file-sync-action@v1
 ```
 
-With the `v1` tag you will always get the latest non-breaking version which will include potential bug fixes in the future. If you use a specific version, make sure to regularly check if a new version is available, or enable Dependabot.
+If you use a specific version, make sure to regularly check if a new version is available, or enable Dependabot.
 
 ## ⚙️ Action Inputs
 
