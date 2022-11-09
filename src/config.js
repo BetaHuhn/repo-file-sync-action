@@ -40,6 +40,10 @@ try {
 			key: 'CONFIG_PATH',
 			default: '.github/sync.yml'
 		}),
+		IS_FINE_GRAINED: getInput({
+			key: 'IS_FINE_GRAINED',
+			default: false
+		}),
 		COMMIT_BODY: getInput({
 			key: 'COMMIT_BODY',
 			default: ''
