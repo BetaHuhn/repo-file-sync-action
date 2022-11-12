@@ -73,9 +73,7 @@ const run = async () => {
 
 				if (isDirectory) core.info(`Source is directory`)
 
-				const deleteOrphaned = isDirectory && file.deleteOrphaned
-
-				await copy(source, dest, deleteOrphaned, file.exclude)
+				await copy(source, dest, isDirectory, file)
 
 				await git.add(file.dest)
 

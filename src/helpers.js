@@ -3,6 +3,9 @@ const readfiles = require('node-readfiles')
 const { exec } = require('child_process')
 const core = require('@actions/core')
 const path = require('path')
+const nunjucks = require('nunjucks')
+
+nunjucks.configure({ autoescape: true, trimBlocks: true, lstripBlocks: true })
 
 // From https://github.com/toniov/p-iteration/blob/master/lib/static-methods.js - MIT © Antonio V
 const forEach = async (array, callback) => {
@@ -63,13 +66,19 @@ const pathIsDirectory = async (path) => {
 	return stat.isDirectory()
 }
 
-const copy = async (src, dest, deleteOrphaned, exclude) => {
+const write = async (src, dest, context) => {
+	if (typeof context !== 'object') {
+		context = {}
+	}
+	const content = nunjucks.render(src, context)
+	await fs.outputFile(dest, content)
+}
 
-	core.debug(`CP: ${ src } TO ${ dest }`)
+const copy = async (src, dest, isDirectory, file) => {
+	const deleteOrphaned = isDirectory && file.deleteOrphaned
 
 	const filterFunc = (file) => {
-
-		if (exclude !== undefined && exclude.includes(file)) {
+		if (file.exclude !== undefined && file.exclude.includes(file)) {
 			core.debug(`Excluding file ${ file }`)
 			return false
 		}
@@ -77,7 +86,28 @@ const copy = async (src, dest, deleteOrphaned, exclude) => {
 		return true
 	}
 
-	await fs.copy(src, dest, exclude !== undefined && { filter: filterFunc })
+	if (file.template) {
+		if (isDirectory) {
+			core.debug(`Render all files in directory ${ src } to ${ dest }`)
+
+			const srcFileList = await readfiles(src, { readContents: false, hidden: true })
+			for (const file of srcFileList) {
+				if (!filterFunc(file)) { continue }
+
+				const srcPath = path.join(src, file)
+				const destPath = path.join(dest, file)
+				await write(srcPath, destPath, file.template)
+			}
+		} else {
+			core.debug(`Render file ${ src } to ${ dest }`)
+
+			await write(src, dest, file.template)
+		}
+	} else {
+		core.debug(`Copy ${ src } to ${ dest }`)
+		await fs.copy(src, dest, file.exclude !== undefined && { filter: filterFunc })
+	}
+
 
 	// If it is a directory and deleteOrphaned is enabled - check if there are any files that were removed from source dir and remove them in destination dir
 	if (deleteOrphaned) {
