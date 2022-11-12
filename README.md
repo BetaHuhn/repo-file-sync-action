@@ -202,6 +202,29 @@ user/repo:
     replace: false
 ```
 
+### Render Jinja-style templates
+
+If a file contains [Jinja](https://jinja.palletsprojects.com/)-style template syntax, it can be compiled using [Nunjucks](https://mozilla.github.io/nunjucks/) and the output written to the specific folders. Supports variables and blocks among other things. To enable, set the `template` field to a context dictionary, or in case of no variables, `true`:
+
+```yml
+user/repo:
+  - source: .github/workflows/child.yml
+    template:
+      a:
+        b: 'val'
+```
+
+In the source file, you can use `extends` with a relative path and variables as defined in the context. Additional [template syntax](https://mozilla.github.io/nunjucks/templating.html) will _most likely_ work too.
+
+```yml
+# child.yml
+{% extends './parent.yml' %}
+
+{% block some_block %}
+{{ a.b }}
+{% endblock %}
+```
+
 ### Delete orphaned files
 
 With the `deleteOrphaned` option you can choose to delete files in the target repository if they are deleted in the source repository. The option defaults to `false` and only works when [syncing entire directories](#sync-entire-directories):
