@@ -69,11 +69,32 @@ const copy = async (src, dest, deleteOrphaned, exclude) => {
 
 	const filterFunc = (file) => {
 
-		if (exclude !== undefined && exclude.includes(file)) {
-			core.debug(`Excluding file ${ file }`)
-			return false
-		}
 
+        if(exclude !== undefined){
+           
+            //Check if file-path is one of the present filepaths in the excluded paths
+            //This has presedence over the single file, and therefore returns before the single file check
+            const file_path = ''
+            if (file.endsWith('/')) {
+                //File item is a folder
+                file_path = file
+            } else {
+                //File item is a file
+                file_path = file.split('\/').slice(0,-1).join('/')+'/'
+            }
+            
+            if (exclude.includes(path_to_file)) {
+			    core.debug(`::::::MAIKEN:::::: Excluding file ${ file } since its path is included as one of the excluded paths.`)
+                return false
+            }
+                
+                
+            //Or if the file itself is in the excluded files
+		    if (exclude.includes(file)) {
+			    core.debug(`:::::::MAIKEN::::::: Excluding file ${ file }`)
+			    return false
+		    }
+        }
 		return true
 	}
 
@@ -91,7 +112,7 @@ const copy = async (src, dest, deleteOrphaned, exclude) => {
 				core.debug(`Found a orphaned file in the target repo - ${ filePath }`)
 
 				if (exclude !== undefined && exclude.includes(path.join(src, file))) {
-					core.debug(`Excluding file ${ file }`)
+					core.debug(`::::::MAIKEN::::: - deleteOrphaned ::::: Excluding file ${ file }`)
 				} else {
 					core.debug(`Removing file ${ file }`)
 					await fs.remove(filePath)

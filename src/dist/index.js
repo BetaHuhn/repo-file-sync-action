@@ -1,14 +1,14 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 827:
+/***/ 368:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const core = __nccwpck_require__(105)
-const yaml = __nccwpck_require__(982)
-const fs = __nccwpck_require__(653)
+const core = __nccwpck_require__(450)
+const yaml = __nccwpck_require__(753)
+const fs = __nccwpck_require__(503)
 const path = __nccwpck_require__(17)
-const { getInput } = __nccwpck_require__(340)
+const { getInput } = __nccwpck_require__(150)
 
 const REPLACE_DEFAULT = true
 const DELETE_ORPHANED_DEFAULT = false
@@ -261,14 +261,14 @@ module.exports = {
 
 /***/ }),
 
-/***/ 940:
+/***/ 70:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const { parse } = __nccwpck_require__(125)
-const core = __nccwpck_require__(105)
-const github = __nccwpck_require__(82)
-const { GitHub, getOctokitOptions } = __nccwpck_require__(35)
-const { throttling } = __nccwpck_require__(123)
+const { parse } = __nccwpck_require__(663)
+const core = __nccwpck_require__(450)
+const github = __nccwpck_require__(177)
+const { GitHub, getOctokitOptions } = __nccwpck_require__(396)
+const { throttling } = __nccwpck_require__(462)
 const path = __nccwpck_require__(17)
 const fs = __nccwpck_require__(147)
 
@@ -286,9 +286,9 @@ const {
 	PR_BODY,
 	BRANCH_PREFIX,
 	FORK
-} = __nccwpck_require__(827)
+} = __nccwpck_require__(368)
 
-const { dedent, execCmd } = __nccwpck_require__(146)
+const { dedent, execCmd } = __nccwpck_require__(706)
 
 class Git {
 	constructor() {
@@ -792,13 +792,13 @@ module.exports = Git
 
 /***/ }),
 
-/***/ 146:
+/***/ 706:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const fs = __nccwpck_require__(653)
-const readfiles = __nccwpck_require__(782)
+const fs = __nccwpck_require__(503)
+const readfiles = __nccwpck_require__(686)
 const { exec } = __nccwpck_require__(81)
-const core = __nccwpck_require__(105)
+const core = __nccwpck_require__(450)
 const path = __nccwpck_require__(17)
 
 // From https://github.com/toniov/p-iteration/blob/master/lib/static-methods.js - MIT © Antonio V
@@ -942,7 +942,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 105:
+/***/ 450:
 /***/ ((module) => {
 
 module.exports = eval("require")("@actions/core");
@@ -950,7 +950,7 @@ module.exports = eval("require")("@actions/core");
 
 /***/ }),
 
-/***/ 82:
+/***/ 177:
 /***/ ((module) => {
 
 module.exports = eval("require")("@actions/github");
@@ -958,7 +958,7 @@ module.exports = eval("require")("@actions/github");
 
 /***/ }),
 
-/***/ 35:
+/***/ 396:
 /***/ ((module) => {
 
 module.exports = eval("require")("@actions/github/lib/utils");
@@ -966,7 +966,7 @@ module.exports = eval("require")("@actions/github/lib/utils");
 
 /***/ }),
 
-/***/ 123:
+/***/ 462:
 /***/ ((module) => {
 
 module.exports = eval("require")("@octokit/plugin-throttling");
@@ -974,7 +974,7 @@ module.exports = eval("require")("@octokit/plugin-throttling");
 
 /***/ }),
 
-/***/ 125:
+/***/ 663:
 /***/ ((module) => {
 
 module.exports = eval("require")("@putout/git-status-porcelain");
@@ -982,7 +982,7 @@ module.exports = eval("require")("@putout/git-status-porcelain");
 
 /***/ }),
 
-/***/ 340:
+/***/ 150:
 /***/ ((module) => {
 
 module.exports = eval("require")("action-input-parser");
@@ -990,7 +990,7 @@ module.exports = eval("require")("action-input-parser");
 
 /***/ }),
 
-/***/ 653:
+/***/ 503:
 /***/ ((module) => {
 
 module.exports = eval("require")("fs-extra");
@@ -998,7 +998,7 @@ module.exports = eval("require")("fs-extra");
 
 /***/ }),
 
-/***/ 982:
+/***/ 753:
 /***/ ((module) => {
 
 module.exports = eval("require")("js-yaml");
@@ -1006,7 +1006,7 @@ module.exports = eval("require")("js-yaml");
 
 /***/ }),
 
-/***/ 782:
+/***/ 686:
 /***/ ((module) => {
 
 module.exports = eval("require")("node-readfiles");
@@ -1079,11 +1079,11 @@ module.exports = require("path");
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-const core = __nccwpck_require__(105)
+const core = __nccwpck_require__(450)
 const fs = __nccwpck_require__(147)
 
-const Git = __nccwpck_require__(940)
-const { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove, arrayEquals } = __nccwpck_require__(146)
+const Git = __nccwpck_require__(70)
+const { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove, arrayEquals } = __nccwpck_require__(706)
 
 const {
 	parseConfig,
@@ -1101,7 +1101,7 @@ const {
 	FORK,
 	REVIEWERS,
 	TEAM_REVIEWERS
-} = __nccwpck_require__(827)
+} = __nccwpck_require__(368)
 
 const run = async () => {
 	// Reuse octokit for each repo
