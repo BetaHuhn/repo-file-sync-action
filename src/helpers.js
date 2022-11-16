@@ -69,11 +69,32 @@ const copy = async (src, dest, deleteOrphaned, exclude) => {
 
 	const filterFunc = (file) => {
 
-		if (exclude !== undefined && exclude.includes(file)) {
-			core.debug(`Excluding file ${ file }`)
-			return false
-		}
 
+        if(exclude !== undefined){
+           
+            //Check if file-path is one of the present filepaths in the excluded paths
+            //This has presedence over the single file, and therefore returns before the single file check
+            let file_path = ''
+            if (file.endsWith('/')) {
+                //File item is a folder
+                file_path = file
+            } else {
+                //File item is a file
+                file_path = file.split('\/').slice(0,-1).join('/')+'/'
+            }
+            
+            if (exclude.includes(file_path)) {
+			    core.debug(`Excluding file ${ file } since its path is included as one of the excluded paths.`)
+                return false
+            }
+                
+                
+            //Or if the file itself is in the excluded files
+		    if (exclude.includes(file)) {
+			    core.debug(`Excluding file ${ file } since it is explicitly added in the exclusion list.`)
+			    return false
+		    }
+        }
 		return true
 	}
 
