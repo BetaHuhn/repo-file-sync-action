@@ -20,6 +20,7 @@ With [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) 
 - Create a pull request in the target repo so you have the last say on what gets merged
 - Automatically label pull requests to integrate with other actions like [automerge-action](https://github.com/pascalgn/automerge-action)
 - Assign users to the pull request
+- Render [Jinja](https://jinja.palletsprojects.com/)-style templates as use variables thanks to [Nunjucks](https://mozilla.github.io/nunjucks/)
 
 ## 📚 Usage
 
@@ -202,26 +203,51 @@ user/repo:
     replace: false
 ```
 
-### Render Jinja-style templates
+### Using templates
 
-If a file contains [Jinja](https://jinja.palletsprojects.com/)-style template syntax, it can be compiled using [Nunjucks](https://mozilla.github.io/nunjucks/) and the output written to the specific folders. Supports variables and blocks among other things. To enable, set the `template` field to a context dictionary, or in case of no variables, `true`:
+You can render templates before syncing by using the [Jinja](https://jinja.palletsprojects.com/)-style template syntax. It will be compiled using [Nunjucks](https://mozilla.github.io/nunjucks/) and the output written to the specific file(s) or folder(s).
+
+Nunjucks supports variables and blocks among other things. To enable, set the `template` field to a context dictionary, or in case of no variables, `true`:
+
+```yml
+user/repo:
+  - source: src/README.md
+    template:
+      user:
+        name: 'Maxi'
+        handle: '@BetaHuhn'
+```
+
+In the source file you can then use these variables like this:
+
+```yml
+# README.md
+
+Created by {{ user.name }} ({{ user.handle }})
+```
+
+Result:
+
+```yml
+# README.md
+
+Created by Maxi (@BetaHuhn)
+```
+
+You can also use `extends` with a relative path to inherit other templates. Take a look at Nunjucks [template syntax](https://mozilla.github.io/nunjucks/templating.html) for more info.
 
 ```yml
 user/repo:
   - source: .github/workflows/child.yml
-    template:
-      a:
-        b: 'val'
+    template: true
 ```
-
-In the source file, you can use `extends` with a relative path and variables as defined in the context. Additional [template syntax](https://mozilla.github.io/nunjucks/templating.html) will _most likely_ work too.
 
 ```yml
 # child.yml
 {% extends './parent.yml' %}
 
 {% block some_block %}
-{{ a.b }}
+This is some content
 {% endblock %}
 ```
 
