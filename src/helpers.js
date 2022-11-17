@@ -91,11 +91,11 @@ const copy = async (src, dest, isDirectory, file) => {
 			core.debug(`Render all files in directory ${ src } to ${ dest }`)
 
 			const srcFileList = await readfiles(src, { readContents: false, hidden: true })
-			for (const file of srcFileList) {
-				if (!filterFunc(file)) { continue }
+			for (const srcFile of srcFileList) {
+				if (!filterFunc(srcFile)) { continue }
 
-				const srcPath = path.join(src, file)
-				const destPath = path.join(dest, file)
+				const srcPath = path.join(src, srcFile)
+				const destPath = path.join(dest, srcFile)
 				await write(srcPath, destPath, file.template)
 			}
 		} else {
@@ -115,15 +115,15 @@ const copy = async (src, dest, isDirectory, file) => {
 		const srcFileList = await readfiles(src, { readContents: false, hidden: true })
 		const destFileList = await readfiles(dest, { readContents: false, hidden: true })
 
-		for (const file of destFileList) {
-			if (srcFileList.indexOf(file) === -1) {
-				const filePath = path.join(dest, file)
+		for (const destFile of destFileList) {
+			if (srcFileList.indexOf(destFile) === -1) {
+				const filePath = path.join(dest, destFile)
 				core.debug(`Found a orphaned file in the target repo - ${ filePath }`)
 
-				if (exclude !== undefined && exclude.includes(path.join(src, file))) {
-					core.debug(`Excluding file ${ file }`)
+				if (file.exclude !== undefined && file.exclude.includes(path.join(src, destFile))) {
+					core.debug(`Excluding file ${ destFile }`)
 				} else {
-					core.debug(`Removing file ${ file }`)
+					core.debug(`Removing file ${ destFile }`)
 					await fs.remove(filePath)
 				}
 			}
