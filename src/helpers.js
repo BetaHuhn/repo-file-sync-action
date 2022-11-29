@@ -48,7 +48,8 @@ const execCmd = (command, workingDir, trimResult = true) => {
 		exec(
 			command,
 			{
-				cwd: workingDir
+				cwd: workingDir,
+				maxBuffer: 1024 * 1024 * 4
 			},
 			function(error, stdout) {
 				error ? reject(error) : resolve(
