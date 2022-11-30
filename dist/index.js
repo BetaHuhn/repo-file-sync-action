@@ -29830,6 +29830,10 @@ try {
 			key: 'CONFIG_PATH',
 			default: '.github/sync.yml'
 		}),
+		IS_FINE_GRAINED: getInput({
+			key: 'IS_FINE_GRAINED',
+			default: false
+		}),
 		COMMIT_BODY: getInput({
 			key: 'COMMIT_BODY',
 			default: ''
@@ -30053,6 +30057,7 @@ const fs = __nccwpck_require__(7147)
 const {
 	GITHUB_TOKEN,
 	IS_INSTALLATION_TOKEN,
+	IS_FINE_GRAINED,
 	GIT_USERNAME,
 	GIT_EMAIL,
 	TMP_DIR,
@@ -30100,7 +30105,7 @@ class Git {
 		// Set values to current repo
 		this.repo = repo
 		this.workingDir = path.join(TMP_DIR, repo.uniqueName)
-		this.gitUrl = `https://${ IS_INSTALLATION_TOKEN ? 'x-access-token:' : '' }${ GITHUB_TOKEN }@${ repo.fullName }.git`
+		this.gitUrl = `https://${ IS_INSTALLATION_TOKEN ? 'x-access-token:' : '' }${ IS_FINE_GRAINED ? 'oauth:' : '' }${ GITHUB_TOKEN }@${ repo.fullName }.git`
 
 		await this.clone()
 		await this.setIdentity()

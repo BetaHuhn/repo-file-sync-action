@@ -15,6 +15,10 @@ inputs:
     description: | 
       The path for the sync configuration file
     required: false
+  IS_FINE_GRAINED: 
+    description: |
+      Label GH_PAT as a fine grained token
+    required: false
   PR_LABELS:
     description: |
       Labels which will be added to the pull request. Defaults to sync. Set to false to turn off
