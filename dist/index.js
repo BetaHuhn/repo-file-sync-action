@@ -30465,7 +30465,7 @@ class Git {
 			Synced local file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
 
 			${ PR_BODY }
-			
+
 			${ changedFiles }
 
 			---
@@ -30623,7 +30623,8 @@ const execCmd = (command, workingDir, trimResult = true) => {
 		exec(
 			command,
 			{
-				cwd: workingDir
+				cwd: workingDir,
+				maxBuffer: 1024 * 1024 * 4
 			},
 			function(error, stdout) {
 				error ? reject(error) : resolve(

@@ -421,7 +421,7 @@ class Git {
 			Synced local file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
 
 			${ PR_BODY }
-			
+
 			${ changedFiles }
 
 			---
