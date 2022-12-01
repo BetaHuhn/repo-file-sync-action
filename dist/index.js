@@ -21984,6 +21984,7 @@ const path = __nccwpck_require__(1017)
 const { getInput } = __nccwpck_require__(6347)
 
 const REPLACE_DEFAULT = true
+const TEMPLATE_DEFAULT = false
 const DELETE_ORPHANED_DEFAULT = false
 
 let context
@@ -22018,6 +22019,10 @@ try {
 		CONFIG_PATH: getInput({
 			key: 'CONFIG_PATH',
 			default: '.github/sync.yml'
+		}),
+		IS_FINE_GRAINED: getInput({
+			key: 'IS_FINE_GRAINED',
+			default: false
 		}),
 		COMMIT_BODY: getInput({
 			key: 'COMMIT_BODY',
@@ -22153,20 +22158,14 @@ const parseExclude = (text, src) => {
 
 const parseFiles = (files) => {
 	return files.map((item) => {
-
-		if (typeof item === 'string') {
-			return {
-				source: item,
-				dest: item,
-				replace: REPLACE_DEFAULT,
-				deleteOrphaned: DELETE_ORPHANED_DEFAULT
-			}
-		}
+		if (typeof item === 'string')
+			item = { source: item }
 
 		if (item.source !== undefined) {
 			return {
 				source: item.source,
 				dest: item.dest || item.source,
+				template: item.template === undefined ? TEMPLATE_DEFAULT : item.template,
 				replace: item.replace === undefined ? REPLACE_DEFAULT : item.replace,
 				deleteOrphaned: item.deleteOrphaned === undefined ? DELETE_ORPHANED_DEFAULT : item.deleteOrphaned,
 				exclude: parseExclude(item.exclude, item.source)
@@ -22248,6 +22247,7 @@ const fs = __nccwpck_require__(7147)
 const {
 	GITHUB_TOKEN,
 	IS_INSTALLATION_TOKEN,
+	IS_FINE_GRAINED,
 	GIT_USERNAME,
 	GIT_EMAIL,
 	TMP_DIR,
@@ -22295,7 +22295,7 @@ class Git {
 		// Set values to current repo
 		this.repo = repo
 		this.workingDir = path.join(TMP_DIR, repo.uniqueName)
-		this.gitUrl = `https://${ IS_INSTALLATION_TOKEN ? 'x-access-token:' : '' }${ GITHUB_TOKEN }@${ repo.fullName }.git`
+		this.gitUrl = `https://${ IS_INSTALLATION_TOKEN ? 'x-access-token:' : '' }${ IS_FINE_GRAINED ? 'oauth:' : '' }${ GITHUB_TOKEN }@${ repo.fullName }.git`
 
 		await this.clone()
 		await this.setIdentity()
@@ -22660,7 +22660,7 @@ class Git {
 			Synced local file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
 
 			${ PR_BODY }
-			
+
 			${ changedFiles }
 
 			---
@@ -22773,6 +22773,9 @@ const readfiles = __nccwpck_require__(9254)
 const { exec } = __nccwpck_require__(2081)
 const core = __nccwpck_require__(5127)
 const path = __nccwpck_require__(1017)
+const nunjucks = __nccwpck_require__(7875)
+
+nunjucks.configure({ autoescape: true, trimBlocks: true, lstripBlocks: true })
 
 // From https://github.com/toniov/p-iteration/blob/master/lib/static-methods.js - MIT © Antonio V
 const forEach = async (array, callback) => {
@@ -22815,7 +22818,8 @@ const execCmd = (command, workingDir, trimResult = true) => {
 		exec(
 			command,
 			{
-				cwd: workingDir
+				cwd: workingDir,
+				maxBuffer: 1024 * 1024 * 4
 			},
 			function(error, stdout) {
 				error ? reject(error) : resolve(
@@ -22833,12 +22837,18 @@ const pathIsDirectory = async (path) => {
 	return stat.isDirectory()
 }
 
-const copy = async (src, dest, deleteOrphaned, exclude) => {
+const write = async (src, dest, context) => {
+	if (typeof context !== 'object') {
+		context = {}
+	}
+	const content = nunjucks.render(src, context)
+	await fs.outputFile(dest, content)
+}
 
-	core.debug(`CP: ${ src } TO ${ dest }`)
+const copy = async (src, dest, isDirectory, file) => {
+	const deleteOrphaned = isDirectory && file.deleteOrphaned
 
 	const filterFunc = (file) => {
-
 
         if (exclude !== undefined) {
 
@@ -22868,7 +22878,28 @@ const copy = async (src, dest, deleteOrphaned, exclude) => {
 		return true
 	}
 
-	await fs.copy(src, dest, exclude !== undefined && { filter: filterFunc })
+	if (file.template) {
+		if (isDirectory) {
+			core.debug(`Render all files in directory ${ src } to ${ dest }`)
+
+			const srcFileList = await readfiles(src, { readContents: false, hidden: true })
+			for (const srcFile of srcFileList) {
+				if (!filterFunc(srcFile)) { continue }
+
+				const srcPath = path.join(src, srcFile)
+				const destPath = path.join(dest, srcFile)
+				await write(srcPath, destPath, file.template)
+			}
+		} else {
+			core.debug(`Render file ${ src } to ${ dest }`)
+
+			await write(src, dest, file.template)
+		}
+	} else {
+		core.debug(`Copy ${ src } to ${ dest }`)
+		await fs.copy(src, dest, file.exclude !== undefined && { filter: filterFunc })
+	}
+
 
 	// If it is a directory and deleteOrphaned is enabled - check if there are any files that were removed from source dir and remove them in destination dir
 	if (deleteOrphaned) {
@@ -22876,15 +22907,15 @@ const copy = async (src, dest, deleteOrphaned, exclude) => {
 		const srcFileList = await readfiles(src, { readContents: false, hidden: true })
 		const destFileList = await readfiles(dest, { readContents: false, hidden: true })
 
-		for (const file of destFileList) {
-			if (srcFileList.indexOf(file) === -1) {
-				const filePath = path.join(dest, file)
+		for (const destFile of destFileList) {
+			if (srcFileList.indexOf(destFile) === -1) {
+				const filePath = path.join(dest, destFile)
 				core.debug(`Found a orphaned file in the target repo - ${ filePath }`)
 
-				if (exclude !== undefined && exclude.includes(path.join(src, file))) {
-					core.debug(`Excluding file ${ file }`)
+				if (file.exclude !== undefined && file.exclude.includes(path.join(src, destFile))) {
+					core.debug(`Excluding file ${ destFile }`)
 				} else {
-					core.debug(`Removing file ${ file }`)
+					core.debug(`Removing file ${ destFile }`)
 					await fs.remove(filePath)
 				}
 			}
@@ -22919,6 +22950,14 @@ module.exports = {
 /***/ ((module) => {
 
 module.exports = eval("require")("encoding");
+
+
+/***/ }),
+
+/***/ 7875:
+/***/ ((module) => {
+
+module.exports = eval("require")("nunjucks");
 
 
 /***/ }),
@@ -23183,9 +23222,7 @@ const run = async () => {
 
 				if (isDirectory) core.info(`Source is directory`)
 
-				const deleteOrphaned = isDirectory && file.deleteOrphaned
-
-				await copy(source, dest, deleteOrphaned, file.exclude)
+				await copy(source, dest, isDirectory, file)
 
 				await git.add(file.dest)
 

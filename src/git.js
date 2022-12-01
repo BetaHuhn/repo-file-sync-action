@@ -9,6 +9,7 @@ const fs = require('fs')
 const {
 	GITHUB_TOKEN,
 	IS_INSTALLATION_TOKEN,
+	IS_FINE_GRAINED,
 	GIT_USERNAME,
 	GIT_EMAIL,
 	TMP_DIR,
@@ -56,7 +57,7 @@ class Git {
 		// Set values to current repo
 		this.repo = repo
 		this.workingDir = path.join(TMP_DIR, repo.uniqueName)
-		this.gitUrl = `https://${ IS_INSTALLATION_TOKEN ? 'x-access-token:' : '' }${ GITHUB_TOKEN }@${ repo.fullName }.git`
+		this.gitUrl = `https://${ IS_INSTALLATION_TOKEN ? 'x-access-token:' : '' }${ IS_FINE_GRAINED ? 'oauth:' : '' }${ GITHUB_TOKEN }@${ repo.fullName }.git`
 
 		await this.clone()
 		await this.setIdentity()
@@ -421,7 +422,7 @@ class Git {
 			Synced local file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
 
 			${ PR_BODY }
-			
+
 			${ changedFiles }
 
 			---

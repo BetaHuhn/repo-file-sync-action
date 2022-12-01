@@ -5,6 +5,7 @@ const path = require('path')
 const { getInput } = require('action-input-parser')
 
 const REPLACE_DEFAULT = true
+const TEMPLATE_DEFAULT = false
 const DELETE_ORPHANED_DEFAULT = false
 
 let context
@@ -39,6 +40,10 @@ try {
 		CONFIG_PATH: getInput({
 			key: 'CONFIG_PATH',
 			default: '.github/sync.yml'
+		}),
+		IS_FINE_GRAINED: getInput({
+			key: 'IS_FINE_GRAINED',
+			default: false
 		}),
 		COMMIT_BODY: getInput({
 			key: 'COMMIT_BODY',
@@ -174,20 +179,14 @@ const parseExclude = (text, src) => {
 
 const parseFiles = (files) => {
 	return files.map((item) => {
-
-		if (typeof item === 'string') {
-			return {
-				source: item,
-				dest: item,
-				replace: REPLACE_DEFAULT,
-				deleteOrphaned: DELETE_ORPHANED_DEFAULT
-			}
-		}
+		if (typeof item === 'string')
+			item = { source: item }
 
 		if (item.source !== undefined) {
 			return {
 				source: item.source,
 				dest: item.dest || item.source,
+				template: item.template === undefined ? TEMPLATE_DEFAULT : item.template,
 				replace: item.replace === undefined ? REPLACE_DEFAULT : item.replace,
 				deleteOrphaned: item.deleteOrphaned === undefined ? DELETE_ORPHANED_DEFAULT : item.deleteOrphaned,
 				exclude: parseExclude(item.exclude, item.source)
