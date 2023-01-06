@@ -104,6 +104,7 @@ Here are all the inputs [repo-file-sync-action](https://github.com/BetaHuhn/repo
 | Key | Value | Required | Default |
 | ------------- | ------------- | ------------- | ------------- |
 | `GH_PAT` | Your [Personal Access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) | **`GH_PAT` or `GH_INSTALLATION_TOKEN` required** | N/A |
+| `IS_FINE_GRAINED` | Set to `true` if the token provided in `GH_PAT` is a [fine-grained personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token#creating-a-fine-grained-personal-access-token) | **No** | N/A |
 | `GH_INSTALLATION_TOKEN` | Token from a GitHub App installation | **`GH_PAT` or `GH_INSTALLATION_TOKEN` required** | N/A |
 | `CONFIG_PATH` | Path to the sync configuration file | **No** | .github/sync.yml |
 | `PR_LABELS` | Labels which will be added to the pull request. Set to false to turn off | **No** | sync |
