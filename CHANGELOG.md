@@ -1,3 +1,21 @@
+## [v1.20.0] - 2023-01-07
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.20.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.19.1...v1.20.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.20.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.20.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.20.0.tar.gz))
+
+### New features
+
+- [`eb95ce4`](https://github.com/betahuhn/repo-file-sync-action/commit/eb95ce4)  Add possibility to exclude subfolders from synced folders (#274)
+(Issues: [`#274`](https://github.com/betahuhn/repo-file-sync-action/issues/274))
+
+### Updates
+
+- [`6f1bf85`](https://github.com/betahuhn/repo-file-sync-action/commit/6f1bf85)  Move to ESM (#288)
+(Issues: [`#288`](https://github.com/betahuhn/repo-file-sync-action/issues/288))
+
+### Bug fixes
+
+- [`d2b8086`](https://github.com/betahuhn/repo-file-sync-action/commit/d2b8086)  Fix linting and exclude
+
 ## [v1.19.1] - 2023-01-07
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.19.1) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.19.0...v1.19.1) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.19.1) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.19.1.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.19.1.tar.gz))
