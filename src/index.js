@@ -1,11 +1,27 @@
 import * as core from '@actions/core'
-import { existsSync } from 'fs'
+import * as fs from 'fs'
 
 import Git from './git'
 import { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove, arrayEquals } from './helpers'
 
 import { parseConfig, default as config } from './config'
-const { COMMIT_EACH_FILE, COMMIT_PREFIX, PR_LABELS, ASSIGNEES, DRY_RUN, TMP_DIR, SKIP_CLEANUP, OVERWRITE_EXISTING_PR, SKIP_PR, ORIGINAL_MESSAGE, COMMIT_AS_PR_TITLE, FORK, REVIEWERS, TEAM_REVIEWERS } = config
+
+const {
+	COMMIT_EACH_FILE,
+	COMMIT_PREFIX,
+	PR_LABELS,
+	ASSIGNEES,
+	DRY_RUN,
+	TMP_DIR,
+	SKIP_CLEANUP,
+	OVERWRITE_EXISTING_PR,
+	SKIP_PR,
+	ORIGINAL_MESSAGE,
+	COMMIT_AS_PR_TITLE,
+	FORK,
+	REVIEWERS,
+	TEAM_REVIEWERS
+} = config
 
 async function run() {
 	// Reuse octokit for each repo
@@ -44,22 +60,19 @@ async function run() {
 
 			// Loop through all selected files of the source repo
 			await forEach(item.files, async (file) => {
-				const fileExists = existsSync(file.source)
-				if (fileExists === false)
-					return core.warning(`Source ${ file.source } not found`)
+				const fileExists = fs.existsSync(file.source)
+				if (fileExists === false) return core.warning(`Source ${ file.source } not found`)
 
 				const localDestination = `${ git.workingDir }/${ file.dest }`
 
-				const destExists = existsSync(localDestination)
-				if (destExists === true && file.replace === false)
-					return core.warning(`File(s) already exist(s) in destination and 'replace' option is set to false`)
+				const destExists = fs.existsSync(localDestination)
+				if (destExists === true && file.replace === false) return core.warning(`File(s) already exist(s) in destination and 'replace' option is set to false`)
 
 				const isDirectory = await pathIsDirectory(file.source)
 				const source = isDirectory ? `${ addTrailingSlash(file.source) }` : file.source
 				const dest = isDirectory ? `${ addTrailingSlash(localDestination) }` : localDestination
 
-				if (isDirectory)
-					core.info(`Source is directory`)
+				if (isDirectory) core.info(`Source is directory`)
 
 				await copy(source, dest, isDirectory, file)
 
@@ -69,8 +82,7 @@ async function run() {
 				if (COMMIT_EACH_FILE === true) {
 					const hasChanges = await git.hasChanges()
 
-					if (hasChanges === false)
-						return core.debug('File(s) already up to date')
+					if (hasChanges === false) return core.debug('File(s) already up to date')
 
 					core.debug(`Creating commit for file(s) ${ file.dest }`)
 
@@ -117,8 +129,7 @@ async function run() {
 			if (hasChanges === false && modified.length < 1) {
 				core.info('File(s) already up to date')
 
-				if (existingPr)
-					await git.removePrWarning()
+				if (existingPr) await git.removePrWarning()
 
 				return
 			}

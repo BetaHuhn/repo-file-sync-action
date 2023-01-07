@@ -1,16 +1,31 @@
 import { parse } from '@putout/git-status-porcelain'
 import * as core from '@actions/core'
-import { context } from '@actions/github'
+import * as github from '@actions/github'
 import { GitHub, getOctokitOptions } from '@actions/github/lib/utils'
 import { throttling } from '@octokit/plugin-throttling'
 import * as path from 'path'
 import * as fs from 'fs/promises'
 
-import { GITHUB_TOKEN, IS_INSTALLATION_TOKEN, IS_FINE_GRAINED, GIT_USERNAME, GIT_EMAIL, TMP_DIR, COMMIT_BODY, COMMIT_PREFIX, GITHUB_REPOSITORY, OVERWRITE_EXISTING_PR, SKIP_PR, PR_BODY, BRANCH_PREFIX, FORK } from './config'
+import {
+	GITHUB_TOKEN,
+	IS_INSTALLATION_TOKEN,
+	IS_FINE_GRAINED,
+	GIT_USERNAME,
+	GIT_EMAIL,
+	TMP_DIR,
+	COMMIT_BODY,
+	COMMIT_PREFIX,
+	GITHUB_REPOSITORY,
+	OVERWRITE_EXISTING_PR,
+	SKIP_PR,
+	PR_BODY,
+	BRANCH_PREFIX,
+	FORK
+} from './config'
 
 import { dedent, execCmd } from './helpers'
 
-class Git {
+export default class Git {
 	constructor() {
 		const Octokit = GitHub.plugin(throttling)
 
@@ -134,11 +149,11 @@ class Git {
 	}
 
 	isOneCommitPush() {
-		return context.eventName === 'push' && context.payload.commits.length === 1
+		return github.context.eventName === 'push' && github.context.payload.commits.length === 1
 	}
 
 	originalCommitMessage() {
-		return context.payload.commits[0].message
+		return github.context.payload.commits[0].message
 	}
 
 	parseGitDiffOutput(string) { // parses git diff output and returns a dictionary mapping the file path to the diff output for this file
@@ -148,7 +163,7 @@ class Git {
 			const lastHeaderLineIndex = lines.findIndex((line) => line.startsWith('+++'))
 			if (lastHeaderLineIndex === -1) return resultDict // ignore binary files
 
-			const plainDiff = lines.slice(lastHeaderLineIndex + 1).path.join('\n').trim()
+			const plainDiff = lines.slice(lastHeaderLineIndex + 1).join('\n').trim()
 			let filePath = ''
 			if (lines[lastHeaderLineIndex].startsWith('+++ b/')) { // every file except removed files
 				filePath = lines[lastHeaderLineIndex].slice(6) // remove '+++ b/'
@@ -165,10 +180,10 @@ class Git {
 				mediaType: {
 					format: 'diff'
 				},
-				owner: context.payload.repository.owner.name,
-				repo: context.payload.repository.name,
-				base: context.payload.before,
-				head: context.payload.after
+				owner: github.context.payload.repository.owner.name,
+				repo: github.context.payload.repository.name,
+				base: github.context.payload.before,
+				head: github.context.payload.after
 			})
 			this.lastCommitChanges = this.parseGitDiffOutput(diff.data)
 		}
@@ -507,5 +522,3 @@ class Git {
 		this.lastCommitSha = request.data.sha
 	}
 }
-
-export default Git

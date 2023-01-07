@@ -2816,7 +2816,23 @@ var __webpack_exports__ = {};
 
 
 
-const { COMMIT_EACH_FILE, COMMIT_PREFIX, PR_LABELS, ASSIGNEES, DRY_RUN, TMP_DIR, SKIP_CLEANUP, OVERWRITE_EXISTING_PR, SKIP_PR, ORIGINAL_MESSAGE, COMMIT_AS_PR_TITLE, FORK, REVIEWERS, TEAM_REVIEWERS } = _config__WEBPACK_IMPORTED_MODULE_4__
+
+const {
+	COMMIT_EACH_FILE,
+	COMMIT_PREFIX,
+	PR_LABELS,
+	ASSIGNEES,
+	DRY_RUN,
+	TMP_DIR,
+	SKIP_CLEANUP,
+	OVERWRITE_EXISTING_PR,
+	SKIP_PR,
+	ORIGINAL_MESSAGE,
+	COMMIT_AS_PR_TITLE,
+	FORK,
+	REVIEWERS,
+	TEAM_REVIEWERS
+} = _config__WEBPACK_IMPORTED_MODULE_4__
 
 async function run() {
 	// Reuse octokit for each repo
@@ -2855,22 +2871,19 @@ async function run() {
 
 			// Loop through all selected files of the source repo
 			await (0,_helpers__WEBPACK_IMPORTED_MODULE_3__.forEach)(item.files, async (file) => {
-				const fileExists = (0,fs__WEBPACK_IMPORTED_MODULE_1__.existsSync)(file.source)
-				if (fileExists === false)
-					return _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`Source ${ file.source } not found`)
+				const fileExists = fs__WEBPACK_IMPORTED_MODULE_1__.existsSync(file.source)
+				if (fileExists === false) return _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`Source ${ file.source } not found`)
 
 				const localDestination = `${ git.workingDir }/${ file.dest }`
 
-				const destExists = (0,fs__WEBPACK_IMPORTED_MODULE_1__.existsSync)(localDestination)
-				if (destExists === true && file.replace === false)
-					return _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`File(s) already exist(s) in destination and 'replace' option is set to false`)
+				const destExists = fs__WEBPACK_IMPORTED_MODULE_1__.existsSync(localDestination)
+				if (destExists === true && file.replace === false) return _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`File(s) already exist(s) in destination and 'replace' option is set to false`)
 
 				const isDirectory = await (0,_helpers__WEBPACK_IMPORTED_MODULE_3__.pathIsDirectory)(file.source)
 				const source = isDirectory ? `${ (0,_helpers__WEBPACK_IMPORTED_MODULE_3__.addTrailingSlash)(file.source) }` : file.source
 				const dest = isDirectory ? `${ (0,_helpers__WEBPACK_IMPORTED_MODULE_3__.addTrailingSlash)(localDestination) }` : localDestination
 
-				if (isDirectory)
-					_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Source is directory`)
+				if (isDirectory) _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Source is directory`)
 
 				await (0,_helpers__WEBPACK_IMPORTED_MODULE_3__.copy)(source, dest, isDirectory, file)
 
@@ -2880,8 +2893,7 @@ async function run() {
 				if (COMMIT_EACH_FILE === true) {
 					const hasChanges = await git.hasChanges()
 
-					if (hasChanges === false)
-						return _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('File(s) already up to date')
+					if (hasChanges === false) return _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('File(s) already up to date')
 
 					_actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Creating commit for file(s) ${ file.dest }`)
 
@@ -2928,8 +2940,7 @@ async function run() {
 			if (hasChanges === false && modified.length < 1) {
 				_actions_core__WEBPACK_IMPORTED_MODULE_0__.info('File(s) already up to date')
 
-				if (existingPr)
-					await git.removePrWarning()
+				if (existingPr) await git.removePrWarning()
 
 				return
 			}

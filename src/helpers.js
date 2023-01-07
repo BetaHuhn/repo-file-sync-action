@@ -1,11 +1,11 @@
-import { lstat, outputFile, copy as _copy, remove as _remove } from 'fs-extra'
+import * as fs from 'fs-extra'
 import readfiles from 'node-readfiles'
 import { exec } from 'child_process'
 import * as core from '@actions/core'
-import { join } from 'path'
-import { configure, render } from 'nunjucks'
+import * as path from 'path'
+import * as nunjucks from 'nunjucks'
 
-configure({ autoescape: true, trimBlocks: true, lstripBlocks: true })
+nunjucks.configure({ autoescape: true, trimBlocks: true, lstripBlocks: true })
 
 // From https://github.com/toniov/p-iteration/blob/master/lib/static-methods.js - MIT © Antonio V
 export async function forEach(array, callback) {
@@ -65,7 +65,7 @@ export function addTrailingSlash(str) {
 }
 
 export async function pathIsDirectory(path) {
-	const stat = await lstat(path)
+	const stat = await fs.lstat(path)
 	return stat.isDirectory()
 }
 
@@ -73,8 +73,8 @@ export async function write(src, dest, context) {
 	if (typeof context !== 'object') {
 		context = {}
 	}
-	const content = render(src, context)
-	await outputFile(dest, content)
+	const content = nunjucks.render(src, context)
+	await fs.outputFile(dest, content)
 }
 
 export async function copy(src, dest, isDirectory, file) {
@@ -97,8 +97,8 @@ export async function copy(src, dest, isDirectory, file) {
 			for (const srcFile of srcFileList) {
 				if (!filterFunc(srcFile)) { continue }
 
-				const srcPath = join(src, srcFile)
-				const destPath = join(dest, srcFile)
+				const srcPath = path.join(src, srcFile)
+				const destPath = path.join(dest, srcFile)
 				await write(srcPath, destPath, file.template)
 			}
 		} else {
@@ -108,7 +108,7 @@ export async function copy(src, dest, isDirectory, file) {
 		}
 	} else {
 		core.debug(`Copy ${ src } to ${ dest }`)
-		await _copy(src, dest, file.exclude !== undefined && { filter: filterFunc })
+		await fs.copy(src, dest, file.exclude !== undefined && { filter: filterFunc })
 	}
 
 
@@ -119,17 +119,15 @@ export async function copy(src, dest, isDirectory, file) {
 		const destFileList = await readfiles(dest, { readContents: false, hidden: true })
 
 		for (const destFile of destFileList) {
-			if (destFile.startsWith('.git'))
-				return
 			if (srcFileList.indexOf(destFile) === -1) {
-				const filePath = join(dest, destFile)
-				core.debug(`Found an orphaned file in the target repo - ${ filePath }`)
+				const filePath = path.join(dest, destFile)
+				core.debug(`Found a orphaned file in the target repo - ${ filePath }`)
 
-				if (file.exclude !== undefined && file.exclude.includes(join(src, destFile))) {
+				if (file.exclude !== undefined && file.exclude.includes(path.join(src, destFile))) {
 					core.debug(`Excluding file ${ destFile }`)
 				} else {
 					core.debug(`Removing file ${ destFile }`)
-					await _remove(filePath)
+					await fs.remove(filePath)
 				}
 			}
 		}
@@ -140,7 +138,7 @@ export async function remove(src) {
 
 	core.debug(`RM: ${ src }`)
 
-	return _remove(src)
+	return fs.remove(src)
 }
 
 export function arrayEquals(array1, array2) {
