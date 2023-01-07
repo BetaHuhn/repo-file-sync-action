@@ -1,12 +1,12 @@
-const { parse } = require('@putout/git-status-porcelain')
-const core = require('@actions/core')
-const github = require('@actions/github')
-const { GitHub, getOctokitOptions } = require('@actions/github/lib/utils')
-const { throttling } = require('@octokit/plugin-throttling')
-const path = require('path')
-const fs = require('fs')
+import { parse } from '@putout/git-status-porcelain'
+import * as core from '@actions/core'
+import * as github from '@actions/github'
+import { GitHub, getOctokitOptions } from '@actions/github/lib/utils'
+import { throttling } from '@octokit/plugin-throttling'
+import * as path from 'path'
+import * as fs from 'fs/promises'
 
-const {
+import {
 	GITHUB_TOKEN,
 	IS_INSTALLATION_TOKEN,
 	IS_FINE_GRAINED,
@@ -21,11 +21,11 @@ const {
 	PR_BODY,
 	BRANCH_PREFIX,
 	FORK
-} = require('./config')
+} from './config'
 
-const { dedent, execCmd } = require('./helpers')
+import { dedent, execCmd } from './helpers'
 
-class Git {
+export default class Git {
 	constructor() {
 		const Octokit = GitHub.plugin(throttling)
 
@@ -196,7 +196,7 @@ class Git {
 
 	async getBlobBase64Content(file) {
 		const fileRelativePath = path.join(this.workingDir, file)
-		const fileContent = await fs.promises.readFile(fileRelativePath)
+		const fileContent = await fs.readFile(fileRelativePath)
 
 		return fileContent.toString('base64')
 	}
@@ -522,5 +522,3 @@ class Git {
 		this.lastCommitSha = request.data.sha
 	}
 }
-
-module.exports = Git
