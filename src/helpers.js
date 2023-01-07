@@ -1,7 +1,7 @@
 import { lstat, outputFile, copy as _copy, remove as _remove } from 'fs-extra'
 import readfiles from 'node-readfiles'
 import { exec } from 'child_process'
-import { debug } from '@actions/core'
+import * as core from '@actions/core'
 import { join } from 'path'
 import { configure, render } from 'nunjucks'
 
@@ -43,7 +43,7 @@ export function dedent(templateStrings, ...values) {
 }
 
 export function execCmd(command, workingDir, trimResult = true) {
-	debug(`EXEC: "${ command }" IN ${ workingDir }`)
+	core.debug(`EXEC: "${ command }" IN ${ workingDir }`)
 	return new Promise((resolve, reject) => {
 		exec(
 			command,
@@ -82,7 +82,7 @@ export async function copy(src, dest, isDirectory, file) {
 
 	const filterFunc = (file) => {
 		if (file.exclude !== undefined && file.exclude.includes(file)) {
-			debug(`Excluding file ${ file }`)
+			core.debug(`Excluding file ${ file }`)
 			return false
 		}
 
@@ -91,7 +91,7 @@ export async function copy(src, dest, isDirectory, file) {
 
 	if (file.template) {
 		if (isDirectory) {
-			debug(`Render all files in directory ${ src } to ${ dest }`)
+			core.debug(`Render all files in directory ${ src } to ${ dest }`)
 
 			const srcFileList = await readfiles(src, { readContents: false, hidden: true })
 			for (const srcFile of srcFileList) {
@@ -102,12 +102,12 @@ export async function copy(src, dest, isDirectory, file) {
 				await write(srcPath, destPath, file.template)
 			}
 		} else {
-			debug(`Render file ${ src } to ${ dest }`)
+			core.debug(`Render file ${ src } to ${ dest }`)
 
 			await write(src, dest, file.template)
 		}
 	} else {
-		debug(`Copy ${ src } to ${ dest }`)
+		core.debug(`Copy ${ src } to ${ dest }`)
 		await _copy(src, dest, file.exclude !== undefined && { filter: filterFunc })
 	}
 
@@ -123,12 +123,12 @@ export async function copy(src, dest, isDirectory, file) {
 				return
 			if (srcFileList.indexOf(destFile) === -1) {
 				const filePath = join(dest, destFile)
-				debug(`Found an orphaned file in the target repo - ${ filePath }`)
+				core.debug(`Found an orphaned file in the target repo - ${ filePath }`)
 
 				if (file.exclude !== undefined && file.exclude.includes(join(src, destFile))) {
-					debug(`Excluding file ${ destFile }`)
+					core.debug(`Excluding file ${ destFile }`)
 				} else {
-					debug(`Removing file ${ destFile }`)
+					core.debug(`Removing file ${ destFile }`)
 					await _remove(filePath)
 				}
 			}
@@ -138,7 +138,7 @@ export async function copy(src, dest, isDirectory, file) {
 
 export async function remove(src) {
 
-	debug(`RM: ${ src }`)
+	core.debug(`RM: ${ src }`)
 
 	return _remove(src)
 }

@@ -1,10 +1,10 @@
 import { parse } from '@putout/git-status-porcelain'
-import { debug, info } from '@actions/core'
+import * as core from '@actions/core'
 import { context } from '@actions/github'
 import { GitHub, getOctokitOptions } from '@actions/github/lib/utils'
 import { throttling } from '@octokit/plugin-throttling'
-import { join } from 'path'
-import { promises } from 'fs'
+import * as path from 'path'
+import * as fs from 'fs/promises'
 
 import { GITHUB_TOKEN, IS_INSTALLATION_TOKEN, IS_FINE_GRAINED, GIT_USERNAME, GIT_EMAIL, TMP_DIR, COMMIT_BODY, COMMIT_PREFIX, GITHUB_REPOSITORY, OVERWRITE_EXISTING_PR, SKIP_PR, PR_BODY, BRANCH_PREFIX, FORK } from './config'
 
@@ -17,11 +17,11 @@ class Git {
 		const options = getOctokitOptions(GITHUB_TOKEN, {
 			throttle: {
 				onRateLimit: (retryAfter) => {
-					debug(`Hit GitHub API rate limit, retrying after ${ retryAfter }s`)
+					core.debug(`Hit GitHub API rate limit, retrying after ${ retryAfter }s`)
 					return true
 				},
 				onSecondaryRateLimit: (retryAfter) => {
-					debug(`Hit secondary GitHub API rate limit, retrying after ${ retryAfter }s`)
+					core.debug(`Hit secondary GitHub API rate limit, retrying after ${ retryAfter }s`)
 					return true
 				}
 			}
@@ -41,7 +41,7 @@ class Git {
 
 		// Set values to current repo
 		this.repo = repo
-		this.workingDir = join(TMP_DIR, repo.uniqueName)
+		this.workingDir = path.join(TMP_DIR, repo.uniqueName)
 		this.gitUrl = `https://${ IS_INSTALLATION_TOKEN ? 'x-access-token:' : '' }${ IS_FINE_GRAINED ? 'oauth:' : '' }${ GITHUB_TOKEN }@${ repo.fullName }.git`
 
 		await this.clone()
@@ -58,7 +58,7 @@ class Git {
 	}
 
 	async createFork() {
-		debug(`Creating fork with OWNER: ${ this.repo.user } and REPO: ${ this.repo.name }`)
+		core.debug(`Creating fork with OWNER: ${ this.repo.user } and REPO: ${ this.repo.name }`)
 		await this.github.repos.createFork({
 			owner: this.repo.user,
 			repo: this.repo.name
@@ -73,7 +73,7 @@ class Git {
 	}
 
 	async clone() {
-		debug(`Cloning ${ this.repo.fullName } into ${ this.workingDir }`)
+		core.debug(`Cloning ${ this.repo.fullName } into ${ this.workingDir }`)
 
 		return execCmd(
 			`git clone --depth 1 ${ this.repo.branch !== 'default' ? '--branch "' + this.repo.branch + '"' : '' } ${ this.gitUrl } ${ this.workingDir }`
@@ -92,7 +92,7 @@ class Git {
 			}
 		}
 
-		debug(`Setting git user to email: ${ email }, username: ${ username }`)
+		core.debug(`Setting git user to email: ${ email }, username: ${ username }`)
 
 		return execCmd(
 			`git config --local user.name "${ username }" && git config --local user.email "${ email }"`,
@@ -110,13 +110,13 @@ class Git {
 	async createPrBranch() {
 		const prefix = BRANCH_PREFIX.replace('SOURCE_REPO_NAME', GITHUB_REPOSITORY.split('/')[1])
 
-		let newBranch = join(prefix, this.repo.branch).replace(/\\/g, '/').replace(/\/\./g, '/')
+		let newBranch = path.join(prefix, this.repo.branch).replace(/\\/g, '/').replace(/\/\./g, '/')
 
 		if (OVERWRITE_EXISTING_PR === false) {
 			newBranch += `-${ Math.round((new Date()).getTime() / 1000) }`
 		}
 
-		debug(`Creating PR Branch ${ newBranch }`)
+		core.debug(`Creating PR Branch ${ newBranch }`)
 
 		await execCmd(
 			`git checkout -b "${ newBranch }"`,
@@ -148,7 +148,7 @@ class Git {
 			const lastHeaderLineIndex = lines.findIndex((line) => line.startsWith('+++'))
 			if (lastHeaderLineIndex === -1) return resultDict // ignore binary files
 
-			const plainDiff = lines.slice(lastHeaderLineIndex + 1).join('\n').trim()
+			const plainDiff = lines.slice(lastHeaderLineIndex + 1).path.join('\n').trim()
 			let filePath = ''
 			if (lines[lastHeaderLineIndex].startsWith('+++ b/')) { // every file except removed files
 				filePath = lines[lastHeaderLineIndex].slice(6) // remove '+++ b/'
@@ -180,8 +180,8 @@ class Git {
 	}
 
 	async getBlobBase64Content(file) {
-		const fileRelativePath = join(this.workingDir, file)
-		const fileContent = await promises.readFile(fileRelativePath)
+		const fileRelativePath = path.join(this.workingDir, file)
+		const fileContent = await fs.readFile(fileRelativePath)
 
 		return fileContent.toString('base64')
 	}
@@ -248,7 +248,7 @@ class Git {
 
 	// Creates the blob objects in GitHub for the files that are not in the previous commit only
 	async createGithubBlobs(commitSha) {
-		debug('Creating missing blobs on GitHub')
+		core.debug('Creating missing blobs on GitHub')
 		const [ previousTree, tree ] = await Promise.all([ this.getTree(`${ commitSha }~1`), this.getTree(commitSha) ])
 		const promisesGithubCreateBlobs = []
 
@@ -322,7 +322,7 @@ class Git {
 					ref: 'refs/heads/' + this.prBranch
 				})
 
-				debug(`Created new branch ${ this.prBranch }`)
+				core.debug(`Created new branch ${ this.prBranch }`)
 			} catch (error) {
 				// If the branch exists ignores the error
 				if (error.message !== 'Reference already exists') throw error
@@ -333,7 +333,7 @@ class Git {
 			await this.createGithubTreeAndCommit(commitData.tree, commitData.commitMessage)
 		}
 
-		debug(`Updating branch ${ SKIP_PR === false ? this.prBranch : this.baseBranch } ref`)
+		core.debug(`Updating branch ${ SKIP_PR === false ? this.prBranch : this.baseBranch } ref`)
 		await this.github.git.updateRef({
 			owner: this.repo.user,
 			repo: this.repo.name,
@@ -341,7 +341,7 @@ class Git {
 			sha: this.lastCommitSha,
 			force: true
 		})
-		debug(`Commit using GitHub API completed`)
+		core.debug(`Commit using GitHub API completed`)
 	}
 
 	async status() {
@@ -416,7 +416,7 @@ class Git {
 		`)
 
 		if (this.existingPr) {
-			info(`Overwriting existing PR`)
+			core.info(`Overwriting existing PR`)
 
 			const { data } = await this.github.pulls.update({
 				owner: this.repo.user,
@@ -429,7 +429,7 @@ class Git {
 			return data
 		}
 
-		info(`Creating new PR`)
+		core.info(`Creating new PR`)
 
 		const { data } = await this.github.pulls.create({
 			owner: this.repo.user,
@@ -482,7 +482,7 @@ class Git {
 	}
 
 	async createGithubTreeAndCommit(tree, commitMessage) {
-		debug(`Creating a GitHub tree`)
+		core.debug(`Creating a GitHub tree`)
 		let treeSha
 		try {
 			const request = await this.github.git.createTree({
@@ -496,7 +496,7 @@ class Git {
 			throw error
 		}
 
-		debug(`Creating a commit for the GitHub tree`)
+		core.debug(`Creating a commit for the GitHub tree`)
 		const request = await this.github.git.createCommit({
 			owner: this.repo.user,
 			repo: this.repo.name,

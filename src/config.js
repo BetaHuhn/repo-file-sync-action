@@ -1,7 +1,7 @@
-import { setFailed, setSecret, debug, warning, info } from '@actions/core'
-import { load } from 'js-yaml'
-import { existsSync, promises } from 'fs-extra'
-import { join } from 'path'
+import * as core from '@actions/core'
+import * as yaml from 'js-yaml'
+import * as fs from 'fs-extra'
+import * as path from 'path'
 import { getInput } from 'action-input-parser'
 
 const REPLACE_DEFAULT = true
@@ -23,7 +23,7 @@ try {
 		})
 		isInstallationToken = true
 		if (!token) {
-			setFailed('You must provide either GH_PAT or GH_INSTALLATION_TOKEN')
+			core.setFailed('You must provide either GH_PAT or GH_INSTALLATION_TOKEN')
 			process.exit(1)
 		}
 	}
@@ -129,17 +129,17 @@ try {
 		})
 	}
 
-	setSecret(context.GITHUB_TOKEN)
+	core.setSecret(context.GITHUB_TOKEN)
 
-	debug(JSON.stringify(context, null, 2))
+	core.debug(JSON.stringify(context, null, 2))
 
-	while (existsSync(context.TMP_DIR)) {
+	while (fs.existsSync(context.TMP_DIR)) {
 		context.TMP_DIR = `tmp-${ Date.now().toString() }`
-		warning(`TEMP_DIR already exists. Using "${ context.TMP_DIR }" now.`)
+		core.warning(`TEMP_DIR already exists. Using "${ context.TMP_DIR }" now.`)
 	}
 
 } catch (err) {
-	setFailed(err.message)
+	core.setFailed(err.message)
 	process.exit(1)
 }
 
@@ -152,7 +152,7 @@ const parseRepoName = (fullRepo) => {
 
 		fullRepo = url.pathname.replace(/^\/+/, '') // Remove leading slash
 
-		info('Using custom host')
+		core.info('Using custom host')
 	}
 
 	const user = fullRepo.split('/')[0]
@@ -174,7 +174,7 @@ const parseExclude = (text, src) => {
 
 	const files = text.split('\n').filter((i) => i)
 
-	return files.map((file) => join(src, file))
+	return files.map((file) => path.join(src, file))
 }
 
 const parseFiles = (files) => {
@@ -193,14 +193,14 @@ const parseFiles = (files) => {
 			}
 		}
 
-		warning('Warn: No source files specified')
+		core.warning('Warn: No source files specified')
 	})
 }
 
 export async function parseConfig() {
-	const fileContent = await promises.readFile(context.CONFIG_PATH)
+	const fileContent = await fs.promises.readFile(context.CONFIG_PATH)
 
-	const configObject = load(fileContent.toString())
+	const configObject = yaml.load(fileContent.toString())
 
 	const result = {}
 
