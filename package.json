@@ -3,6 +3,7 @@
   "version": "1.19.0",
   "description": "GitHub Action to keep files like Action workflows or entire directories in sync between multiple repositories.",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "lint": "eslint ./src",
     "start": "node src/index.js",

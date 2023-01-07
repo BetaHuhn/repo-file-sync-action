@@ -1,8 +1,8 @@
-const core = require('@actions/core')
-const yaml = require('js-yaml')
-const fs = require('fs-extra')
-const path = require('path')
-const { getInput } = require('action-input-parser')
+import { setFailed, setSecret, debug, warning, info } from '@actions/core'
+import { load } from 'js-yaml'
+import { existsSync, promises } from 'fs-extra'
+import { join } from 'path'
+import { getInput } from 'action-input-parser'
 
 const REPLACE_DEFAULT = true
 const TEMPLATE_DEFAULT = false
@@ -23,7 +23,7 @@ try {
 		})
 		isInstallationToken = true
 		if (!token) {
-			core.setFailed('You must provide either GH_PAT or GH_INSTALLATION_TOKEN')
+			setFailed('You must provide either GH_PAT or GH_INSTALLATION_TOKEN')
 			process.exit(1)
 		}
 	}
@@ -129,17 +129,17 @@ try {
 		})
 	}
 
-	core.setSecret(context.GITHUB_TOKEN)
+	setSecret(context.GITHUB_TOKEN)
 
-	core.debug(JSON.stringify(context, null, 2))
+	debug(JSON.stringify(context, null, 2))
 
-	while (fs.existsSync(context.TMP_DIR)) {
+	while (existsSync(context.TMP_DIR)) {
 		context.TMP_DIR = `tmp-${ Date.now().toString() }`
-		core.warning(`TEMP_DIR already exists. Using "${ context.TMP_DIR }" now.`)
+		warning(`TEMP_DIR already exists. Using "${ context.TMP_DIR }" now.`)
 	}
 
 } catch (err) {
-	core.setFailed(err.message)
+	setFailed(err.message)
 	process.exit(1)
 }
 
@@ -152,7 +152,7 @@ const parseRepoName = (fullRepo) => {
 
 		fullRepo = url.pathname.replace(/^\/+/, '') // Remove leading slash
 
-		core.info('Using custom host')
+		info('Using custom host')
 	}
 
 	const user = fullRepo.split('/')[0]
@@ -174,7 +174,7 @@ const parseExclude = (text, src) => {
 
 	const files = text.split('\n').filter((i) => i)
 
-	return files.map((file) => path.join(src, file))
+	return files.map((file) => join(src, file))
 }
 
 const parseFiles = (files) => {
@@ -193,14 +193,14 @@ const parseFiles = (files) => {
 			}
 		}
 
-		core.warning('Warn: No source files specified')
+		warning('Warn: No source files specified')
 	})
 }
 
-const parseConfig = async () => {
-	const fileContent = await fs.promises.readFile(context.CONFIG_PATH)
+export async function parseConfig() {
+	const fileContent = await promises.readFile(context.CONFIG_PATH)
 
-	const configObject = yaml.load(fileContent.toString())
+	const configObject = load(fileContent.toString())
 
 	const result = {}
 
@@ -247,7 +247,4 @@ const parseConfig = async () => {
 	return Object.values(result)
 }
 
-module.exports = {
-	...context,
-	parseConfig
-}
+export default context
