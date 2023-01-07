@@ -81,11 +81,32 @@ export async function copy(src, dest, isDirectory, file) {
 	const deleteOrphaned = isDirectory && file.deleteOrphaned
 
 	const filterFunc = (file) => {
-		if (file.exclude !== undefined && file.exclude.includes(file)) {
-			core.debug(`Excluding file ${ file }`)
-			return false
-		}
 
+        if (exclude !== undefined) {
+
+            // Check if file-path is one of the present filepaths in the excluded paths
+            // This has presedence over the single file, and therefore returns before the single file check
+            let filePath = ''
+            if (file.endsWith('/')) {
+                //File item is a folder
+                filePath = file
+            } else {
+                //File item is a file
+                filePath = file.split('\/').slice(0,-1).join('/')+'/'
+            }
+            
+            if (exclude.includes(filePath)) {
+			    core.debug(`Excluding file ${ file } since its path is included as one of the excluded paths.`)
+                return false
+            }
+                
+                
+            //Or if the file itself is in the excluded files
+		    if (exclude.includes(file)) {
+			    core.debug(`Excluding file ${ file } since it is explicitly added in the exclusion list.`)
+			    return false
+		    }
+        }
 		return true
 	}
 
@@ -119,9 +140,10 @@ export async function copy(src, dest, isDirectory, file) {
 		const destFileList = await readfiles(dest, { readContents: false, hidden: true })
 
 		for (const destFile of destFileList) {
+			if (destFile.startsWith('.git')) return
 			if (srcFileList.indexOf(destFile) === -1) {
 				const filePath = path.join(dest, destFile)
-				core.debug(`Found a orphaned file in the target repo - ${ filePath }`)
+				core.debug(`Found an orphaned file in the target repo - ${ filePath }`)
 
 				if (file.exclude !== undefined && file.exclude.includes(path.join(src, destFile))) {
 					core.debug(`Excluding file ${ destFile }`)
