@@ -2827,12 +2827,12 @@ async function run() {
 	const prUrls = []
 
 	await (0,_helpers__WEBPACK_IMPORTED_MODULE_3__.forEach)(repos, async (item) => {
-		;(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)(`Repository Info`)
-		;(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)(`Slug		: ${ item.repo.name }`)
-		;(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)(`Owner		: ${ item.repo.user }`)
-		;(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)(`Https Url	: https://${ item.repo.fullName }`)
-		;(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)(`Branch		: ${ item.repo.branch }`)
-		;(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)('	')
+		_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Repository Info`)
+		_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Slug		: ${ item.repo.name }`)
+		_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Owner		: ${ item.repo.user }`)
+		_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Https Url	: https://${ item.repo.fullName }`)
+		_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Branch		: ${ item.repo.branch }`)
+		_actions_core__WEBPACK_IMPORTED_MODULE_0__.info('	')
 		try {
 
 			// Clone and setup the git repository locally
@@ -2845,32 +2845,32 @@ async function run() {
 				// Check for existing PR and add warning message that the PR maybe about to change
 				existingPr = OVERWRITE_EXISTING_PR ? await git.findExistingPr() : undefined
 				if (existingPr && DRY_RUN === false) {
-					(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)(`Found existing PR ${ existingPr.number }`)
+					_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Found existing PR ${ existingPr.number }`)
 					await git.setPrWarning()
 				}
 			}
 
-			(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)(`Locally syncing file(s) between source and target repository`)
+			_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Locally syncing file(s) between source and target repository`)
 			const modified = []
 
 			// Loop through all selected files of the source repo
 			await (0,_helpers__WEBPACK_IMPORTED_MODULE_3__.forEach)(item.files, async (file) => {
 				const fileExists = (0,fs__WEBPACK_IMPORTED_MODULE_1__.existsSync)(file.source)
 				if (fileExists === false)
-					return (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.warning)(`Source ${ file.source } not found`)
+					return _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`Source ${ file.source } not found`)
 
 				const localDestination = `${ git.workingDir }/${ file.dest }`
 
 				const destExists = (0,fs__WEBPACK_IMPORTED_MODULE_1__.existsSync)(localDestination)
 				if (destExists === true && file.replace === false)
-					return (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.warning)(`File(s) already exist(s) in destination and 'replace' option is set to false`)
+					return _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`File(s) already exist(s) in destination and 'replace' option is set to false`)
 
 				const isDirectory = await (0,_helpers__WEBPACK_IMPORTED_MODULE_3__.pathIsDirectory)(file.source)
 				const source = isDirectory ? `${ (0,_helpers__WEBPACK_IMPORTED_MODULE_3__.addTrailingSlash)(file.source) }` : file.source
 				const dest = isDirectory ? `${ (0,_helpers__WEBPACK_IMPORTED_MODULE_3__.addTrailingSlash)(localDestination) }` : localDestination
 
 				if (isDirectory)
-					(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)(`Source is directory`)
+					_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Source is directory`)
 
 				await (0,_helpers__WEBPACK_IMPORTED_MODULE_3__.copy)(source, dest, isDirectory, file)
 
@@ -2881,9 +2881,9 @@ async function run() {
 					const hasChanges = await git.hasChanges()
 
 					if (hasChanges === false)
-						return (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.debug)('File(s) already up to date')
+						return _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('File(s) already up to date')
 
-					;(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.debug)(`Creating commit for file(s) ${ file.dest }`)
+					_actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Creating commit for file(s) ${ file.dest }`)
 
 					// Use different commit/pr message based on if the source is a directory or file
 					const directory = isDirectory ? 'directory' : ''
@@ -2914,10 +2914,10 @@ async function run() {
 			})
 
 			if (DRY_RUN) {
-				(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.warning)('Dry run, no changes will be pushed')
+				_actions_core__WEBPACK_IMPORTED_MODULE_0__.warning('Dry run, no changes will be pushed')
 
-				;(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.debug)('Git Status:')
-				;(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.debug)(await git.status())
+				_actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Git Status:')
+				_actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(await git.status())
 
 				return
 			}
@@ -2926,7 +2926,7 @@ async function run() {
 
 			// If no changes left and nothing was modified we can assume nothing has changed/needs to be pushed
 			if (hasChanges === false && modified.length < 1) {
-				(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)('File(s) already up to date')
+				_actions_core__WEBPACK_IMPORTED_MODULE_0__.info('File(s) already up to date')
 
 				if (existingPr)
 					await git.removePrWarning()
@@ -2936,7 +2936,7 @@ async function run() {
 
 			// If there are still local changes left (i.e. not committed each file separately), commit them before pushing
 			if (hasChanges === true) {
-				(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.debug)(`Creating commit for remaining files`)
+				_actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Creating commit for remaining files`)
 
 				let useOriginalCommitMessage = ORIGINAL_MESSAGE && git.isOneCommitPush()
 				if (useOriginalCommitMessage) {
@@ -2954,7 +2954,7 @@ async function run() {
 				})
 			}
 
-			(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)(`Pushing changes to target repository`)
+			_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Pushing changes to target repository`)
 			await git.push()
 
 			if (SKIP_PR === false) {
@@ -2971,55 +2971,55 @@ async function run() {
 				const useCommitAsPRTitle = COMMIT_AS_PR_TITLE && modified.length === 1 && modified[0].useOriginalMessage
 				const pullRequest = await git.createOrUpdatePr(COMMIT_EACH_FILE ? changedFiles : '', useCommitAsPRTitle ? modified[0].commitMessage.split('\n', 1)[0].trim() : undefined)
 
-				;(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.notice)(`Pull Request #${ pullRequest.number } created/updated: ${ pullRequest.html_url }`)
+				_actions_core__WEBPACK_IMPORTED_MODULE_0__.notice(`Pull Request #${ pullRequest.number } created/updated: ${ pullRequest.html_url }`)
 				prUrls.push(pullRequest.html_url)
 
 				if (PR_LABELS !== undefined && PR_LABELS.length > 0 && !FORK) {
-					(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)(`Adding label(s) "${ PR_LABELS.join(', ') }" to PR`)
+					_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding label(s) "${ PR_LABELS.join(', ') }" to PR`)
 					await git.addPrLabels(PR_LABELS)
 				}
 
 				if (ASSIGNEES !== undefined && ASSIGNEES.length > 0 && !FORK) {
-					(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)(`Adding assignee(s) "${ ASSIGNEES.join(', ') }" to PR`)
+					_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding assignee(s) "${ ASSIGNEES.join(', ') }" to PR`)
 					await git.addPrAssignees(ASSIGNEES)
 				}
 
 				if (REVIEWERS !== undefined && REVIEWERS.length > 0 && !FORK) {
-					(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)(`Adding reviewer(s) "${ REVIEWERS.join(', ') }" to PR`)
+					_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding reviewer(s) "${ REVIEWERS.join(', ') }" to PR`)
 					await git.addPrReviewers(REVIEWERS)
 				}
 
 				if (TEAM_REVIEWERS !== undefined && TEAM_REVIEWERS.length > 0 && !FORK) {
-					(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)(`Adding team reviewer(s) "${ TEAM_REVIEWERS.join(', ') }" to PR`)
+					_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding team reviewer(s) "${ TEAM_REVIEWERS.join(', ') }" to PR`)
 					await git.addPrTeamReviewers(TEAM_REVIEWERS)
 				}
 			}
 
-			(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)('	')
+			_actions_core__WEBPACK_IMPORTED_MODULE_0__.info('	')
 		} catch (err) {
-			(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed)(err.message)
-			;(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.debug)(err)
+			_actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(err.message)
+			_actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(err)
 		}
 	})
 
 	// If we created any PRs, set their URLs as the output
 	if (prUrls) {
-		(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput)('pull_request_urls', prUrls)
+		_actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('pull_request_urls', prUrls)
 	}
 
 	if (SKIP_CLEANUP === true) {
-		(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)('Skipping cleanup')
+		_actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Skipping cleanup')
 		return
 	}
 
 	await (0,_helpers__WEBPACK_IMPORTED_MODULE_3__.remove)(TMP_DIR)
-	;(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.info)('Cleanup complete')
+	_actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Cleanup complete')
 }
 
 run()
 	.catch((err) => {
-		(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed)(err.message)
-		;(0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.debug)(err)
+		_actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(err.message)
+		_actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(err)
 	})
 })();
 
