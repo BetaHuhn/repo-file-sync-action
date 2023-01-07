@@ -117,9 +117,10 @@ const copy = async (src, dest, isDirectory, file) => {
 		const destFileList = await readfiles(dest, { readContents: false, hidden: true })
 
 		for (const destFile of destFileList) {
+			if (destFile.startsWith('.git')) return
 			if (srcFileList.indexOf(destFile) === -1) {
 				const filePath = path.join(dest, destFile)
-				core.debug(`Found a orphaned file in the target repo - ${ filePath }`)
+				core.debug(`Found an orphaned file in the target repo - ${ filePath }`)
 
 				if (file.exclude !== undefined && file.exclude.includes(path.join(src, destFile))) {
 					core.debug(`Excluding file ${ destFile }`)
