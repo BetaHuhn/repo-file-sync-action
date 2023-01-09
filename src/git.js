@@ -8,6 +8,7 @@ import * as fs from 'fs/promises'
 
 import {
 	GITHUB_TOKEN,
+	GITHUB_SERVER_URL,
 	IS_INSTALLATION_TOKEN,
 	IS_FINE_GRAINED,
 	GIT_USERNAME,
@@ -30,6 +31,7 @@ export default class Git {
 		const Octokit = GitHub.plugin(throttling)
 
 		const options = getOctokitOptions(GITHUB_TOKEN, {
+			baseUrl: process.env.GITHUB_API_URL || 'https://api.github.com',
 			throttle: {
 				onRateLimit: (retryAfter) => {
 					core.debug(`Hit GitHub API rate limit, retrying after ${ retryAfter }s`)
@@ -65,9 +67,11 @@ export default class Git {
 		await this.getLastCommitSha()
 
 		if (FORK) {
-			const forkUrl = `https://${ GITHUB_TOKEN }@github.com/${ FORK }/${ this.repo.name }.git`
+			const forkUrl = new URL(GITHUB_SERVER_URL)
+			forkUrl.username = GITHUB_TOKEN
+			forkUrl.pathname = `${ FORK }/${ this.repo.name }.git`
 			await this.createFork()
-			await this.createRemote(forkUrl)
+			await this.createRemote(forkUrl.toString())
 
 		}
 	}
@@ -419,7 +423,7 @@ export default class Git {
 
 	async createOrUpdatePr(changedFiles, title) {
 		const body = dedent(`
-			Synced local file(s) with [${ GITHUB_REPOSITORY }](https://github.com/${ GITHUB_REPOSITORY }).
+			Synced local file(s) with [${ GITHUB_REPOSITORY }](${ GITHUB_SERVER_URL }/${ GITHUB_REPOSITORY }).
 
 			${ PR_BODY }
 
@@ -427,7 +431,7 @@ export default class Git {
 
 			---
 
-			This PR was created automatically by the [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) workflow run [#${ process.env.GITHUB_RUN_ID || 0 }](https://github.com/${ GITHUB_REPOSITORY }/actions/runs/${ process.env.GITHUB_RUN_ID || 0 })
+			This PR was created automatically by the [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) workflow run [#${ process.env.GITHUB_RUN_ID || 0 }](${ GITHUB_SERVER_URL }/${ GITHUB_REPOSITORY }/actions/runs/${ process.env.GITHUB_RUN_ID || 0 })
 		`)
 
 		if (this.existingPr) {
