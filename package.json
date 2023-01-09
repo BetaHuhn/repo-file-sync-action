@@ -30,7 +30,7 @@
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1",
-    "@octokit/plugin-throttling": "^3.6.2",
+    "@octokit/plugin-throttling": "^4.0.0",
     "@putout/git-status-porcelain": "^1.1.0",
     "action-input-parser": "^1.2.33",
     "fs-extra": "^10.1.0",
