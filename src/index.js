@@ -1,10 +1,10 @@
 import * as core from '@actions/core'
 import * as fs from 'fs'
 
-import Git from './git'
-import { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove, arrayEquals } from './helpers'
+import Git from './git.js'
+import { forEach, dedent, addTrailingSlash, pathIsDirectory, copy, remove, arrayEquals } from './helpers.js'
 
-import { parseConfig, default as config } from './config'
+import { parseConfig, default as config } from './config.js'
 
 const {
 	COMMIT_EACH_FILE,
