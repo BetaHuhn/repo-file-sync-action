@@ -454,7 +454,7 @@ You can specify a custom commit body. This will be appended to the commit messag
 
 The above example would result in a commit message that looks something like this:
 ```
-🔄 Synced local '<filename>' with remote '<filename>'
+🔄 synced local '<filename>' with remote '<filename>'
 
 Change-type: patch
 ```
@@ -476,7 +476,7 @@ You can add more content to the PR body with the `PR_BODY` option. For example:
 It will be added below the first line of the body and above the list of changed files. The above example would result in a PR body that looks something like this:
 
 ```
-Synced local file(s) with GITHUB_REPOSITORY.
+synced local file(s) with GITHUB_REPOSITORY.
 
 This is your custom PR Body
 
