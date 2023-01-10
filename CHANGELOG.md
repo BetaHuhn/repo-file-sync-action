@@ -1,3 +1,12 @@
+## [v1.21.0] - 2023-01-10
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.21.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.20.2...v1.21.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.21.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.21.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.21.0.tar.gz))
+
+### New features
+
+- [`5c87303`](https://github.com/betahuhn/repo-file-sync-action/commit/5c87303)  Add GHES support (#291)
+(Issues: [`#291`](https://github.com/betahuhn/repo-file-sync-action/issues/291))
+
 ## [v1.20.2] - 2023-01-10
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.20.2) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.20.1...v1.20.2) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.20.2) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.20.2.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.20.2.tar.gz))
