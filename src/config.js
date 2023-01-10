@@ -30,6 +30,7 @@ try {
 
 	context = {
 		GITHUB_TOKEN: token,
+		GITHUB_SERVER_URL: process.env.GITHUB_SERVER_URL || 'https://github.com',
 		IS_INSTALLATION_TOKEN: isInstallationToken,
 		GIT_EMAIL: getInput({
 			key: 'GIT_EMAIL'
@@ -144,7 +145,7 @@ try {
 }
 
 const parseRepoName = (fullRepo) => {
-	let host = 'github.com'
+	let host = new URL(context.GITHUB_SERVER_URL).host
 
 	if (fullRepo.startsWith('http')) {
 		const url = new URL(fullRepo)
