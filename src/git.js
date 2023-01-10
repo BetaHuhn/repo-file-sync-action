@@ -1,12 +1,14 @@
 import { parse } from '@putout/git-status-porcelain'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { GitHub, getOctokitOptions } from '@actions/github/lib/utils'
+import { GitHub, getOctokitOptions } from '@actions/github/lib/utils.js'
 import { throttling } from '@octokit/plugin-throttling'
 import * as path from 'path'
 import * as fs from 'fs/promises'
 
-import {
+import config from './config.js'
+
+const {
 	GITHUB_TOKEN,
 	GITHUB_SERVER_URL,
 	IS_INSTALLATION_TOKEN,
@@ -22,9 +24,9 @@ import {
 	PR_BODY,
 	BRANCH_PREFIX,
 	FORK
-} from './config'
+} = config
 
-import { dedent, execCmd } from './helpers'
+import { dedent, execCmd } from './helpers.js'
 
 export default class Git {
 	constructor() {

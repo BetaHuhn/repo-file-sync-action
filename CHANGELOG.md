@@ -1,3 +1,11 @@
+## [v1.20.1] - 2023-01-09
+
+[Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.20.1) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.20.0...v1.20.1) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.20.1) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.20.1.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.20.1.tar.gz))
+
+### Bug fixes
+
+- [`7f7a929`](https://github.com/betahuhn/repo-file-sync-action/commit/7f7a929)  Fix esm imports
+
 ## [v1.20.0] - 2023-01-07
 
 [Release notes](https://github.com/betahuhn/repo-file-sync-action/releases/tag/v1.20.0) · [Compare](https://github.com/betahuhn/repo-file-sync-action/compare/v1.19.1...v1.20.0) · [Tag](https://github.com/betahuhn/repo-file-sync-action/tree/v1.20.0) · Archive ([zip](https://github.com/betahuhn/repo-file-sync-action/archive/v1.20.0.zip) · [tar.gz](https://github.com/betahuhn/repo-file-sync-action/archive/v1.20.0.tar.gz))
