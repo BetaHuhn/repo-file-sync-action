@@ -69,15 +69,19 @@ export async function pathIsDirectory(path) {
 	return stat.isDirectory()
 }
 
-export async function write(src, dest, context) {
+export async function write(src, dest, context, item) {
 	if (typeof context !== 'object') {
 		context = {}
 	}
+
+	// include current repo constants (e.g., host, user, name, branch, etc.)
+	context.repo = item.repo
+
 	const content = nunjucks.render(src, context)
 	await fs.outputFile(dest, content)
 }
 
-export async function copy(src, dest, isDirectory, file) {
+export async function copy(src, dest, isDirectory, file, item) {
 	const deleteOrphaned = isDirectory && file.deleteOrphaned
 	const exclude = file.exclude
 
@@ -121,12 +125,12 @@ export async function copy(src, dest, isDirectory, file) {
 
 				const srcPath = path.join(src, srcFile)
 				const destPath = path.join(dest, srcFile)
-				await write(srcPath, destPath, file.template)
+				await write(srcPath, destPath, file.template, item)
 			}
 		} else {
 			core.debug(`Render file ${ src } to ${ dest }`)
 
-			await write(src, dest, file.template)
+			await write(src, dest, file.template, item)
 		}
 	} else {
 		core.debug(`Copy ${ src } to ${ dest }`)

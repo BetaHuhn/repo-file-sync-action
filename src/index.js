@@ -33,10 +33,10 @@ async function run() {
 
 	await forEach(repos, async (item) => {
 		core.info(`Repository Info`)
-		core.info(`Slug		: ${ item.repo.name }`)
-		core.info(`Owner		: ${ item.repo.user }`)
-		core.info(`Https Url	: https://${ item.repo.fullName }`)
-		core.info(`Branch		: ${ item.repo.branch }`)
+		core.info(`Slug   : ${ item.repo.name }`)
+		core.info(`Owner  : ${ item.repo.user }`)
+		core.info(`Url    : ${ item.repo.url }`)
+		core.info(`Branch : ${ item.repo.branch }`)
 		core.info('	')
 		try {
 
@@ -74,7 +74,7 @@ async function run() {
 
 				if (isDirectory) core.info(`Source is directory`)
 
-				await copy(source, dest, isDirectory, file)
+				await copy(source, dest, isDirectory, file, item)
 
 				await git.add(file.dest)
 

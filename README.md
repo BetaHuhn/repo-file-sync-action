@@ -234,6 +234,37 @@ Result:
 Created by Maxi (@BetaHuhn)
 ```
 
+By default, every Nunjucks template context will be pre-populated with the `repo` object containing the following values:
+
+- `repo.url`
+- `repo.fullName`
+- `repo.uniqueName`
+- `repo.host`
+- `repo.user`
+- `repo.name`
+- `repo.branch`
+
+This can be useful for certain bulk templating use cases:
+
+```yml
+# sync.yml
+
+group:
+  - repos: |
+      user/repo1
+      user/repo2
+      ...
+    files:
+      - source: src/README.md
+        template: true
+```
+
+```yml
+# README.md
+
+Hello from {{ repo.name }} by {{ repo.user }}!
+```
+
 You can also use `extends` with a relative path to inherit other templates. Take a look at Nunjucks [template syntax](https://mozilla.github.io/nunjucks/templating.html) for more info.
 
 ```yml
