@@ -161,6 +161,7 @@ const parseRepoName = (fullRepo) => {
 	const branch = fullRepo.split('@')[1] || 'default'
 
 	return {
+		url: `https://${ host }/${ user }/${ name }`,
 		fullName: `${ host }/${ user }/${ name }`,
 		uniqueName: `${ host }/${ user }/${ name }@${ branch }`,
 		host,
