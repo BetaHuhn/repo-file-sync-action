@@ -36,6 +36,7 @@ name: Sync Files
 on:
   push:
     branches:
+      - main
       - master
   workflow_dispatch:
 jobs:
@@ -43,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@master
+        uses: actions/checkout@main
       - name: Run GitHub File Sync
         uses: BetaHuhn/repo-file-sync-action@v1
         with:
