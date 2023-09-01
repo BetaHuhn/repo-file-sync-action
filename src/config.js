@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import * as yaml from 'js-yaml'
-import * as fs from 'fs-extra'
+import fs from 'fs-extra'
 import * as path from 'path'
 import { getInput } from 'action-input-parser'
 
