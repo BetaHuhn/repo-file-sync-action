@@ -1,9 +1,9 @@
-import * as fs from 'fs-extra'
+import fs from 'fs-extra'
 import readfiles from 'node-readfiles'
 import { exec } from 'child_process'
 import * as core from '@actions/core'
 import * as path from 'path'
-import * as nunjucks from 'nunjucks'
+import nunjucks from 'nunjucks'
 
 nunjucks.configure({ autoescape: true, trimBlocks: true, lstripBlocks: true })
 
