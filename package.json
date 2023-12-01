@@ -32,7 +32,7 @@
     "@actions/github": "^5.1.1",
     "@octokit/plugin-throttling": "^4.0.0",
     "@putout/git-status-porcelain": "^1.1.0",
-    "action-input-parser": "^1.2.33",
+    "action-input-parser": "^1.2.38",
     "fs-extra": "^11.1.1",
     "js-yaml": "^4.1.0",
     "node-readfiles": "0.3.1",
