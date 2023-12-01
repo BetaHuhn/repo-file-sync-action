@@ -30,18 +30,18 @@
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1",
-    "@octokit/plugin-throttling": "^3.6.2",
+    "@octokit/plugin-throttling": "^4.0.0",
     "@putout/git-status-porcelain": "^1.1.0",
-    "action-input-parser": "^1.2.33",
-    "fs-extra": "^10.1.0",
+    "action-input-parser": "^1.2.38",
+    "fs-extra": "^11.1.1",
     "js-yaml": "^4.1.0",
-    "node-readfiles": "0.2.0",
-    "nunjucks": "^3.2.3"
+    "node-readfiles": "0.3.1",
+    "nunjucks": "^3.2.4"
   },
   "devDependencies": {
     "@betahuhn/config": "^1.2.0",
     "@octokit/core": "^3.6.0",
-    "@vercel/ncc": "^0.34.0",
+    "@vercel/ncc": "^0.38.1",
     "eslint": "^7.32.0"
   }
 }
