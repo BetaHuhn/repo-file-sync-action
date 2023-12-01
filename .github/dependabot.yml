@@ -1,6 +1,11 @@
 # file is synced from cove-workflow
 
 version: 2
+registries:
+  npm-npmjs:
+    type: npm-registry
+    url: https://registry.npmjs.org
+    token: ${{ secrets.NPM_TOKEN_READ_ONLY }}
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -10,14 +15,15 @@ updates:
       prefix: chore
       prefix-development: chore
     groups:
-      dev-dependencies:
-        dependency-type: "development"
+      all:
         update-types:
+          - "major"
           - "minor"
           - "patch"
-
   - package-ecosystem: "npm"
     directory: "/"
+    registries:
+      - npm-npmjs
     schedule:
       interval: "weekly"
     commit-message:
