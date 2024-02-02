@@ -4,7 +4,6 @@ import * as github from '@actions/github'
 import { GitHub, getOctokitOptions } from '@actions/github/lib/utils.js'
 import { throttling } from '@octokit/plugin-throttling'
 import * as path from 'path'
-import * as fs from 'fs/promises'
 
 import config from './config.js'
 
@@ -13,8 +12,6 @@ const {
 	GITHUB_SERVER_URL,
 	IS_INSTALLATION_TOKEN,
 	IS_FINE_GRAINED,
-	GIT_USERNAME,
-	GIT_EMAIL,
 	TMP_DIR,
 	COMMIT_BODY,
 	COMMIT_PREFIX,
@@ -64,7 +61,6 @@ export default class Git {
 		this.gitUrl = `https://${ IS_INSTALLATION_TOKEN ? 'x-access-token:' : '' }${ IS_FINE_GRAINED ? 'oauth:' : '' }${ GITHUB_TOKEN }@${ repo.fullName }.git`
 
 		await this.clone()
-		await this.setIdentity()
 		await this.getBaseBranch()
 		await this.getLastCommitSha()
 
@@ -98,26 +94,6 @@ export default class Git {
 
 		return execCmd(
 			`git clone --depth 1 ${ this.repo.branch !== 'default' ? '--branch "' + this.repo.branch + '"' : '' } ${ this.gitUrl } ${ this.workingDir }`
-		)
-	}
-
-	async setIdentity() {
-		let username = GIT_USERNAME
-		let email = GIT_EMAIL
-
-		if (email === undefined) {
-			if (!IS_INSTALLATION_TOKEN) {
-				const { data } = await this.github.users.getAuthenticated()
-				email = data.email
-				username = data.login
-			}
-		}
-
-		core.debug(`Setting git user to email: ${ email }, username: ${ username }`)
-
-		return execCmd(
-			`git config --local user.name "${ username }" && git config --local user.email "${ email }"`,
-			this.workingDir
 		)
 	}
 
@@ -200,13 +176,6 @@ export default class Git {
 		}
 	}
 
-	async getBlobBase64Content(file) {
-		const fileRelativePath = path.join(this.workingDir, file)
-		const fileContent = await fs.readFile(fileRelativePath)
-
-		return fileContent.toString('base64')
-	}
-
 	async getLastCommitSha() {
 		this.lastCommitSha = await execCmd(
 			`git rev-parse HEAD`,
@@ -243,59 +212,70 @@ export default class Git {
 	}
 
 	// Returns a git tree parsed for the specified commit sha
-	async getTree(commitSha) {
-		const output = await execCmd(
-			`git ls-tree -r --full-tree ${ commitSha }`,
+	async getTreeId(commitSha) {
+		core.debug(`Getting treeId for commit ${ commitSha }`)
+		const output = (await execCmd(
+			`git cat-file -p ${ commitSha }`,
 			this.workingDir
-		)
+		)).split('\n')
+		const commitHeaders = output.slice(0, output.findIndex((e) => e === ''))
 
-		const tree = []
-		for (const treeObject of output.split('\n')) {
-			const [ mode, type, sha ] = treeObject.split(/\s/)
-			const file = treeObject.split('\t')[1]
-
-			const treeEntry = {
-				mode,
-				type,
-				sha,
-				path: file
-			}
-
-			tree.push(treeEntry)
-		}
+		const tree = commitHeaders.find((e) => e.startsWith('tree')).replace('tree ', '')
 
 		return tree
 	}
 
-	// Creates the blob objects in GitHub for the files that are not in the previous commit only
-	async createGithubBlobs(commitSha) {
-		core.debug('Creating missing blobs on GitHub')
-		const [ previousTree, tree ] = await Promise.all([ this.getTree(`${ commitSha }~1`), this.getTree(commitSha) ])
-		const promisesGithubCreateBlobs = []
+	async getTreeDiff(referenceTreeId, differenceTreeId) {
+		const output = await execCmd(
+			`git diff-tree ${ referenceTreeId } ${ differenceTreeId } -r`,
+			this.workingDir
+		)
+		const diff = []
+		for (const line of output.split('\n')) {
+			const splitted = line
+				.replace(/^:/, '')
+				.replace('\t', ' ')
+				.split(' ')
 
-		for (const treeEntry of tree) {
-			// If the current treeEntry are in the previous tree, that means that the blob is uploaded and it doesn't need to be uploaded to GitHub again.
-			if (previousTree.findIndex((entry) => entry.sha === treeEntry.sha) !== -1) {
-				continue
-			}
+			const [
+				newMode,
+				previousMode,
+				newBlob,
+				previousBlob,
+				change,
+				path
+			] = splitted
 
-			const base64Content = await this.getBlobBase64Content(treeEntry.path)
-
-			// Creates the blob. We don't need to store the response because the local sha is the same and we can use it to reference the blob
-			const githubCreateBlobRequest = this.github.git.createBlob({
-				owner: this.repo.user,
-				repo: this.repo.name,
-				content: base64Content,
-				encoding: 'base64'
+			diff.push({
+				newMode,
+				previousMode,
+				newBlob,
+				previousBlob,
+				change,
+				path
 			})
-			promisesGithubCreateBlobs.push(githubCreateBlobRequest)
 		}
-
-		// Wait for all the file uploads to be completed
-		await Promise.all(promisesGithubCreateBlobs)
+		return diff
 	}
 
-	// Gets the commit list in chronological order
+	// Creates the blob objects in GitHub for the files that are not in the previous commit only
+	async uploadGitHubBlob(blob) {
+		core.debug(`Uploading GitHub Blob for blob ${ blob }`)
+		const fileContent = await execCmd(
+			`git cat-file -p ${ blob }`,
+			this.workingDir,
+			false
+		)
+
+		// Creates the blob. We don't need to store the response because the local sha is the same and we can use it to reference the blob
+		return this.github.git.createBlob({
+			owner: this.repo.user,
+			repo: this.repo.name,
+			content: Buffer.from(fileContent).toString('base64'),
+			encoding: 'base64'
+		})
+	}
+
 	async getCommitsToPush() {
 		const output = await execCmd(
 			`git log --format=%H --reverse ${ SKIP_PR === false ? `` : `origin/` }${ this.baseBranch }..HEAD`,
@@ -313,25 +293,11 @@ export default class Git {
 		)
 	}
 
-	// Returns an array of objects with the git tree and the commit, one entry for each pending commit to push
-	async getCommitsDataToPush() {
-		const commitsToPush = await this.getCommitsToPush()
-
-		const commitsData = []
-		for (const commitSha of commitsToPush) {
-			const [ commitMessage, tree ] = await Promise.all([ this.getCommitMessage(commitSha), this.getTree(commitSha), this.createGithubBlobs(commitSha) ])
-			const commitData = {
-				commitMessage,
-				tree
-			}
-			commitsData.push(commitData)
-		}
-		return commitsData
-	}
 
 	// A wrapper for running all the flow to generate all the pending commits using the GitHub API
 	async createGithubVerifiedCommits() {
-		const commitsData = await this.getCommitsDataToPush()
+		core.debug(`Creating Commits using GitHub API`)
+		const commits = await this.getCommitsToPush()
 
 		if (SKIP_PR === false) {
 			// Creates the PR branch if doesn't exists
@@ -350,8 +316,8 @@ export default class Git {
 			}
 		}
 
-		for (const commitData of commitsData) {
-			await this.createGithubTreeAndCommit(commitData.tree, commitData.commitMessage)
+		for (const commit of commits) {
+			await this.createGithubCommit(commit)
 		}
 
 		core.debug(`Updating branch ${ SKIP_PR === false ? this.prBranch : this.baseBranch } ref`)
@@ -502,14 +468,43 @@ export default class Git {
 		})
 	}
 
-	async createGithubTreeAndCommit(tree, commitMessage) {
+	async createGithubCommit(commitSha) {
+		const [ treeId, parentTreeId, commitMessage ] = await Promise.all([
+			this.getTreeId(`${ commitSha }`),
+			this.getTreeId(`${ commitSha }~1`),
+			this.getCommitMessage(commitSha)
+		])
+
+		const treeDiff = await this.getTreeDiff(treeId, parentTreeId)
+		core.debug(`Uploading the blobs to GitHub`)
+		const blobsToCreate = treeDiff
+			.filter((e) => e.newMode !== '000000') // Do not upload the blob if it is being removed
+
+		await Promise.all(blobsToCreate.map((e) => this.uploadGitHubBlob(e.newBlob)))
 		core.debug(`Creating a GitHub tree`)
+		const tree = treeDiff.map((e) => {
+			if (e.newMode === '000000') { // Set the sha to null to remove the file
+				e.newMode = e.previousMode
+				e.newBlob = null
+			}
+
+			const entry = {
+				path: e.path,
+				mode: e.newMode,
+				type: 'blob',
+				sha: e.newBlob
+			}
+
+			return entry
+		})
+
 		let treeSha
 		try {
 			const request = await this.github.git.createTree({
 				owner: this.repo.user,
 				repo: this.repo.name,
-				tree
+				tree,
+				base_tree: parentTreeId
 			})
 			treeSha = request.data.sha
 		} catch (error) {

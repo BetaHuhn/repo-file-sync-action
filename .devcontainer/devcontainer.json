@@ -1,0 +1,33 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node
+{
+    "name": "Node.js",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bullseye",
+    "features": {},
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "redhat.vscode-yaml",
+                "github.actions",
+                "github.copilot",
+                "ms-vscode.vscode-node-azure-pack",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "github.vscode-pull-request-github",
+                "ms-azuretools.vscode-docker"
+            ]
+        },
+        "codespaces": {
+            "extensions": [
+                "redhat.vscode-yaml",
+                "github.actions",
+                "github.copilot",
+                "ms-vscode.vscode-node-azure-pack",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "github.vscode-pull-request-github",
+                "ms-azuretools.vscode-docker"
+            ]
+        }
+    }
+}

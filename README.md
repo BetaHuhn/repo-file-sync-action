@@ -2,15 +2,13 @@
   
 # Repo File Sync Action
 
-[![Build CI](https://github.com/BetaHuhn/repo-file-sync-action/workflows/Test%20CI/badge.svg)](https://github.com/BetaHuhn/repo-file-sync-action/actions?query=workflow%3A%22Test+CI%22) [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/BetaHuhn/repo-file-sync-action/blob/master/LICENSE) ![David](https://img.shields.io/david/betahuhn/repo-file-sync-action)
-
 Keep files like Action workflows or entire directories in sync between multiple repositories.
 
 </div>
 
 ## 👋 Introduction
 
-With [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) you can sync files, like workflow `.yml` files, configuration files or whole directories between repositories or branches. It works by running a GitHub Action in your main repository everytime you push something to that repo. The action will use a `sync.yml` config file to figure out which files it should sync where. If it finds a file which is out of sync it will open a pull request in the target repository with the changes.
+With this github action you can sync files, like workflow `.yml` files, configuration files or whole directories between repositories or branches. It works by running a GitHub Action in your main repository everytime you push something to that repo. The action will use a `sync.yml` config file to figure out which files it should sync where. If it finds a file which is out of sync it will open a pull request in the target repository with the changes.
 
 ## 🚀 Features
 
@@ -45,23 +43,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@master
       - name: Run GitHub File Sync
-        uses: BetaHuhn/repo-file-sync-action@v1
+        uses: cds-snc/repo-file-sync-action@main
         with:
           GH_PAT: ${{ secrets.GH_PAT }}
 ```
 
 #### Token
 
-In order for the Action to access your repositories you have to specify a [Personal Access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) as the value for `GH_PAT` (`GITHUB_TOKEN` will **not** work). The PAT needs the full repo scope ([#31](https://github.com/BetaHuhn/repo-file-sync-action/discussions/31#discussioncomment-674804)).
-
-It is recommended to set the token as a
-[Repository Secret](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository).
-
-Alternatively, you can provide the token of a GitHub App Installation via the `GH_INSTALLATION_TOKEN` input. You can obtain such token for example via [this](https://github.com/marketplace/actions/github-app-token) action. Tokens from apps have the advantage that they provide more granular access control.
+You need to use a GitHub App Installation via the `GH_INSTALLATION_TOKEN` input. You can obtain such token for example via [this](https://github.com/marketplace/actions/github-app-token) action. Tokens from apps have the advantage that they provide more granular access control. For simplicity sake, you can use the SRE Bot Read/Write app that already exists. 
 
 The app needs to be configured for each repo you want to sync to, and have the `Contents` read & write and `Metadata` read-only permission. If you want to use PRs (default setting) you additionally need `Pull requests` read & write access, and to sync workflow files you need `Workflows` read & write access.
 
-If using an installation token you are required to provide the `GIT_EMAIL` and `GIT_USERNAME` input.
 
 ### Sync configuration
 
@@ -81,30 +73,14 @@ user/repository2:
 
 More info on how to specify what files to sync where [below](#%EF%B8%8F-sync-configuration).
 
-### Versioning
-
-To always use the latest version of the action add the `latest` tag to the action name like this:
-
-```yml
-uses: BetaHuhn/repo-file-sync-action@latest
-```
-
-If you want to make sure that your workflow doesn't suddenly break when a new major version is released, use the `v1` tag instead (recommended usage):
-
-```yml
-uses: BetaHuhn/repo-file-sync-action@v1
-```
-
-With the `v1` tag you will always get the latest non-breaking version which will include potential bug fixes in the future. If you use a specific version, make sure to regularly check if a new version is available, or enable Dependabot.
 
 ## ⚙️ Action Inputs
 
-Here are all the inputs [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) takes:
+Below are the list of inputs that the action takes:
 
 | Key | Value | Required | Default |
 | ------------- | ------------- | ------------- | ------------- |
-| `GH_PAT` | Your [Personal Access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) | **`GH_PAT` or `GH_INSTALLATION_TOKEN` required** | N/A |
-| `GH_INSTALLATION_TOKEN` | Token from a GitHub App installation | **`GH_PAT` or `GH_INSTALLATION_TOKEN` required** | N/A |
+| `GH_INSTALLATION_TOKEN` | Token from a GitHub App installation | **Yes** | N/A |
 | `CONFIG_PATH` | Path to the sync configuration file | **No** | .github/sync.yml |
 | `PR_LABELS` | Labels which will be added to the pull request. Set to false to turn off | **No** | sync |
 | `ASSIGNEES` | Users to assign to the pull request | **No** | N/A |
@@ -116,8 +92,6 @@ Here are all the inputs [repo-file-sync-action](https://github.com/BetaHuhn/repo
 | `ORIGINAL_MESSAGE` | Use original commit message instead. Only works if the file(s) were changed and the action was triggered by pushing a single commit. | **No** | false |
 | `COMMIT_AS_PR_TITLE` | Use first line of the commit message as PR title. Only works if `ORIGINAL_MESSAGE` is `true` and working. | **No** | false |
 | `COMMIT_EACH_FILE` | Commit each file seperately | **No** | true |
-| `GIT_EMAIL` | The e-mail address used to commit the synced files | **Only when using installation token** | the email of the PAT used |
-| `GIT_USERNAME` | The username used to commit the synced files | **Only when using installation token** | the username of the PAT used |
 | `OVERWRITE_EXISTING_PR` | Overwrite any existing Sync PR with the new changes | **No** | true |
 | `BRANCH_PREFIX` | Specify a different prefix for the new branch in the target repo | **No** | repo-sync/SOURCE_REPO_NAME |
 | `TMP_DIR` | The working directory where all git operations will be done | **No** | tmp-${ Date.now().toString() } |
@@ -132,7 +106,7 @@ The action sets the `pull_request_urls` output to the URLs of any created Pull R
 
 ## 🛠️ Sync Configuration
 
-In order to tell [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) what files to sync where, you have to create a `sync.yml` file in the `.github` directory of your main repository (see [action-inputs](#%EF%B8%8F-action-inputs) on how to change the location).
+In order to tell the github action what files to sync where, you have to create a `sync.yml` file in the `.github` directory of your main repository (see [action-inputs](#%EF%B8%8F-action-inputs) on how to change the location).
 
 The top-level key should be used to specify the target repository in the format `username`/`repository-name`@`branch`, after that you can list all the files you want to sync to that individual repository:
 
@@ -215,7 +189,6 @@ user/repo:
     template:
       user:
         name: 'Maxi'
-        handle: '@BetaHuhn'
 ```
 
 In the source file you can then use these variables like this:
@@ -231,7 +204,7 @@ Result:
 ```yml
 # README.md
 
-Created by Maxi (@BetaHuhn)
+Created by Whoever(@name)
 ```
 
 You can also use `extends` with a relative path to inherit other templates. Take a look at Nunjucks [template syntax](https://mozilla.github.io/nunjucks/templating.html) for more info.
@@ -352,13 +325,13 @@ group:
 
 ### Custom labels
 
-By default [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) will add the `sync` label to every PR it creates. You can turn this off by setting `PR_LABELS` to false, or specify your own labels:
+By default the action will add the `sync` label to every PR it creates. You can turn this off by setting `PR_LABELS` to false, or specify your own labels:
 
 **.github/workflows/sync.yml**
 
 ```yml
 - name: Run GitHub File Sync
-  uses: BetaHuhn/repo-file-sync-action@v1
+  uses: cds-snc/repo-file-sync-action@main
   with:
     GH_PAT: ${{ secrets.GH_PAT }}
     PR_LABELS: |
@@ -368,31 +341,31 @@ By default [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-ac
 
 ### Assign a user to the PR
 
-You can tell [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) to assign users to the PR with `ASSIGNEES`:
+You can tell the action to assign users to the PR with `ASSIGNEES`:
 
 **.github/workflows/sync.yml**
 
 ```yml
 - name: Run GitHub File Sync
-  uses: BetaHuhn/repo-file-sync-action@v1
+  uses: cds-snc/repo-file-sync-action@main
   with:
     GH_PAT: ${{ secrets.GH_PAT }}
-    ASSIGNEES: BetaHuhn
+    ASSIGNEES: cds-snc
 ```
 
 ### Request a PR review
 
-You can tell [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) to request a review of the PR from users with `REVIEWERS` and from teams with `TEAM_REVIEWERS`:
+You can tell the action to request a review of the PR from users with `REVIEWERS` and from teams with `TEAM_REVIEWERS`:
 
 **.github/workflows/sync.yml**
 
 ```yml
 - name: Run GitHub File Sync
-  uses: BetaHuhn/repo-file-sync-action@v1
+  uses: cds-snc/repo-file-sync-action@main
   with:
     GH_PAT: ${{ secrets.GH_PAT }}
     REVIEWERS: |
-      BetaHuhn
+      cds-snc
       BetaHuhnBot
     TEAM_REVIEWERS: engineering
 ```
@@ -419,24 +392,6 @@ group:
 
 > **Note:** The key has to start with http to indicate that you want to use a custom host.
 
-### Different branch prefix
-
-By default all new branches created in the target repo will be in the this format: `repo-sync/SOURCE_REPO_NAME/SOURCE_BRANCH_NAME`, with the SOURCE_REPO_NAME being replaced with the name of the source repo and SOURCE_BRANCH_NAME with the name of the source branch.
-
-If your repo name contains invalid characters, like a dot ([#32](https://github.com/BetaHuhn/repo-file-sync-action/issues/32)), you can specify a different prefix for the branch (the text before `/SOURCE_BRANCH_NAME`):
-
-**.github/workflows/sync.yml**
-
-```yml
-uses: BetaHuhn/repo-file-sync-action@v1
-with:
-    GH_PAT: ${{ secrets.GH_PAT }}
-    BRANCH_PREFIX: custom-branch
-```
-
-The new branch will then be `custom-branch/SOURCE_BRANCH_NAME`.
-
-> You can use `SOURCE_REPO_NAME` in your custom branch prefix as well and it will be replaced with the actual repo name
 
 ### Custom commit body
 
@@ -446,9 +401,9 @@ You can specify a custom commit body. This will be appended to the commit messag
 
 ```yml
 - name: Run GitHub File Sync
-  uses: BetaHuhn/repo-file-sync-action@v1
+  uses: cds-snc/repo-file-sync-action@main
   with:
-    GH_PAT: ${{ secrets.GH_PAT }}
+    GH_INSTALLATION_TOKEN: ${{ steps.generate_token.outputs.token }}
     COMMIT_BODY: "Change-type: patch"
 ```
 
@@ -467,9 +422,9 @@ You can add more content to the PR body with the `PR_BODY` option. For example:
 
 ```yml
 - name: Run GitHub File Sync
-  uses: BetaHuhn/repo-file-sync-action@v1
+  uses: cds-snc/repo-file-sync-action@main
   with:
-    GH_PAT: ${{ secrets.GH_PAT }}
+    GH_INSTALLATION_TOKEN: ${{ steps.generate_token.outputs.token }}
     PR_BODY: This is your custom PR Body
 ```
 
@@ -496,15 +451,15 @@ A fork of each target repository will be created on this account, and all change
 Note: while you can open pull requests to target repositories without write access, some features, like applying labels, are not possible.
 
 ```yml
-uses: BetaHuhn/repo-file-sync-action@v1
+uses: cds-snc/repo-file-sync-action@main
 with:
-    GH_PAT: ${{ secrets.GH_PAT }}
+    GH_INSTALLATION_TOKEN: ${{ steps.generate_token.outputs.token }}
     FORK: file-sync-bot
 ```
 
 ### Advanced sync config
 
-Here's how I keep common files in sync across my repositories. The main repository [`github-files`](https://github.com/BetaHuhn/github-files) contains all the files I want to sync and the [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) Action which runs on every push.
+Here's how I keep common files in sync across my repositories. The main repository should contains all the files I want to sync and the Action which runs on every push.
 
 Using groups I can specify which file(s) should be synced to which repositories:
 
@@ -519,27 +474,27 @@ group:
       - source: workflows/dependencies/dependabot.yml
         dest: .github/workflows/dependabot.yml
     repos: |
-      BetaHuhn/do-spaces-action
-      BetaHuhn/running-at
-      BetaHuhn/spaces-cli
-      BetaHuhn/metadata-scraper
-      BetaHuhn/ejs-serve
-      BetaHuhn/feedback-js
-      BetaHuhn/drkmd.js
+      cds-snc/do-spaces-action
+      cds-snc/running-at
+      cds-snc/spaces-cli
+      cds-snc/metadata-scraper
+      cds-snc/ejs-serve
+      cds-snc/feedback-js
+      cds-snc/drkmd.js
 
   # GitHub Sponsors config
   - files:
       - source: configs/FUNDING.yml
         dest: .github/FUNDING.yml
     repos: |
-      BetaHuhn/do-spaces-action
-      BetaHuhn/running-at
-      BetaHuhn/spaces-cli
-      BetaHuhn/qrgen
-      BetaHuhn/metadata-scraper
-      BetaHuhn/ejs-serve
-      BetaHuhn/feedback-js
-      BetaHuhn/drkmd.js
+      cds-snc/do-spaces-action
+      cds-snc/running-at
+      cds-snc/spaces-cli
+      cds-snc/qrgen
+      cds-snc/metadata-scraper
+      cds-snc/ejs-serve
+      cds-snc/feedback-js
+      cds-snc/drkmd.js
 
   # Semantic release
   - files:
@@ -550,51 +505,51 @@ group:
       - source: configs/release.config.js
         dest: release.config.js
     repos: |
-      BetaHuhn/do-spaces-action
-      BetaHuhn/metadata-scraper
-      BetaHuhn/feedback-js
-      BetaHuhn/drkmd.js
+      cds-snc/do-spaces-action
+      cds-snc/metadata-scraper
+      cds-snc/feedback-js
+      cds-snc/drkmd.js
 
   # Stale issues workflow
   - files:
       - source: workflows/issues/stale.yml
         dest: .github/workflows/stale.yml
     repos: |
-      BetaHuhn/do-spaces-action
-      BetaHuhn/running-at
-      BetaHuhn/spaces-cli
-      BetaHuhn/qrgen
-      BetaHuhn/metadata-scraper
-      BetaHuhn/ejs-serve
-      BetaHuhn/feedback-js
-      BetaHuhn/drkmd.js
+      cds-snc/do-spaces-action
+      cds-snc/running-at
+      cds-snc/spaces-cli
+      cds-snc/qrgen
+      cds-snc/metadata-scraper
+      cds-snc/ejs-serve
+      cds-snc/feedback-js
+      cds-snc/drkmd.js
 
   # Lint CI workflow
   - files:
       - source: workflows/node/lint.yml
         dest: .github/workflows/lint.yml
     repos: |
-      BetaHuhn/do-spaces-action
-      BetaHuhn/running-at
-      BetaHuhn/spaces-cli
-      BetaHuhn/metadata-scraper
-      BetaHuhn/ejs-serve
-      BetaHuhn/feedback-js
-      BetaHuhn/drkmd.js
+      cds-snc/do-spaces-action
+      cds-snc/running-at
+      cds-snc/spaces-cli
+      cds-snc/metadata-scraper
+      cds-snc/ejs-serve
+      cds-snc/feedback-js
+      cds-snc/drkmd.js
 
   # MIT License
   - files:
       - source: LICENSE
         dest: LICENSE
     repos: |
-      BetaHuhn/do-spaces-action
-      BetaHuhn/running-at
-      BetaHuhn/spaces-cli
-      BetaHuhn/qrgen
-      BetaHuhn/metadata-scraper
-      BetaHuhn/ejs-serve
-      BetaHuhn/feedback-js
-      BetaHuhn/drkmd.js
+      cds-snc/do-spaces-action
+      cds-snc/running-at
+      cds-snc/spaces-cli
+      cds-snc/qrgen
+      cds-snc/metadata-scraper
+      cds-snc/ejs-serve
+      cds-snc/feedback-js
+      cds-snc/drkmd.js
 ```
 
 ## 💻 Development
@@ -605,25 +560,17 @@ The actual source code of this library is in the `src` folder.
 
 - run `yarn lint` or `npm run lint` to run eslint.
 - run `yarn start` or `npm run start` to run the Action locally.
-- run `yarn build` or `npm run build` to produce a production version of [repo-file-sync-action](https://github.com/BetaHuhn/repo-file-sync-action) in the `dist` folder.
+- run `yarn build` or `npm run build` to produce a production version of the action in the `dist` folder.
 
-## ❔ About
-
-This project was developed by me ([@betahuhn](https://github.com/BetaHuhn)) in my free time. If you want to support me:
-
-[![Donate via PayPal](https://img.shields.io/badge/paypal-donate-009cde.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=394RTSBEEEFEE)
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/F1F81S2RK)
 
 ### Credits
 
 This Action was inspired by:
 
+- Inspired heavily and forked from his repo. ([@betahuhn](https://github.com/BetaHuhn)) 
 - [action-github-workflow-sync](https://github.com/varunsridharan/action-github-workflow-sync)
 - [files-sync-action](https://github.com/adrianjost/files-sync-action)
 
 ## 📄 License
-
-Copyright 2021 Maximilian Schiller
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

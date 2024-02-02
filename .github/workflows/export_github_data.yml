@@ -1,0 +1,19 @@
+name: GitHub repository metadata exporter
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * *"
+
+jobs:
+  export-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3ba5ee6fac7e0e30e2ea884e236f282d3a775891
+      - name: Export Data
+        uses: cds-snc/github-repository-metadata-exporter@main
+        with:
+          github-app-id: ${{ secrets.SRE_BOT_RO_APP_ID }}
+          github-app-installation-id: ${{ secrets.SRE_BOT_RO_INSTALLATION_ID }}
+          github-app-private-key: ${{ secrets.SRE_BOT_RO_PRIVATE_KEY }}
+          log-analytics-workspace-id: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+          log-analytics-workspace-key: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}

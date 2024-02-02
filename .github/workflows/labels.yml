@@ -1,0 +1,10 @@
+on: [issues, pull_request, workflow_dispatch]
+
+jobs:
+  sync-labels:
+    runs-on: ubuntu-latest
+    name: Sync repository labels
+    steps:
+      - uses: cds-snc/labels@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

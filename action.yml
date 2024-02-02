@@ -3,10 +3,6 @@ description: 'GitHub Action to Sync Files like Workflows Between Repositories.'
 author: 'BetaHuhn'
 
 inputs:
-  GH_PAT:
-    description: |
-      GitHub Personal Access Token to use to get repos and write secrets
-    required: false
   GH_INSTALLATION_TOKEN:
     description: |
       GitHub App Installation Token to used to access repos

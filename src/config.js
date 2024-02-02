@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import * as yaml from 'js-yaml'
-import * as fs from 'fs-extra'
+import fs from 'fs-extra'
 import * as path from 'path'
 import { getInput } from 'action-input-parser'
 
@@ -13,19 +13,15 @@ let context
 try {
 
 	let isInstallationToken = false
-	let token = getInput({
-		key: 'GH_PAT'
-	})
+	let token = ''
 
+	token = getInput({
+		key: 'GH_INSTALLATION_TOKEN'
+	})
+	isInstallationToken = true
 	if (!token) {
-		token = getInput({
-			key: 'GH_INSTALLATION_TOKEN'
-		})
-		isInstallationToken = true
-		if (!token) {
-			core.setFailed('You must provide either GH_PAT or GH_INSTALLATION_TOKEN')
-			process.exit(1)
-		}
+		core.setFailed('You must provide either GH_PAT or GH_INSTALLATION_TOKEN')
+		process.exit(1)
 	}
 
 	context = {

@@ -1,0 +1,47 @@
+name: Scorecards supply-chain security
+on:
+  workflow_dispatch:
+  schedule:
+    # Weekly on Saturdays.
+    - cron: "30 1 * * 6"
+  push:
+    branches:
+      - main
+
+permissions: read-all
+
+jobs:
+  analysis:
+    name: Scorecards analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+        with:
+          persist-credentials: false
+
+      - name: "Run analysis"
+        uses: ossf/scorecard-action@bfa3f0d2c52a31cf9f6bc003e1f15e8b99640aec
+        with:
+          results_file: ossf-results.json
+          results_format: json
+          publish_results: false
+
+      - name: "Add metadata"
+        run: |
+          full_repo="${{ github.repository }}"
+          OWNER=${full_repo%/*}
+          REPO=${full_repo#*/}
+          jq -c '. + {"metadata_owner": "'$OWNER'", "metadata_repo": "'$REPO'", "metadata_query": "ossf"}' ossf-results.json > ossf-results-modified.json
+
+      - name: "Post results to Sentinel"
+        uses: cds-snc/sentinel-forward-data-action@main
+        with:
+          file_name: ossf-results-modified.json
+          log_type: GitHubMetadata_OSSF_Scorecard
+          log_analytics_workspace_id: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+          log_analytics_workspace_key: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
