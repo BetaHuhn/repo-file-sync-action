@@ -1,0 +1,32 @@
+name: Dependabot opened PR
+on:
+  pull_request:
+    types: [opened, reopened]
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Print GitHub context
+        run: echo "$GITHUB_CONTEXT"
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+      - name: Post PR to \#dev-pr webhook
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          # For posting a rich message using Block Kit
+          payload: |
+            {
+              "text": "Dependabot opened new PR: <${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Dependabot opened new PR: <${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_DEV_PR }}
