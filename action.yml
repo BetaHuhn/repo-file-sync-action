@@ -12,10 +12,10 @@ inputs:
       GitHub App Installation Token to used to access repos
     required: false
   CONFIG_PATH:
-    description: | 
+    description: |
       The path for the sync configuration file
     required: false
-  IS_FINE_GRAINED: 
+  IS_FINE_GRAINED:
     description: |
       Label GH_PAT as a fine grained token
     required: false
@@ -102,7 +102,7 @@ outputs:
     description: 'The URLs to the created Pull Requests as an array'
 
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
 
 branding:
