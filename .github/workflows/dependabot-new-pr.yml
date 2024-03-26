@@ -1,46 +1,46 @@
-name: Dependabot opened PR
+name: Debug
 on:
   pull_request:
-    types: [opened, reopened]
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
     steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: |
+            echo "$GITHUB_CONTEXT"
       - name: Post PR to \#dev-pr webhook
         uses: slackapi/slack-github-action@v1.25.0
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_DEV_PR }}        
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_X_JOBS_DEV }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
         with:
           # For posting a rich message using Block Kit
           payload: |
             {
-              "text": "Dependabot opened new PR: <${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "Dependabot opened a new PR: *<${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>*"
-                  }
-                },
-                {
-                  "type": "section",
-                  "fields": [
+               "attachments": [
                     {
-                      "type": "mrkdwn",
-                      "text": "*repository*"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": " "
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "${{ github.event.pull_request.name }}"
+                        "mrkdwn_in": ["text"],
+                        "color": "#3679a6",
+                        "pretext": "Dependabot opened new PR: ",
+                        "author_name": "Dependabot 🤖",
+                        "author_link": " ",
+                        "author_icon": "https://placeimg.com/16/16/people",
+                        "title": "${{ github.event.pull_request.title }}",
+                        "title_link": "${{ github.event.pull_request.html_url }}",
+                        "fields":
+                        [
+                            {
+                                "title": "repository",
+                                "value": "${{ github.event.pull_request.head.repo.name }} ",
+                                "short": false
+                            }
+                        ],
+                        "thumb_url": "http://placekitten.com/g/200/200",
+                        "footer": "footer",
+                        "footer_icon": "https://platform.slack-edge.com/img/default_application_icon.png",
+                        "ts": 123456789
                     }
                   ]
-                }
-              ]
             }
-
