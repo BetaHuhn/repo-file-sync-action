@@ -26,7 +26,7 @@ jobs:
                         "pretext": "Dependabot opened new PR: ",
                         "author_name": "Dependabot 🤖",
                         "author_link": " ",
-                        "author_icon": "https://placeimg.com/16/16/people",
+                        "author_icon": "https://manage.cove.is/imgs/favicon.png",
                         "title": "${{ github.event.pull_request.title }}",
                         "title_link": "${{ github.event.pull_request.html_url }}",
                         "fields":
