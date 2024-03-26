@@ -1,9 +1,13 @@
 name: Debug
 on:
   pull_request:
+    types:
+     - opened
+     - reopened
 jobs:
   dependabot:
     runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
     steps:
       - name: Post PR to \#dev-pr webhook
         uses: slackapi/slack-github-action@v1.25.0
