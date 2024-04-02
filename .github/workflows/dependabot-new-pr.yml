@@ -1,4 +1,4 @@
-name: Debug
+name: Dependabot New PR
 on:
   pull_request:
     types:
@@ -9,13 +9,20 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
     steps:
+      - uses: actions/checkout@v4
+      - name: read maintainers.json
+        id: read-maintainers
+        # reads maintainers array and map them to their slack userIds "mentions" (see slack api https://api.slack.com/reference/surfaces/formatting#mentioning-users)
+        run: |
+          echo "maintainers=$(cat maintainers.json | jq '.[] | to_entries | .[].value' | jq --slurp -r '. | join(" ")')" >> "$GITHUB_OUTPUT"
       - name: Post PR to \#dev-pr webhook
+        if: always() # continue even if read-maintainers failed for some reason
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_DEV_PR }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+          MAINTAINERS: ${{ steps.read-maintainers.outputs.maintainers }}
         with:
-          # For posting a rich message using Block Kit
           payload: |
             {
                "attachments": [
@@ -34,6 +41,11 @@ jobs:
                                 "title": "repository",
                                 "value": "${{ github.event.pull_request.head.repo.name }} ",
                                 "short": false
+                            },
+                            {
+                                "title": "maintainers",
+                                "value": "${{ env.MAINTAINERS || 'no one' }}",
+                                "short": true
                             }
                         ],
                         "thumb_url": "https://manage.cove.is/imgs/favicon.png",
@@ -43,3 +55,13 @@ jobs:
                     }
                   ]
             }
+  #############################################
+  notify-all:
+  #############################################
+      uses: livelyhood/cove-workflows/.github/workflows/notify.yml@main
+      needs:
+        - dependabot
+      if: ${{ always() && contains(needs.*.result, 'failure') }}
+      secrets: inherit
+      with:
+        failure: true
