@@ -1,0 +1,97 @@
+name: 'Dependabot Check for Vulnerabilities'
+on:
+  schedule:
+    - cron: '0 15 * * 1-5' #UTC  todo: change once it's proven to work
+  workflow_dispatch:
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: read maintainers.json
+        id: read-maintainers
+        # reads maintainers array and map them to their slack userIds "mentions" (see slack api https://api.slack.com/reference/surfaces/formatting#mentioning-users)
+        run: |
+          echo "maintainers=$(cat maintainers.json | jq '.[] | to_entries | .[].value' | jq --slurp -r '. | join(" ")')" >> "$GITHUB_OUTPUT"
+      - name: query open vulnerability alerts
+        id: list-vulnerabilities
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.ADMIN_TOKEN_FOR_GITHUB_ACTIONS }}
+          script: |
+            const { repo: { owner, repo } } = context;
+
+            const { data } = await github.rest.dependabot.listAlertsForRepo({
+              owner,
+              repo,
+              state: 'open'
+            });
+
+            const vulnerabilities = data.map((vulnerability)=> ({
+              package: vulnerability.dependency.package.name,
+              severity: vulnerability.security_vulnerability.severity,
+              url: vulnerability.html_url,
+            }));
+
+            const sortedVulnerabilities = vulnerabilities.sort((a,b) => {
+              const severityOrder = ['critical', 'high', 'medium', 'low'];
+              const aIndex = severityOrder.indexOf(a.severity);
+              const bIndex = severityOrder.indexOf(b.severity);
+              return aIndex-bIndex
+            });
+
+            const messages = sortedVulnerabilities.map(({ package, severity, url })=> ({
+              title: `${package} (${severity})`,
+              value: url,
+              short: false
+            }));
+
+            console.log({ messages });
+            return messages;
+      - name: count open vulnerability alerts
+        id: count-vulnerabilities
+        env:
+          VULNERABILITIES: ${{ steps.list-vulnerabilities.outputs.result }}
+        run: |
+          COUNT=$(echo "${VULNERABILITIES}" | jq '. | length')
+          echo "count=${COUNT}" >> "${GITHUB_OUTPUT}"
+      - name: 'Post PR to #alerts-vulnerabilities'
+        if: ${{ steps.count-vulnerabilities.outputs.count > 0 }}
+        uses: slackapi/slack-github-action@v1.25.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          TITLE: ${{ format('Open vulnerabilities in {0}{1} {2}', github.event.repository.name, ':', steps.read-maintainers.outputs.maintainers) }}
+          TITLE_LINK: ${{ format('{0}/security/dependabot', github.event.repository.html_url) }}
+          VULNERABILITIES: ${{ steps.list-vulnerabilities.outputs.result }}
+        with:
+          channel-id: C06U7QP8VTN # alerts-vulnerabilities
+          payload: |
+            {
+               "attachments": [
+                    {
+                        "mrkdwn_in": ["fields"],
+                        "color": "#3679a6",
+                        "author_name": "Dependabot 🤖",
+                        "author_link": " ",
+                        "author_icon": "https://manage.cove.is/imgs/favicon.png",
+                        "title": "${{ env.TITLE }}",
+                        "title_link": "${{ env.TITLE_LINK }}",
+                        "fields": ${{ env.VULNERABILITIES }},
+                        "thumb_url": "https://manage.cove.is/imgs/favicon.png",
+                        "footer": " ",
+                        "footer_icon": "https://manage.cove.is/imgs/favicon.png",
+                        "ts": 123456789
+                    }
+                  ]
+            }
+  #############################################
+  notify-all:
+  #############################################
+      uses: livelyhood/cove-workflows/.github/workflows/notify.yml@main
+      needs:
+        - dependabot
+      if: ${{ always() && contains(needs.*.result, 'failure') }}
+      secrets: inherit
+      with:
+        failure: true
