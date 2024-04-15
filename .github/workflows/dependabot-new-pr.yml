@@ -15,14 +15,14 @@ jobs:
         # reads maintainers array and map them to their slack userIds "mentions" (see slack api https://api.slack.com/reference/surfaces/formatting#mentioning-users)
         run: |
           echo "maintainers=$(cat maintainers.json | jq '.[] | to_entries | .[].value' | jq --slurp -r '. | join(" ")')" >> "$GITHUB_OUTPUT"
-      - name: Post PR to \#dev-pr webhook
+      - name: 'Post PR to #dev-pr'
         if: always() # continue even if read-maintainers failed for some reason
         uses: slackapi/slack-github-action@v1.25.0
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_DEV_PR }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           MAINTAINERS: ${{ steps.read-maintainers.outputs.maintainers }}
         with:
+          channel-id: C0399MY1YKW # dev-pr channel
           payload: |
             {
                "attachments": [
