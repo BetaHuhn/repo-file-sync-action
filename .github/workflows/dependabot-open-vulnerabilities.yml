@@ -8,7 +8,17 @@ jobs:
   dependabot:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: check out current repositories
+        # to read maintainers.json
+        uses: actions/checkout@v4
+      - name: check out cove-workflows
+        # this is necessary because this workflow gets synced to other repos
+        uses: actions/checkout@v4
+        with:
+          repository: livelyhood/cove-workflows
+          ref: ${{ (github.repository == 'livelyhood/cove-workflows' && github.ref) || 'main' }} # IF the this workflow was called from this repo THEN checkout the current github.ref ELSE use main
+          path: ./cove-workflows
+          token: ${{ secrets.ADMIN_TOKEN_FOR_GITHUB_ACTIONS }}
       - name: read maintainers.json
         id: read-maintainers
         # reads maintainers array and map them to their slack userIds "mentions" (see slack api https://api.slack.com/reference/surfaces/formatting#mentioning-users)
@@ -20,7 +30,7 @@ jobs:
         with:
           github-token: ${{ secrets.ADMIN_TOKEN_FOR_GITHUB_ACTIONS }}
           script: |
-            const script = require('./src/scripts/dependabot-open-vulnerabilities.js');
+            const script = require('./cove-workflows/src/scripts/dependabot-open-vulnerabilities.js');
             return await script({github, context, core});
       - name: count open vulnerability alerts
         id: count-vulnerabilities
