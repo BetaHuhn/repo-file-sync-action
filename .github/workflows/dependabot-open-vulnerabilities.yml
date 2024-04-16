@@ -20,35 +20,8 @@ jobs:
         with:
           github-token: ${{ secrets.ADMIN_TOKEN_FOR_GITHUB_ACTIONS }}
           script: |
-            const { repo: { owner, repo } } = context;
-
-            const { data } = await github.rest.dependabot.listAlertsForRepo({
-              owner,
-              repo,
-              state: 'open'
-            });
-
-            const vulnerabilities = data.map((vulnerability)=> ({
-              package: vulnerability.dependency.package.name,
-              severity: vulnerability.security_vulnerability.severity,
-              url: vulnerability.html_url,
-            }));
-
-            const sortedVulnerabilities = vulnerabilities.sort((a,b) => {
-              const severityOrder = ['critical', 'high', 'medium', 'low'];
-              const aIndex = severityOrder.indexOf(a.severity);
-              const bIndex = severityOrder.indexOf(b.severity);
-              return aIndex-bIndex
-            });
-
-            const messages = sortedVulnerabilities.map(({ package, severity, url })=> ({
-              title: `${package} (${severity})`,
-              value: url,
-              short: false
-            }));
-
-            console.log({ messages });
-            return messages;
+            const script = require('./src/scripts/dependabot-open-vulnerabilities.js');
+            return await script({github, context, core});
       - name: count open vulnerability alerts
         id: count-vulnerabilities
         env:
