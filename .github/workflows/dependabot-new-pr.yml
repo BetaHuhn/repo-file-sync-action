@@ -14,6 +14,7 @@ jobs:
         id: read-maintainers
         # reads maintainers array and map them to their slack userIds "mentions" (see slack api https://api.slack.com/reference/surfaces/formatting#mentioning-users)
         run: |
+          # shellcheck disable=SC2002
           echo "maintainers=$(cat maintainers.json | jq '.[] | to_entries | .[].value' | jq --slurp -r '. | join(" ")')" >> "$GITHUB_OUTPUT"
       - name: 'Post PR to #dev-pr'
         if: always() # continue even if read-maintainers failed for some reason
