@@ -102,7 +102,7 @@ outputs:
     description: 'The URLs to the created Pull Requests as an array'
 
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
 
 branding:
