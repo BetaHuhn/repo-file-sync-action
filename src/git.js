@@ -131,19 +131,41 @@ export default class Git {
 		const prefix = BRANCH_PREFIX.replace('SOURCE_REPO_NAME', GITHUB_REPOSITORY.split('/')[1])
 
 		let newBranch = path.join(prefix, this.repo.branch).replace(/\\/g, '/').replace(/\/\./g, '/')
+		this.prBranch = newBranch
 
 		if (OVERWRITE_EXISTING_PR === false) {
 			newBranch += `-${ Math.round((new Date()).getTime() / 1000) }`
+			this.prBranch = newBranch
+
+			core.debug(`Creating PR Branch ${ newBranch }`)
+
+			await execCmd(
+				`git switch -b "${ newBranch }"`,
+				this.workingDir
+			)
+
+			return
 		}
 
-		core.debug(`Creating PR Branch ${ newBranch }`)
+		core.debug(`Switch/Create PR Branch ${ newBranch }`)
 
 		await execCmd(
-			`git checkout -b "${ newBranch }"`,
+			`git remote set-branches origin '*'`,
 			this.workingDir
 		)
 
-		this.prBranch = newBranch
+		await execCmd(
+			`git fetch -v --depth=1`,
+			this.workingDir
+		)
+
+		await execCmd(
+			`git switch "${ newBranch }" 2>/dev/null || git switch -c "${ newBranch }"`,
+			this.workingDir
+		)
+
+		await this.getLastCommitSha()
+
 	}
 
 	async add(file) {
@@ -304,7 +326,7 @@ export default class Git {
 	// Gets the commit list in chronological order
 	async getCommitsToPush() {
 		const output = await execCmd(
-			`git log --format=%H --reverse ${ SKIP_PR === false ? `` : `origin/` }${ this.baseBranch }..HEAD`,
+			`git log --format=%H --reverse ${ this.lastCommitSha }..HEAD`,
 			this.workingDir
 		)
 
@@ -321,7 +343,7 @@ export default class Git {
 
 	// A wrapper for running all the flow to generate all the pending commits using the GitHub API
 	async createGithubVerifiedCommits() {
-		core.debug(`Creating Commits using GitHub API`)
+		core.debug(`Creating commits using GitHub API`)
 		const commits = await this.getCommitsToPush()
 
 		if (SKIP_PR === false) {
@@ -338,6 +360,8 @@ export default class Git {
 			} catch (error) {
 				// If the branch exists ignores the error
 				if (error.message !== 'Reference already exists') throw error
+
+				core.debug(`Branch ${ this.prBranch } already exists`)
 			}
 		}
 
@@ -366,7 +390,7 @@ export default class Git {
 	async push() {
 		if (FORK) {
 			return execCmd(
-				`git push -u fork ${ this.prBranch } --force`,
+				`git push -u fork ${ this.prBranch } --force-with-lease`,
 				this.workingDir
 			)
 		}
@@ -374,7 +398,7 @@ export default class Git {
 			return await this.createGithubVerifiedCommits()
 		}
 		return execCmd(
-			`git push ${ this.gitUrl } --force`,
+			`git push ${ this.gitUrl } --force-with-lease`,
 			this.workingDir
 		)
 	}
@@ -428,7 +452,7 @@ export default class Git {
 		`)
 
 		if (this.existingPr) {
-			core.info(`Overwriting existing PR`)
+			core.info(`Updating existing PR`)
 
 			const { data } = await this.github.pulls.update({
 				owner: this.repo.user,
