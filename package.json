@@ -35,7 +35,7 @@
     "action-input-parser": "^1.2.33",
     "fs-extra": "^10.1.0",
     "js-yaml": "^4.1.0",
-    "node-readfiles": "0.2.0",
+    "node-readfiles": "0.3.1",
     "nunjucks": "^3.2.3"
   },
   "devDependencies": {
