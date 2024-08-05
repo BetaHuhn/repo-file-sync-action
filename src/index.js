@@ -31,6 +31,7 @@ async function run() {
 
 	const prUrls = []
 
+	const modifiedFiles = []
 	await forEach(repos, async (item) => {
 		core.info(`Repository Info`)
 		core.info(`Slug		: ${ item.repo.name }`)
@@ -111,6 +112,8 @@ async function run() {
 						useOriginalMessage: useOriginalCommitMessage,
 						commitMessage: message[destExists].commit
 					})
+
+					modifiedFiles.push(dest)
 				}
 			})
 
@@ -200,7 +203,11 @@ async function run() {
 			core.setFailed(err.message)
 			core.debug(err)
 		}
+
 	})
+
+	core.setOutput('modified_files', modifiedFiles)
+	core.debug('Modified files: ' + modifiedFiles)
 
 	// If we created any PRs, set their URLs as the output
 	if (prUrls) {

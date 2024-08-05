@@ -131,6 +131,7 @@ Here are all the inputs [repo-file-sync-action](https://github.com/BetaHuhn/repo
 ### Outputs
 
 The action sets the `pull_request_urls` output to the URLs of any created Pull Requests. It will be an array of URLs to each PR, e.g. `'["https://github.com/username/repository/pull/number", "..."]'`.
+A `modified_files` array consisting of absolute paths to all modified/rendered files is also exported, which could be used for further validation or post-processing. e.g. `["tmp/github.com/my-org/my-repo@default/.github/workflows/build.yaml"]`
 
 ## 🛠️ Sync Configuration
 
