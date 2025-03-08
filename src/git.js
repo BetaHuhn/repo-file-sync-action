@@ -153,6 +153,13 @@ export default class Git {
 		)
 	}
 
+	async remove(file) {
+		return execCmd(
+			`git rm -f "${ file }"`,
+			this.workingDir
+		)
+	}
+
 	isOneCommitPush() {
 		return github.context.eventName === 'push' && github.context.payload.commits.length === 1
 	}

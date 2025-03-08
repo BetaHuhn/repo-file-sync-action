@@ -255,7 +255,9 @@ This is some content
 
 ### Delete orphaned files
 
-With the `deleteOrphaned` option you can choose to delete files in the target repository if they are deleted in the source repository. The option defaults to `false` and only works when [syncing entire directories](#sync-entire-directories):
+With the `deleteOrphaned` option you can choose to delete files in the target repository if they are deleted in the 
+source repository. The option defaults to `false` works either when [syncing entire directories](#sync-entire-directories), or specific
+files:
 
 ```yml
 user/repo:
@@ -263,8 +265,6 @@ user/repo:
     dest: .github/workflows/
     deleteOrphaned: true
 ```
-
-It only takes effect on that specific directory.
 
 ### Sync the same files to multiple repositories
 

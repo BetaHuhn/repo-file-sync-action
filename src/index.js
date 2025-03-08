@@ -61,22 +61,36 @@ async function run() {
 			// Loop through all selected files of the source repo
 			await forEach(item.files, async (file) => {
 				const fileExists = fs.existsSync(file.source)
-				if (fileExists === false) return core.warning(`Source ${ file.source } not found`)
 
 				const localDestination = `${ git.workingDir }/${ file.dest }`
-
 				const destExists = fs.existsSync(localDestination)
-				if (destExists === true && file.replace === false) return core.warning(`File(s) already exist(s) in destination and 'replace' option is set to false`)
+				let isDirectory
 
-				const isDirectory = await pathIsDirectory(file.source)
-				const source = isDirectory ? `${ addTrailingSlash(file.source) }` : file.source
-				const dest = isDirectory ? `${ addTrailingSlash(localDestination) }` : localDestination
+				if (fileExists === false) {
+					// if there is no local file, then we assume it's not a directory
+					isDirectory = false
 
-				if (isDirectory) core.info(`Source is directory`)
+					if (!file.deleteOrphaned) {
+						return core.warning(`Source ${ file.source } not found`)
+					}
 
-				await copy(source, dest, isDirectory, file)
+					if (destExists === true) {
+						await git.remove(file.dest)
+					}
+				} else {
+					isDirectory = await pathIsDirectory(file.source)
 
-				await git.add(file.dest)
+					if (destExists === true && file.replace === false) return core.warning(`File(s) already exist(s) in destination and 'replace' option is set to false`)
+
+					const source = isDirectory ? `${ addTrailingSlash(file.source) }` : file.source
+					const dest = isDirectory ? `${ addTrailingSlash(localDestination) }` : localDestination
+
+					if (isDirectory) core.info(`Source is directory`)
+
+					await copy(source, dest, isDirectory, file)
+
+					await git.add(file.dest)
+				}
 
 				// Commit each file separately, if option is set to false commit all files at once later
 				if (COMMIT_EACH_FILE === true) {
