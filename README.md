@@ -305,6 +305,23 @@ group:
       user/repo4
 ```
 
+### Group-level reviewers
+
+You can specify reviewers at the group level to override the global reviewers setting for specific groups:
+
+```yml
+group:
+  repos: |
+    lemonade-hq/partners-platform
+  files:
+    - source: rules/
+      dest: .cursor/rules/
+  reviewers: 
+    - shaharkedar
+```
+
+This will automatically request a review from the specified users when PRs are created for repositories in this group, overriding any global `REVIEWERS` setting.
+
 ### Syncing branches
 
 You can also sync different branches from the same or different repositories (#51). For example, a repository named `foo/bar` with branch `main`, and `sync.yml` contents:

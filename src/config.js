@@ -225,7 +225,8 @@ export async function parseConfig() {
 
 					result[repo.uniqueName] = {
 						repo,
-						files
+						files,
+						reviewers: group.reviewers
 					}
 				})
 			})

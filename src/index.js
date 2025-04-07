@@ -184,9 +184,10 @@ async function run() {
 					await git.addPrAssignees(ASSIGNEES)
 				}
 
-				if (REVIEWERS !== undefined && REVIEWERS.length > 0 && !FORK) {
-					core.info(`Adding reviewer(s) "${ REVIEWERS.join(', ') }" to PR`)
-					await git.addPrReviewers(REVIEWERS)
+				const itemReviewers = item.reviewers || REVIEWERS
+				if (itemReviewers !== undefined && itemReviewers.length > 0 && !FORK) {
+					core.info(`Adding reviewer(s) "${ itemReviewers.join(', ') }" to PR`)
+					await git.addPrReviewers(itemReviewers)
 				}
 
 				if (TEAM_REVIEWERS !== undefined && TEAM_REVIEWERS.length > 0 && !FORK) {
