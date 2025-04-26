@@ -140,8 +140,16 @@ export async function copy(src, dest, isDirectory, file) {
 		const srcFileList = await readfiles(src, { readContents: false, hidden: true })
 		const destFileList = await readfiles(dest, { readContents: false, hidden: true })
 
+		let skipGitDir = false
+
 		for (const destFile of destFileList) {
-			if (destFile.startsWith('.git')) return
+			if (destFile.startsWith(`.git${ path.sep }`)) {
+				if (!skipGitDir) {
+					core.debug('Skipping files under .git directory')
+					skipGitDir = true
+				}
+				continue
+			}
 			if (srcFileList.indexOf(destFile) === -1) {
 				const filePath = path.join(dest, destFile)
 				core.debug(`Found an orphaned file in the target repo - ${ filePath }`)
