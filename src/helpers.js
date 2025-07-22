@@ -81,30 +81,74 @@ export async function copy(src, dest, isDirectory, file) {
 	const deleteOrphaned = isDirectory && file.deleteOrphaned
 	const exclude = file.exclude
 
-	const filterFunc = (file) => {
+	const filterFunc = (srcFile, destFile) => {
+		core.debug(`Filtering file ${ srcFile } to ${ destFile }`)
+		if (file.replace === false) {
+			// Directories are always copied
+			try {
+				if (fs.lstatSync(destFile).isDirectory()) {
+					core.debug(`Dest File ${ destFile } already exists and is a directory`)
+					return true
+				}
+			} catch (error) {
+				core.debug(`Destination file or directory ${ destFile } does not exist`)
+				return true
+			}
+
+			if (fs.existsSync(destFile)) {
+				core.debug(`File ${ destFile } already exists and 'replace' option is set to false`)
+				return false
+			}
+		}
 
 		if (exclude !== undefined) {
 
 			// Check if file-path is one of the present filepaths in the excluded paths
 			// This has presedence over the single file, and therefore returns before the single file check
 			let filePath = ''
-			if (file.endsWith('/')) {
+			if (srcFile.endsWith('/')) {
 				// File item is a folder
-				filePath = file
+				filePath = srcFile
 			} else {
 				// File item is a file
-				filePath = file.split('\/').slice(0, -1).join('/') + '/'
+				filePath = srcFile.split('\/').slice(0, -1).join('/') + '/'
 			}
 
 			if (exclude.includes(filePath)) {
-				core.debug(`Excluding file ${ file } since its path is included as one of the excluded paths.`)
+				core.debug(`Excluding file ${ srcFile } since its path is included as one of the excluded paths.`)
 				return false
 			}
 
 
 			// Or if the file itself is in the excluded files
-			if (exclude.includes(file)) {
-				core.debug(`Excluding file ${ file } since it is explicitly added in the exclusion list.`)
+			if (exclude.includes(srcFile)) {
+				core.debug(`Excluding file ${ srcFile } since it is explicitly added in the exclusion list.`)
+				return false
+			}
+		}
+
+		// Check if the file matches any of the excludeFilePatterns
+		if (file.excludeFilePatterns.length > 0) {
+			for (const pattern of file.excludeFilePatterns) {
+				if (srcFile.match(pattern)) {
+					core.debug(`Excluding file ${ srcFile } since it matches the excludeFilePattern ${ pattern }.`)
+					return false
+				}
+			}
+		}
+
+		// Check if the file matches any of the includeFilePatterns
+		if (file.includeFilePatterns.length > 0) {
+			let matches = false
+			for (const pattern of file.includeFilePatterns) {
+				if (srcFile.match(pattern)) {
+					matches = true
+					break
+				}
+			}
+
+			if (!matches) {
+				core.debug(`Excluding file ${ srcFile } since it does not match any of the includeFilePatterns.`)
 				return false
 			}
 		}
@@ -130,7 +174,7 @@ export async function copy(src, dest, isDirectory, file) {
 		}
 	} else {
 		core.debug(`Copy ${ src } to ${ dest }`)
-		await fs.copy(src, dest, file.exclude !== undefined && { filter: filterFunc })
+		await fs.copy(src, dest,{ filter: filterFunc })
 	}
 
 

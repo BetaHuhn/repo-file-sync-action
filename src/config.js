@@ -190,6 +190,8 @@ const parseFiles = (files) => {
 				template: item.template === undefined ? TEMPLATE_DEFAULT : item.template,
 				replace: item.replace === undefined ? REPLACE_DEFAULT : item.replace,
 				deleteOrphaned: item.deleteOrphaned === undefined ? DELETE_ORPHANED_DEFAULT : item.deleteOrphaned,
+				excludeFilePatterns: item.excludeFilePatterns === undefined ? [] : item.excludeFilePatterns,
+				includeFilePatterns: item.includeFilePatterns === undefined ? [] : item.includeFilePatterns,
 				exclude: parseExclude(item.exclude, item.source)
 			}
 		}

@@ -195,6 +195,29 @@ user/repo:
 
 > **Note:** the exclude file path is relative to the source path
 
+### Include files that match a specific pattern
+
+Using the includeFilePatterns you can filter the list of files that are synchronized to those that match the regex:
+
+```yml
+user/repo:
+  - source: workflows
+    dest: .github/workflows/
+    includeFilePatterns: "*.yml"
+```
+
+### Exclude files that match a specific pattern
+
+
+Using the excludeFilePatterns you can filter out the list of files that are synchronized to those that match the regex:
+
+```yml
+user/repo:
+  - source: workflows
+    dest: .github/workflows/
+    excludeFilePatterns: "*.md"
+```
+
 ### Don't replace existing file(s)
 
 By default if a file already exists in the target repository, it will be replaced. You can change this behaviour by setting the `replace` option to `false`:
