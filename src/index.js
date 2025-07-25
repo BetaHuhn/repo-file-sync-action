@@ -45,7 +45,7 @@ async function run() {
 
 			let existingPr
 			if (SKIP_PR === false) {
-				await git.createPrBranch()
+				await git.createPrBranch(item.branchSuffix)
 
 				// Check for existing PR and add warning message that the PR maybe about to change
 				existingPr = OVERWRITE_EXISTING_PR ? await git.findExistingPr() : undefined

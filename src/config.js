@@ -197,7 +197,8 @@ const parseFiles = (files) => {
 				deleteOrphaned: item.deleteOrphaned === undefined ? DELETE_ORPHANED_DEFAULT : item.deleteOrphaned,
 				excludeFilePatterns: item.excludeFilePatterns === undefined ? [] : item.excludeFilePatterns,
 				includeFilePatterns: item.includeFilePatterns === undefined ? [] : item.includeFilePatterns,
-				exclude: parseExclude(item.exclude, item.source)
+				exclude: parseExclude(item.exclude, item.source),
+				branchSuffix: item.branchSuffix || ''
 			}
 		}
 
