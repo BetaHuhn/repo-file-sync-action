@@ -62,6 +62,7 @@ export default class Git {
 		this.workingDir = path.join(TMP_DIR, repo.uniqueName)
 		this.gitUrl = `https://${ IS_INSTALLATION_TOKEN ? 'x-access-token:' : '' }${ IS_FINE_GRAINED ? 'oauth:' : '' }${ GITHUB_TOKEN }@${ repo.fullName }.git`
 
+        await this.cleanupRepo(repo)
 		await this.clone()
 		await this.setIdentity()
 		await this.getBaseBranch()
