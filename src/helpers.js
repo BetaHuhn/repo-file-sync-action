@@ -81,32 +81,21 @@ export async function copy(src, dest, isDirectory, file) {
 	const deleteOrphaned = isDirectory && file.deleteOrphaned
 	const exclude = file.exclude
 
+	// Exclude entries are stored as `path.join(src, entry)` (see parseExclude), so `file` must be passed in the same form.
+	// An entry ending in `/` excludes the folder and everything below it, at any depth.
+	const isExcluded = (file) => {
+		const normalized = path.normalize(file)
+		return exclude.some((entry) =>
+			normalized === entry ||
+			addTrailingSlash(normalized) === entry ||
+			(entry.endsWith('/') && normalized.startsWith(entry))
+		)
+	}
+
 	const filterFunc = (file) => {
-
-		if (exclude !== undefined) {
-
-			// Check if file-path is one of the present filepaths in the excluded paths
-			// This has presedence over the single file, and therefore returns before the single file check
-			let filePath = ''
-			if (file.endsWith('/')) {
-				// File item is a folder
-				filePath = file
-			} else {
-				// File item is a file
-				filePath = file.split('\/').slice(0, -1).join('/') + '/'
-			}
-
-			if (exclude.includes(filePath)) {
-				core.debug(`Excluding file ${ file } since its path is included as one of the excluded paths.`)
-				return false
-			}
-
-
-			// Or if the file itself is in the excluded files
-			if (exclude.includes(file)) {
-				core.debug(`Excluding file ${ file } since it is explicitly added in the exclusion list.`)
-				return false
-			}
+		if (exclude !== undefined && isExcluded(file)) {
+			core.debug(`Excluding file ${ file } since it or one of its parent folders is in the exclusion list.`)
+			return false
 		}
 		return true
 	}
@@ -117,7 +106,8 @@ export async function copy(src, dest, isDirectory, file) {
 
 			const srcFileList = await readfiles(src, { readContents: false, hidden: true })
 			for (const srcFile of srcFileList) {
-				if (!filterFunc(srcFile)) { continue }
+				// readfiles returns paths relative to src, while exclude entries include src
+				if (!filterFunc(path.join(src, srcFile))) { continue }
 
 				const srcPath = path.join(src, srcFile)
 				const destPath = path.join(dest, srcFile)
@@ -146,7 +136,7 @@ export async function copy(src, dest, isDirectory, file) {
 				const filePath = path.join(dest, destFile)
 				core.debug(`Found an orphaned file in the target repo - ${ filePath }`)
 
-				if (file.exclude !== undefined && file.exclude.includes(path.join(src, destFile))) {
+				if (exclude !== undefined && isExcluded(path.join(src, destFile))) {
 					core.debug(`Excluding file ${ destFile }`)
 				} else {
 					core.debug(`Removing file ${ destFile }`)
